@@ -1,0 +1,85 @@
+/*
+ * Copyright (c) 2017, Wen Xiongchang <udc577 at 126 dot com>
+ * All rights reserved.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any
+ * damages arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any
+ * purpose, including commercial applications, and to alter it and
+ * redistribute it freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must
+ * not claim that you wrote the original software. If you use this
+ * software in a product, an acknowledgment in the product documentation
+ * would be appreciated but is not required.
+ *
+ * 2. Altered source versions must be plainly marked as such, and
+ * must not be misrepresented as being the original software.
+ *
+ * 3. This notice may not be removed or altered from any source
+ * distribution.
+ */
+
+// NOTE: The original author also use (short/code) names listed below,
+//       for convenience or for a certain purpose, at different places:
+//       wenxiongchang, wxc, Damon Wen, udc577
+
+/*
+ * basic_info.h
+ *
+ *  Created on: 2017-09-10
+ *      Author: wenxiongchang
+ * Description: Basic info of cpp-assistant library.
+ */
+
+#ifndef __CPP_ASSISTANT_BASIC_INFO_H__
+#define __CPP_ASSISTANT_BASIC_INFO_H__
+
+#define CPP_ASSISTANT_NAME                          "cpp-assistant"
+#define CPP_ASSISTANT_LIB_NAME                      "cpp-assistant library"
+
+#define CA_LIB_NAMESPACE_STR                        "cal"
+#define CA_LIB_NAMESPACE                            cal
+#define CA_LIB_NAMESPACE_BEGIN                      namespace cal {
+#define CA_LIB_NAMESPACE_END                        }
+
+#ifdef CA_THREAD_SAFE
+#undef CA_THREAD_SAFE
+#endif
+#define CA_THREAD_SAFE
+
+#ifdef CA_REENTRANT
+#undef CA_REENTRANT
+#endif
+#define CA_REENTRANT
+
+#define CLASS_NAME_VAR                              m_class_name
+
+#define DECLARE_CLASS_NAME_VAR()                    static const char *CLASS_NAME_VAR
+
+#define DEFINE_CLASS_NAME(_class_)                  const char* _class_::CLASS_NAME_VAR = typeid(_class_).name()
+
+#define INHERIT_CLASS_NAME_VAR(_parent_)            using _parent_::CLASS_NAME_VAR
+
+#define DEFINE_TEMPLATE_CLASS_NAME(_class_, _type_) \
+    template<typename _type_> const char* _class_<_type_>::CLASS_NAME_VAR = typeid(_class_<_type_>).name()
+
+#define DEFINE_CLASS_NAME_FUNC()                    \
+    static inline const char* class_name(void)      \
+    {\
+        return CLASS_NAME_VAR; \
+    }
+
+#define DEFINE_TEMPLATE_CLASS_FUNC                  DEFINE_CLASS_NAME_FUNC
+
+CA_LIB_NAMESPACE_BEGIN
+
+CA_REENTRANT const char *get_library_name(void);
+
+CA_REENTRANT const char* get_library_version(void);
+
+CA_LIB_NAMESPACE_END
+
+#endif /* __CPP_ASSISTANT_BASIC_INFO_H__ */
