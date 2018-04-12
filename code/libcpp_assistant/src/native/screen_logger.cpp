@@ -32,21 +32,21 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
-DEFINE_CLASS_NAME(ScreenLogger);
+DEFINE_CLASS_NAME(screen_logger);
 
-ScreenLogger::ScreenLogger()
+screen_logger::screen_logger()
 {
     m_to_screen = true;
     set_log_name(NULL);
-    Open();
+    open();
 }
 
-ScreenLogger::~ScreenLogger()
+screen_logger::~screen_logger()
 {
-    Close();
+    close();
 }
 
-/*virtual */int ScreenLogger::Open(int cache_buf_size/* = DEFAULT_LOG_CACHE_SIZE*/)/*  = 0 */
+/*virtual */int screen_logger::open(int cache_buf_size/* = DEFAULT_LOG_CACHE_SIZE*/)/*  = 0 */
 {
     if (is_open())
         return CA_RET_OK;
@@ -58,7 +58,7 @@ ScreenLogger::~ScreenLogger()
     return CA_RET_OK;
 }
 
-/*virtual */int ScreenLogger::Close(bool release_buffer/* = true*/)/*  = 0 */
+/*virtual */int screen_logger::close(bool release_buffer/* = true*/)/*  = 0 */
 {
     m_output_holder = NULL; // Waring: Never fclose(m_output_holder) or fclose(stdout) !
     m_is_open = false;

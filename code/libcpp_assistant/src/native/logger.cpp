@@ -49,9 +49,9 @@ const bool NO_LOG_PREFIX = false;
 const bool RELEASES_LOG_BUF_ON_CLOSE = true;
 const bool NOT_RELEASE_LOG_BUF_ON_CLOSE = false;
 
-DEFINE_CLASS_NAME(Logger);
+DEFINE_CLASS_NAME(logger);
 
-Logger::Logger()
+logger::logger()
     : m_log_level(LOG_LEVEL_ALL)
     , m_is_open(false)
     , m_output_holder(NULL)
@@ -74,12 +74,12 @@ Logger::Logger()
 #endif
 }
 
-Logger::~Logger()
+logger::~logger()
 {
     ;
 }
 
-/*virtual */int Logger::Prepare(const char *log_base_name,
+/*virtual */int logger::prepare(const char *log_base_name,
     enum_log_level log_level/* = LOG_LEVEL_INFO*/,
     const char *log_dir/* = "."*/,
     int dir_len_limit/* = LOG_DIR_LEN_LIMIT_MAX*/,
@@ -158,7 +158,7 @@ Logger::~Logger()
     return CA_RET_OK;
 }
 
-void Logger::Flush(void)
+void logger::flush(void)
 {
     if (!is_open())
         return;
@@ -166,9 +166,9 @@ void Logger::Flush(void)
     fflush(m_output_holder);
 }
 
-const char *G_LOG_LEVEL_STRINGS[] = { "[D]", "[I]", "[W]", "[E]", "[F]" };
+const char *G_LOG_LEVEL_STRINGS[] = { "[D]", "[I]", "[W]", "[E]", "[C]" };
 
-int Logger::Output(bool has_prefix,
+int logger::output(bool has_prefix,
     enum_log_level log_level,
     const char *fmt,
     va_list args) /* CA_NOTNULL(4) */
@@ -202,7 +202,7 @@ int Logger::Output(bool has_prefix,
         if (needs_color)
             fflush(stderr);
 
-        int switch_ret = __SwitchLoggerStatus();
+        int switch_ret = __switch_logger_status();
 
         if (CA_RET_OK != switch_ret)
             return switch_ret;
@@ -257,12 +257,12 @@ int Logger::Output(bool has_prefix,
     int ret; \
 \
     va_start(args, contents); \
-    ret = Output(has_prefix, level, contents, args); \
+    ret = output(has_prefix, level, contents, args); \
     va_end(args); \
 \
     return ret
 
-int Logger::Output(bool has_prefix,
+int logger::output(bool has_prefix,
     enum_log_level log_level,
     const char *fmt,
     ...) /* CA_NOTNULL(4) CA_PRINTF_CHECK(4, 5) */
@@ -270,79 +270,54 @@ int Logger::Output(bool has_prefix,
     CALL_FORMATED_OUTPUT(has_prefix, log_level, fmt);
 }
 
-int Logger::Debug(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
+int logger::debug(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
 {
     CALL_FORMATED_OUTPUT(true, LOG_LEVEL_DEBUG, fmt);
 }
 
-int Logger::D(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
+int logger::d(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
 {
     CALL_FORMATED_OUTPUT(true, LOG_LEVEL_DEBUG, fmt);
 }
 
-int Logger::d(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
-{
-    CALL_FORMATED_OUTPUT(true, LOG_LEVEL_DEBUG, fmt);
-}
-
-int Logger::Info(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
+int logger::info(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
 {
     CALL_FORMATED_OUTPUT(true, LOG_LEVEL_INFO, fmt);
 }
 
-int Logger::I(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
+int logger::i(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
 {
     CALL_FORMATED_OUTPUT(true, LOG_LEVEL_INFO, fmt);
 }
 
-int Logger::i(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
-{
-    CALL_FORMATED_OUTPUT(true, LOG_LEVEL_INFO, fmt);
-}
-
-int Logger::Warn(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
+int logger::warn(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
 {
     CALL_FORMATED_OUTPUT(true, LOG_LEVEL_WARNING, fmt);
 }
 
-int Logger::W(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
+int logger::w(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
 {
     CALL_FORMATED_OUTPUT(true, LOG_LEVEL_WARNING, fmt);
 }
 
-int Logger::w(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
-{
-    CALL_FORMATED_OUTPUT(true, LOG_LEVEL_WARNING, fmt);
-}
-
-int Logger::Error(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
+int logger::error(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
 {
     CALL_FORMATED_OUTPUT(true, LOG_LEVEL_ERROR, fmt);
 }
 
-int Logger::E(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
+int logger::e(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
 {
     CALL_FORMATED_OUTPUT(true, LOG_LEVEL_ERROR, fmt);
 }
 
-int Logger::e(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
+int logger::critical(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
 {
-    CALL_FORMATED_OUTPUT(true, LOG_LEVEL_ERROR, fmt);
+    CALL_FORMATED_OUTPUT(true, LOG_LEVEL_CRITICAL, fmt);
 }
 
-int Logger::Fatal(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
+int logger::c(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
 {
-    CALL_FORMATED_OUTPUT(true, LOG_LEVEL_FATAL, fmt);
-}
-
-int Logger::F(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
-{
-    CALL_FORMATED_OUTPUT(true, LOG_LEVEL_FATAL, fmt);
-}
-
-int Logger::f(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
-{
-    CALL_FORMATED_OUTPUT(true, LOG_LEVEL_FATAL, fmt);
+    CALL_FORMATED_OUTPUT(true, LOG_LEVEL_CRITICAL, fmt);
 }
 
 CA_LIB_NAMESPACE_END

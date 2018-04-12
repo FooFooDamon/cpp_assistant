@@ -31,7 +31,7 @@ static: $(LIB_CA_NATIVE.A)
 
 $(LIB_CA_NATIVE.SO): obj_only
 	$(CXX) -shared -o $@.$(CA_MAIN_VER) $(OBJS)
-	ln -s $@.$(CA_MAIN_VER) $@
+	-ln -s $@.$(CA_MAIN_VER) $@
 
 shared: $(LIB_CA_NATIVE.SO)
 
@@ -58,7 +58,7 @@ install:
 	done
 
 uninstall:
-	cd $(DIR_LIB_INSTALL)/ && rm -f $(addsuffix *, $(basename $(TARGETS))) && cd -
+	-cd $(DIR_LIB_INSTALL)/ && rm -f $(addsuffix *, $(basename $(TARGETS))) && cd -
 
 clean: uninstall
 	rm -f $(addsuffix *, $(basename $(TARGETS))) $(OBJS)

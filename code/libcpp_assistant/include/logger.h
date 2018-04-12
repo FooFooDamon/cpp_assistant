@@ -54,9 +54,9 @@ enum enum_log_level
     LOG_LEVEL_INFO,
     LOG_LEVEL_WARNING,
     LOG_LEVEL_ERROR,
-    LOG_LEVEL_FATAL,
+    LOG_LEVEL_CRITICAL,
 
-    LOG_LEVEL_MAX = LOG_LEVEL_FATAL,
+    LOG_LEVEL_MAX = LOG_LEVEL_CRITICAL,
     LOG_LEVEL_COUNT,
     LOG_LEVEL_NONE
 };
@@ -91,20 +91,20 @@ extern const bool NO_LOG_PREFIX/* = false*/;
 extern const bool RELEASES_LOG_BUF_ON_CLOSE/* = true*/;
 extern const bool NOT_RELEASE_LOG_BUF_ON_CLOSE/* = false*/;
 
-class Logger
+class logger
 {
 /* ===================================
  * constructors:
  * =================================== */
 public:
-    Logger();
+    logger();
 
 /* ===================================
  * copy control:
  * =================================== */
 private:
-    Logger(const Logger& src);
-    const Logger& operator=(const Logger& src);
+    logger(const logger& src);
+    const logger& operator=(const logger& src);
 
 /* ===================================
  * types:
@@ -116,7 +116,7 @@ public:
  * destructor:
  * =================================== */
 public:
-    virtual ~Logger();
+    virtual ~logger();
 
 /* ===================================
  * abilities:
@@ -124,7 +124,7 @@ public:
 public:
     // Prepares resources and operations before opening the logger.
     // Actually it is just a combination of set_log_level(), set_log_directory(), etc.
-    virtual int Prepare(const char *log_base_name,
+    virtual int prepare(const char *log_base_name,
         enum_log_level log_level = LOG_LEVEL_INFO,
         const char *log_dir = ".",
         int dir_len_limit = LOG_DIR_LEN_LIMIT_MAX,
@@ -133,17 +133,17 @@ public:
 
     // Opens the logger with its cache buffer size being set to @cache_buf_size,
     // note that we do not support dynamic modification to this parameter in run-time.
-    virtual int Open(int cache_buf_size = DEFAULT_LOG_CACHE_SIZE) = 0;
+    virtual int open(int cache_buf_size = DEFAULT_LOG_CACHE_SIZE) = 0;
 
     // Closes the logger with or without the cache buffer being released.
     // It is called in such cases:
     //    1) When the logger switches status(@release_buffer == false).
     //    2) When the logger is about to terminate (@release_buffer == true).
-    virtual int Close(bool release_buffer = true) = 0;
+    virtual int close(bool release_buffer = true) = 0;
 
     // Flushes log contents to destination (that is: a file or the terminal).
     // This function can be called by user or by other member functions.
-    void Flush(void);
+    void flush(void);
 
     /*
      * Outputs log contents to cache or to destination (that is: a file or the terminal).
@@ -152,40 +152,35 @@ public:
      * Different derived classes can have different implementations.
      */
 
-    int Output(bool has_prefix,
+    int output(bool has_prefix,
         enum_log_level log_level,
         const char *fmt,
         va_list args) CA_NOTNULL(4);
 
-    int Output(bool has_prefix,
+    int output(bool has_prefix,
         enum_log_level log_level,
         const char *fmt,
         ...) CA_NOTNULL(4) CA_PRINTF_CHECK(4, 5);
 
     /*
-     * Functions below are specific/concrete versions of Output(), and their aliases(e.g.: D()
-     * and d() are aliases of Debug(), Java developers may like it.).
+     * Functions below are specific/concrete versions of output(),
+     * and their alias(e.g.: d() is the alias of debug(), Java developers may like it).
      */
 
-    int Debug(const char *fmt, ...) CA_NOTNULL(2) CA_PRINTF_CHECK(2, 3);
-    int D(const char *fmt, ...) CA_NOTNULL(2) CA_PRINTF_CHECK(2, 3);
+    int debug(const char *fmt, ...) CA_NOTNULL(2) CA_PRINTF_CHECK(2, 3);
     int d(const char *fmt, ...) CA_NOTNULL(2) CA_PRINTF_CHECK(2, 3);
 
-    int Info(const char *fmt, ...) CA_NOTNULL(2) CA_PRINTF_CHECK(2, 3);
-    int I(const char *fmt, ...) CA_NOTNULL(2) CA_PRINTF_CHECK(2, 3);
+    int info(const char *fmt, ...) CA_NOTNULL(2) CA_PRINTF_CHECK(2, 3);
     int i(const char *fmt, ...) CA_NOTNULL(2) CA_PRINTF_CHECK(2, 3);
 
-    int Warn(const char *fmt, ...) CA_NOTNULL(2) CA_PRINTF_CHECK(2, 3);
-    int W(const char *fmt, ...) CA_NOTNULL(2) CA_PRINTF_CHECK(2, 3);
+    int warn(const char *fmt, ...) CA_NOTNULL(2) CA_PRINTF_CHECK(2, 3);
     int w(const char *fmt, ...) CA_NOTNULL(2) CA_PRINTF_CHECK(2, 3);
 
-    int Error(const char *fmt, ...) CA_NOTNULL(2) CA_PRINTF_CHECK(2, 3);
-    int E(const char *fmt, ...) CA_NOTNULL(2) CA_PRINTF_CHECK(2, 3);
+    int error(const char *fmt, ...) CA_NOTNULL(2) CA_PRINTF_CHECK(2, 3);
     int e(const char *fmt, ...) CA_NOTNULL(2);
 
-    int Fatal(const char *fmt, ...) CA_NOTNULL(2) CA_PRINTF_CHECK(2, 3);
-    int F(const char *fmt, ...) CA_NOTNULL(2) CA_PRINTF_CHECK(2, 3);
-    int f(const char *fmt, ...) CA_NOTNULL(2) CA_PRINTF_CHECK(2, 3);
+    int critical(const char *fmt, ...) CA_NOTNULL(2) CA_PRINTF_CHECK(2, 3);
+    int c(const char *fmt, ...) CA_NOTNULL(2) CA_PRINTF_CHECK(2, 3);
 
 /* ===================================
  * attributes:
@@ -279,7 +274,7 @@ public:
  * =================================== */
 protected:
     // Default implementation of the function switching logger status.
-    virtual int __SwitchLoggerStatus(void)
+    virtual int __switch_logger_status(void)
     {
         return CA_RET_OK;
     }

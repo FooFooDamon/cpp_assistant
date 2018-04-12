@@ -41,17 +41,17 @@ CA_LIB_NAMESPACE_BEGIN
 #define CPP_ASSISTANT_START_DATE    "20170910"
 
 #ifndef CA_NEWEST_MOD_DATE
-#define CA_NEWEST_MOD_DATE          "20170921"
+#define CA_NEWEST_MOD_DATE          "20180412"
 #endif
 
 #ifndef CA_NEWEST_MAIN_VER
-#define CA_NEWEST_MAIN_VER          "0.00.01"
+#define CA_NEWEST_MAIN_VER          "0.01.00"
 #endif
 
 #ifdef CA_SVN_VER
 #define CPP_ASSISTANT_VERSION       "v"CA_NEWEST_MAIN_VER".r"CA_SVN_VER"."CA_NEWEST_MOD_DATE
 #else
-#define CPP_ASSISTANT_VERSION       "v"CA_NEWEST_MAIN_VER".r012345."CA_NEWEST_MOD_DATE".[Approximate]"
+#define CPP_ASSISTANT_VERSION       "v"CA_NEWEST_MAIN_VER".r012345."CA_NEWEST_MOD_DATE".[Approximative]"
 #endif
 
 CA_REENTRANT const char *get_library_name(void)

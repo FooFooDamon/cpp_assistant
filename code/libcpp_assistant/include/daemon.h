@@ -42,20 +42,20 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
-class Daemon
+class daemon
 {
 /* ===================================
  * constructors:
  * =================================== */
 private:
-    Daemon();
+    daemon();
 
 /* ===================================
  * copy control:
  * =================================== */
 private:
-    Daemon(const Daemon& src);
-    Daemon& operator=(const Daemon& src);
+    daemon(const daemon& src);
+    daemon& operator=(const daemon& src);
 
 /* ===================================
  * destructor:
@@ -66,7 +66,7 @@ public:
  * types:
  * =================================== */
 public:
-    typedef void (*CleanFunc)(void);
+    typedef void (*clean_func)(void);
 
 /* ===================================
  * abilities:
@@ -77,11 +77,11 @@ public:
     // because some resources such as file descriptors may be released.
     // The calling process continues on success, or dies on failure.
     // Note: A process may exit several times before it become a daemon.
-    static void Daemonize(bool closes_stdout = false, bool closes_stderr = false);
+    static void daemonize(bool closes_stdout = false, bool closes_stderr = false);
 
     // Registers a function which will be called to clean resources
     // before the calling process exits.
-    static int RegisterCleanFuntion(CleanFunc clean_func);
+    static int register_clean_funtion(clean_func clean_func);
 
 /* ===================================
  * attributes:
@@ -112,7 +112,7 @@ protected:
 protected:
     DECLARE_CLASS_NAME_VAR();
     static bool m_is_daemonized;
-    static std::set<CleanFunc> m_clean_funcs;
+    static std::set<clean_func> m_clean_funcs;
 };
 
 CA_LIB_NAMESPACE_END

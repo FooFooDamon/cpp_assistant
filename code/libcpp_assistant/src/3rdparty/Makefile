@@ -69,7 +69,7 @@ install:
 	done
 
 uninstall:
-	cd $(DIR_LIB_INSTALL)/ && rm -f $(addsuffix *, $(basename $(TARGETS))) && cd -
+	-cd $(DIR_LIB_INSTALL)/ && rm -f $(addsuffix *, $(basename $(TARGETS))) && cd -
 
 clean: uninstall
 	rm -f $(addsuffix *, $(basename $(TARGETS))) $(STANDALONE_OBJS)

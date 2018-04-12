@@ -26,27 +26,27 @@
 //       for convenience or for a certain purpose, at different places:
 //       wenxiongchang, wxc, Damon Wen, udc577
 
+#include "../../include/time_util.h"
 #include "common_headers.h"
 
 #include "base/ca_return_code.h"
-#include "ca_time.h"
 
-TEST(Time, AllInOne)
+TEST(time_util, AllInOne)
 {
-    int init_timezone = calib::Time::GetTimeZone();
+    int init_timezone = calib::time_util::get_time_zone();
     int after_timezone = 0;
-    uint32_t sec_difference = calib::Time::GetSecondsFrom1900To1970();
+    uint32_t sec_difference = calib::time_util::get_seconds_from_1900_to_1970();
 
     printf("Seconds elapsed from 1900 to 1970: %u\n", sec_difference);
-    //ASSERT_EQ(calib::Time::SECS_FROM_1900_TO_1970, sec_difference);
+    //ASSERT_EQ(calib::time::SECS_FROM_1900_TO_1970, sec_difference);
 
     printf("Initial time zone: %d\n", init_timezone);
     ASSERT_TRUE(init_timezone >= -12 && init_timezone <= 12);
     for (int i = -13; i <= 13; ++i)
     {
-        int before_timezone = calib::Time::GetTimeZone();
-        int set_ret = calib::Time::SetTimeZone(i);
-        after_timezone = calib::Time::GetTimeZone();
+        int before_timezone = calib::time_util::get_time_zone();
+        int set_ret = calib::time_util::set_time_zone(i);
+        after_timezone = calib::time_util::get_time_zone();
 
         if (-13 == i || 13 == i)
         {
@@ -58,10 +58,10 @@ TEST(Time, AllInOne)
         ASSERT_EQ(CA_RET(OK), set_ret);
         ASSERT_EQ(i, after_timezone);
 
-        int64_t utc_secs = calib::Time::GetUtcSeconds();
-        int64_t utc_usecs = calib::Time::GetUtcMicroseconds();
-        int64_t local_secs = calib::Time::GetLocalSeconds();
-        int64_t local_usecs = calib::Time::GetLocalMicroseconds();
+        int64_t utc_secs = calib::time_util::get_utc_seconds();
+        int64_t utc_usecs = calib::time_util::get_utc_microseconds();
+        int64_t local_secs = calib::time_util::get_local_seconds();
+        int64_t local_usecs = calib::time_util::get_local_microseconds();
         int difference_secs = local_secs - utc_secs;
 
         printf("================ Time zone %d ================\n", after_timezone);

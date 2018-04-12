@@ -45,33 +45,33 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
-class CommandLine
+class command_line
 {
 /* ===================================
  * constructors:
  * =================================== */
 public:
-    CommandLine();
-    CommandLine(const char *usage_header, const char *usage_format);
+    command_line();
+    command_line(const char *usage_header, const char *usage_format);
 
 /* ===================================
  * copy control:
  * =================================== */
 private:
-    CommandLine(const CommandLine& src);
-    CommandLine& operator=(const CommandLine& src);
+    command_line(const command_line& src);
+    command_line& operator=(const command_line& src);
 
 /* ===================================
  * destructor:
  * =================================== */
 public:
-    ~CommandLine();
+    ~command_line();
 
 /* ===================================
  * types:
  * =================================== */
 public:
-    typedef struct OptionValue
+    typedef struct option_entry
     {
         std::string description;
         std::string assign_expression;
@@ -79,9 +79,9 @@ public:
         bool value_count_is_fixed;
         bool is_specified;
         std::vector<std::string> values;
-    }OptionValue;
+    }option_entry;
 
-    typedef struct UserOption
+    typedef struct user_option
     {
         const char *name; // "<short option>,<long option>", e.g: "h,help"
         const char *description;
@@ -89,7 +89,7 @@ public:
         bool value_count_is_fixed;
         const char *assign_expression;
         const char *default_values;
-    }UserOption;
+    }user_option;
 
     enum
     {
@@ -98,8 +98,10 @@ public:
     };
 
 protected:
-    typedef std::map<char*, OptionValue, CharLessOperator > OptionValueMap;
-    typedef std::map<char*, char*, CharLessOperator > OptionOptionMap;
+    typedef std::map<char*, option_entry, char_lt_op > option_value_map;
+    typedef option_value_map opt_val_map;
+    typedef std::map<char*, char*, char_lt_op > option_option_map;
+    typedef option_option_map opt_opt_map;
 
 /* ===================================
  * abilities:
@@ -108,10 +110,10 @@ public:
     // Parses options from command line.
     // It should be called after all expected options are learned,
     // and it will fail if one or more than one invalid option(s) occur(s).
-    int Parse(int argc, const char **argv);
+    int parse(int argc, const char **argv);
 
     // Resets the instance so that it can parse command line again.
-    void Reset(void);
+    void reset(void);
 
     // Learns a new option to know how it should be like.
     // @name: Contains the short option name, or the short and long option name
@@ -128,18 +130,18 @@ public:
     //     For example: "default_file.txt", or "file1.txt file2.txt".
     // @value_count_is_fixed: If it's true, then @least_value_count is definitely the value
     //     count that this option needs, neither greater nor less than it.
-    int LearnOption(const char *name,
+    int learn_option(const char *name,
         const char *desc,
         int least_value_count = 0,
         const char *assign_expression = "",
         const char *default_values = NULL,
         bool value_count_is_fixed = true);
 
-    // Much like LearnOption() above, except that this function learns options in bulk.
-    int LearOptions(const UserOption *option_array, int option_count);
+    // Much like learn_option() above, except that this function learns options in bulk.
+    int learn_options(const user_option *option_array, int option_count);
 
     // Shows result after parsing in terminal if @holder is NULL, or saves the result to @holder.
-    void ShowParsingResult(std::string *holder = NULL) const;
+    void get_parsing_result(std::string *holder = NULL) const;
 
 /* ===================================
  * attributes:
@@ -179,7 +181,7 @@ public:
 
     // Finds the value(s) of option with name @option_name,
     // and @option_name can be the short name or the long name.
-    const OptionValue* option(const char *option_name) const;
+    const option_entry* get_option_entry(const char *option_name) const;
 
     /*inline int option_count(void) const
     {
@@ -213,7 +215,7 @@ public:
 protected:
     // Adds a value to the specified option holder if @option is not null,
     // or to the single parameters holder if @option is null.
-    int AddValue(const char *option, const std::string &value);
+    int add_value(const char *option, const std::string &value);
 
 /* ===================================
  * data:
@@ -224,13 +226,13 @@ protected:
     std::string m_program_name;
     std::string m_usage_header;
     std::string m_usage_format;
-    OptionValueMap m_options; // map<short name, value>
-    OptionOptionMap m_option_relation; // map<long name, short name>
+    option_value_map m_options; // map<short name, value>
+    option_option_map m_option_relations; // map<long name, short name>
     std::vector<std::string> m_single_parameters;
     bool m_has_parsed;
 };
 
-typedef CommandLine CmdLine;
+typedef command_line cmdline;
 
 CA_LIB_NAMESPACE_END
 

@@ -60,19 +60,19 @@ static int func_with_ret_and_param(const char *param)
     return 0;
 }
 
-TEST(Daemon, AllInOne)
+TEST(daemon, AllInOne)
 {
-    ASSERT_FALSE(calib::Daemon::is_daemonized());
+    ASSERT_FALSE(calib::daemon::is_daemonized());
 
-    ASSERT_EQ(CA_RET(NULL_PARAM), calib::Daemon::RegisterCleanFuntion(NULL));
-    ASSERT_EQ(CA_RET(OK), calib::Daemon::RegisterCleanFuntion(func_before_daemonization));
+    ASSERT_EQ(CA_RET(NULL_PARAM), calib::daemon::register_clean_funtion(NULL));
+    ASSERT_EQ(CA_RET(OK), calib::daemon::register_clean_funtion(func_before_daemonization));
 
-    calib::Daemon::Daemonize(/*true, true*/);
-    calib::Daemon::Daemonize(/*true, true*/); // Does it again and should have no effect.
+    calib::daemon::daemonize(/*true, true*/);
+    calib::daemon::daemonize(/*true, true*/); // Does it again and should have no effect.
 
-    ASSERT_TRUE(calib::Daemon::is_daemonized());
-    ASSERT_EQ(CA_RET(OK), calib::Daemon::RegisterCleanFuntion(func_after_daemonization));
-    ASSERT_EQ(CA_RET(OK), calib::Daemon::RegisterCleanFuntion(reinterpret_cast<calib::Daemon::CleanFunc>(func_with_int_ret)));
-    ASSERT_EQ(CA_RET(OK), calib::Daemon::RegisterCleanFuntion(reinterpret_cast<calib::Daemon::CleanFunc>(func_with_ret_and_param)));
+    ASSERT_TRUE(calib::daemon::is_daemonized());
+    ASSERT_EQ(CA_RET(OK), calib::daemon::register_clean_funtion(func_after_daemonization));
+    ASSERT_EQ(CA_RET(OK), calib::daemon::register_clean_funtion(reinterpret_cast<calib::daemon::clean_func>(func_with_int_ret)));
+    ASSERT_EQ(CA_RET(OK), calib::daemon::register_clean_funtion(reinterpret_cast<calib::daemon::clean_func>(func_with_ret_and_param)));
 }
 

@@ -32,7 +32,7 @@
 #include "base/debug.h"
 #include "file_logger.h"
 
-TEST(FileLogger, AllInOne)
+TEST(file_logger, AllInOne)
 {
     const char *TEST_STR = "文件日志记录器测试\n";
     const int TEST_STR_LEN = strlen(TEST_STR);
@@ -41,10 +41,10 @@ TEST(FileLogger, AllInOne)
         calib::LOG_LEVEL_INFO,
         calib::LOG_LEVEL_WARNING,
         calib::LOG_LEVEL_ERROR,
-        calib::LOG_LEVEL_FATAL
+        calib::LOG_LEVEL_CRITICAL
     };
     const int LEVEL_COUNT = sizeof(LOG_LEVELS) / sizeof(calib::enum_log_level);
-    calib::FileLogger logger;
+    calib::file_logger logger;
     const char *INITIAL_LOG_NAME = logger.log_name();
     const char *INITIAL_LOG_DIR = logger.log_directory();
     int ret = -1;
@@ -69,9 +69,9 @@ TEST(FileLogger, AllInOne)
     for (int i = 0; i < LEVEL_COUNT; ++i)
     {
         ASSERT_EQ(debug_macro_is_defined ? CA_RET(NULL_PARAM) : CA_RET(FILE_OR_STREAM_NOT_OPEN),
-            logger.Output(calib::NO_LOG_PREFIX, LOG_LEVELS[i], NULL));
+            logger.output(calib::NO_LOG_PREFIX, LOG_LEVELS[i], NULL));
         ASSERT_EQ(CA_RET(FILE_OR_STREAM_NOT_OPEN),
-            logger.Output(calib::NO_LOG_PREFIX, LOG_LEVELS[i], "[Level: %d]: %s", LOG_LEVELS[i], TEST_STR));
+            logger.output(calib::NO_LOG_PREFIX, LOG_LEVELS[i], "[Level: %d]: %s", LOG_LEVELS[i], TEST_STR));
     }
 
     //logger.Prepare(NULL);
@@ -79,7 +79,7 @@ TEST(FileLogger, AllInOne)
     /*
      * Tests Open() before setting name and directory.
      */
-    ASSERT_EQ(CA_RET(TARGET_NOT_READY), logger.Open());
+    ASSERT_EQ(CA_RET(TARGET_NOT_READY), logger.open());
     ASSERT_FALSE(logger.is_open());
 
     /*
@@ -119,7 +119,7 @@ TEST(FileLogger, AllInOne)
 
     // TODO: long path testing ...
 
-    ASSERT_EQ(CA_RET(TARGET_NOT_READY), logger.Open()); // It still fails because log directory has not been set.
+    ASSERT_EQ(CA_RET(TARGET_NOT_READY), logger.open()); // It still fails because log directory has not been set.
     ASSERT_FALSE(logger.is_open());
 
     /*
@@ -154,9 +154,9 @@ TEST(FileLogger, AllInOne)
 
     // TODO: long path testing ...
 
-    ASSERT_EQ(CA_RET_OK, logger.Open()); // It works this time.
+    ASSERT_EQ(CA_RET_OK, logger.open()); // It works this time.
     ASSERT_TRUE(logger.is_open());
-    ASSERT_EQ(CA_RET_OK, logger.Open()); // It's okay to open the logger multiple times.
+    ASSERT_EQ(CA_RET_OK, logger.open()); // It's okay to open the logger multiple times.
     ASSERT_TRUE(logger.is_open());
 
     /*
@@ -175,20 +175,20 @@ TEST(FileLogger, AllInOne)
      * It's okay to close the logger multiple times as well,
      * and we can not call Output() in this case.
      */
-    ASSERT_EQ(CA_RET_OK, logger.Close());
-    ASSERT_EQ(CA_RET_OK, logger.Close());
+    ASSERT_EQ(CA_RET_OK, logger.close());
+    ASSERT_EQ(CA_RET_OK, logger.close());
     ASSERT_FALSE(logger.is_open());
     for (int i = 0; i < LEVEL_COUNT; ++i)
     {
         ASSERT_EQ(debug_macro_is_defined ? CA_RET(NULL_PARAM) : CA_RET(FILE_OR_STREAM_NOT_OPEN),
-            logger.Output(calib::NO_LOG_PREFIX, LOG_LEVELS[i], NULL));
-        ASSERT_EQ(CA_RET(FILE_OR_STREAM_NOT_OPEN), logger.Output(calib::NO_LOG_PREFIX, LOG_LEVELS[i], "[Level: %d]: %s", LOG_LEVELS[i], TEST_STR));
+            logger.output(calib::NO_LOG_PREFIX, LOG_LEVELS[i], NULL));
+        ASSERT_EQ(CA_RET(FILE_OR_STREAM_NOT_OPEN), logger.output(calib::NO_LOG_PREFIX, LOG_LEVELS[i], "[Level: %d]: %s", LOG_LEVELS[i], TEST_STR));
     }
 
     /*
      * Re-opens the logger for afterward testings.
      */
-    ASSERT_EQ(CA_RET_OK, logger.Open());
+    ASSERT_EQ(CA_RET_OK, logger.open());
     ASSERT_TRUE(logger.is_open());
 
     calib::debug::redirect_debug_output(stdout);
@@ -210,12 +210,12 @@ TEST(FileLogger, AllInOne)
             const int EXPECTED_RET = ((!is_enough_level) ? (debug_macro_is_defined ? CA_RET(NULL_PARAM) : 0)
                 : (debug_macro_is_defined ? CA_RET(NULL_PARAM) : NULL_PARAM_RETCODE_DUE_TO_OPTIMIZATION));
 
-            ASSERT_EQ(EXPECTED_RET, logger.Output(calib::NO_LOG_PREFIX, level, NULL));
+            ASSERT_EQ(EXPECTED_RET, logger.output(calib::NO_LOG_PREFIX, level, NULL));
 
             if (is_enough_level)
-                ASSERT_GE(logger.Output(calib::NO_LOG_PREFIX, level, "[Level: %d]: %s", level, TEST_STR), TEST_STR_LEN);
+                ASSERT_GE(logger.output(calib::NO_LOG_PREFIX, level, "[Level: %d]: %s", level, TEST_STR), TEST_STR_LEN);
             else
-                ASSERT_EQ(0, logger.Output(calib::NO_LOG_PREFIX, level, "[Level: %d]: %s", level, TEST_STR));
+                ASSERT_EQ(0, logger.output(calib::NO_LOG_PREFIX, level, "[Level: %d]: %s", level, TEST_STR));
         }
 
         if (logger.log_level() <= calib::LOG_LEVEL_DEBUG)
@@ -262,24 +262,24 @@ TEST(FileLogger, AllInOne)
             ASSERT_EQ(0, logger.e("%s", TEST_STR));
         }
 
-        if (logger.log_level() <= calib::LOG_LEVEL_FATAL)
+        if (logger.log_level() <= calib::LOG_LEVEL_CRITICAL)
         {
-            ASSERT_EQ(debug_macro_is_defined ? CA_RET(NULL_PARAM) : NULL_PARAM_RETCODE_DUE_TO_OPTIMIZATION, logger.f(NULL));
-            ASSERT_GE(logger.f("%s", TEST_STR), TEST_STR_LEN);
+            ASSERT_EQ(debug_macro_is_defined ? CA_RET(NULL_PARAM) : NULL_PARAM_RETCODE_DUE_TO_OPTIMIZATION, logger.c(NULL));
+            ASSERT_GE(logger.c("%s", TEST_STR), TEST_STR_LEN);
         }
         else
         {
-            ASSERT_EQ(debug_macro_is_defined ? CA_RET(NULL_PARAM) : 0, logger.f(NULL));
-            ASSERT_EQ(0, logger.f("%s", TEST_STR));
+            ASSERT_EQ(debug_macro_is_defined ? CA_RET(NULL_PARAM) : 0, logger.c(NULL));
+            ASSERT_EQ(0, logger.c("%s", TEST_STR));
         }
     }
 
-    ASSERT_EQ(CA_RET_OK, logger.Close());
+    ASSERT_EQ(CA_RET_OK, logger.close());
     ASSERT_FALSE(logger.is_open());
 
     ASSERT_EQ(CA_RET_OK, logger.set_log_line_limit(calib::LOG_LINE_LIMIT_MIN));
 
-    ASSERT_EQ(CA_RET_OK, logger.Open());
+    ASSERT_EQ(CA_RET_OK, logger.open());
     ASSERT_TRUE(logger.is_open());
 
     /*
@@ -321,7 +321,7 @@ TEST(FileLogger, AllInOne)
             ASSERT_EQ((0 == i % 2) ? false : true, calib::debug_is_enabled());
 
             calib::enum_log_level level = LOG_LEVELS[j % calib::LOG_LEVEL_COUNT];
-            int actual_output_len = logger.Output(calib::HAS_LOG_PREFIX, level, "[%02d:%d]\t%s", i, j + 1, TEST_STR);
+            int actual_output_len = logger.output(calib::HAS_LOG_PREFIX, level, "[%02d:%d]\t%s", i, j + 1, TEST_STR);
 
             if (level >= logger.log_level())
                 ASSERT_GE(actual_output_len, TEST_STR_LEN);
@@ -329,7 +329,7 @@ TEST(FileLogger, AllInOne)
                 ASSERT_EQ(actual_output_len, 0);
         }
 
-        logger.Flush();
+        logger.flush();
         memset(chk_cmd, 0, sizeof(chk_cmd));
         // Do this again to fetch the newest name!
         snprintf(chk_cmd, sizeof(chk_cmd), "wc -l %s/%s*", logger.log_directory(), logger.log_name());
@@ -345,7 +345,7 @@ TEST(FileLogger, AllInOne)
 #endif
     }
 
-    ASSERT_EQ(CA_RET_OK, logger.Close());
+    ASSERT_EQ(CA_RET_OK, logger.close());
     ASSERT_FALSE(logger.is_open());
 }
 

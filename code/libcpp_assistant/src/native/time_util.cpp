@@ -26,14 +26,13 @@
 //       for convenience or for a certain purpose, at different places:
 //       wenxiongchang, wxc, Damon Wen, udc577
 
-#include "ca_time.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <sys/time.h>
 #include <time.h>
 
+#include "../../include/time_util.h"
 #include "base/ca_return_code.h"
 #include "base/platforms/threading.h"
 #include "private/debug.h"
@@ -42,40 +41,40 @@ extern long int timezone; // defined and modified by system
 
 CA_LIB_NAMESPACE_BEGIN
 
-DEFINE_CLASS_NAME(Time);
+DEFINE_CLASS_NAME(time_util);
 
 static mutex_t s_lock;
-bool Time::m_timezone_is_initialized = false;
-const uint32_t Time::SECS_FROM_1900_TO_1970 = 2208988800;
+bool time_util::m_timezone_is_initialized = false;
+const uint32_t time_util::SECS_FROM_1900_TO_1970 = 2208988800;
 
-Time::Time()
+time_util::time_util()
 {
     ;
 }
 
-Time::~Time()
+time_util::~time_util()
 {
     ;
 }
 
-Time::Time(const Time& src)
+time_util::time_util(const time_util& src)
 {
     ;
 }
 
-const Time& Time::operator=(const Time& src)
+const time_util& time_util::operator=(const time_util& src)
 {
     return *this;
 }
 
-/*static */CA_THREAD_SAFE int Time::GetTimeZone(void)
+/*static */CA_THREAD_SAFE int time_util::get_time_zone(void)
 {
     if (!m_timezone_is_initialized)
     {
         mutex_lock(&s_lock);
         if (!m_timezone_is_initialized)
         {
-            csdebug(Time, "Initializing time zone ...\n");
+            csdebug(time_util, "Initializing time zone ...\n");
             tzset(); // Lets system select the best approximate time zone
             m_timezone_is_initialized = true;
         }
@@ -85,7 +84,7 @@ const Time& Time::operator=(const Time& src)
     return -timezone / 3600; //m_timezone_is_initialized;
 }
 
-/*static */CA_THREAD_SAFE int Time::SetTimeZone(const int zone_num)
+/*static */CA_THREAD_SAFE int time_util::set_time_zone(const int zone_num)
 {
     if (zone_num < MIN_TIME_ZONE || zone_num > MAX_TIME_ZONE)
         return CA_RET(VALUE_OUT_OF_RANGE);
@@ -114,34 +113,34 @@ const Time& Time::operator=(const Time& src)
     return CA_RET_OK;
 }
 
-/*static */int64_t Time::GetUtcSeconds(void)
+/*static */int64_t time_util::get_utc_seconds(void)
 {
-    return (int64_t)(time(NULL)) + GetSecondsFrom1900To1970();
+    return (int64_t)(time(NULL)) + get_seconds_from_1900_to_1970();
 }
 
-/*static */int64_t Time::GetUtcMicroseconds(void)
+/*static */int64_t time_util::get_utc_microseconds(void)
 {
     struct timeval tv;
     int64_t sum = 0;
 
     gettimeofday(&tv, NULL);
 
-    sum = (int64_t)(tv.tv_sec) + GetSecondsFrom1900To1970();
+    sum = (int64_t)(tv.tv_sec) + get_seconds_from_1900_to_1970();
     sum *= ONE_SEC_USECS;
     sum += tv.tv_usec;
 
     return sum;
 }
 
-/*static */int64_t Time::GetLocalSeconds(void)
+/*static */int64_t time_util::get_local_seconds(void)
 {
-    return GetUtcSeconds() + (int64_t)GetTimeZone() * ONE_HOUR_SECS;
+    return get_utc_seconds() + (int64_t)get_time_zone() * ONE_HOUR_SECS;
     // TODO: Or try this: mktime(localtime(&(time(NULL))). Of course, use their *_r() versions.
 }
 
-/*static */int64_t Time::GetLocalMicroseconds(void)
+/*static */int64_t time_util::get_local_microseconds(void)
 {
-    return GetUtcMicroseconds() + (int64_t)GetTimeZone() * ONE_HOUR_SECS * ONE_SEC_USECS;
+    return get_utc_microseconds() + (int64_t)get_time_zone() * ONE_HOUR_SECS * ONE_SEC_USECS;
 }
 
 CA_LIB_NAMESPACE_END

@@ -26,18 +26,17 @@
 //       for convenience or for a certain purpose, at different places:
 //       wenxiongchang, wxc, Damon Wen, udc577
 
-#include "ca_signal.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
 
+#include "../../include/signal_capturer.h"
 #include "base/ca_return_code.h"
 #include "private/debug.h"
 
 CA_LIB_NAMESPACE_BEGIN
 
-DEFINE_CLASS_NAME(Signal);
+DEFINE_CLASS_NAME(signal_capturer);
 
 static signal_setting_t s_signal_settings[SIGNAL_COUNT];
 static bool s_settings_initialized = false;
@@ -88,7 +87,7 @@ static bool capture_is_forbidden(int sig_num)
         || 33 == sig_num /* signal name unknown */);
 }
 
-/*static */int Signal::Register(int sig_num,
+/*static */int signal_capturer::register_one(int sig_num,
     singal_handler sig_handler,
     bool exits_after_handling/* = false*/,
     bool handles_now/* = false*/)
@@ -123,7 +122,7 @@ static bool capture_is_forbidden(int sig_num)
     return CA_RET_OK;
 }
 
-/*static */int Signal::Unregister(int sig_num)
+/*static */int signal_capturer::unregister(int sig_num)
 {
     if (!is_registered(sig_num))
         return CA_RET_OK; // CA_RET(SIGNAL_NOT_REGISTERED);
@@ -145,7 +144,7 @@ static bool capture_is_forbidden(int sig_num)
     return CA_RET_OK;
 }
 
-/*static */int Signal::HandleOne(const int sig_num, bool &should_exit)
+/*static */int signal_capturer::handle_one(const int sig_num, bool &should_exit)
 {
     if (!is_valid(sig_num))
         return CA_RET(INVALID_SIGNAL_NUMBER);
@@ -175,7 +174,7 @@ static bool capture_is_forbidden(int sig_num)
     return CA_RET_OK;
 }
 
-/*static */int Signal::HandleAll(bool &should_exit)
+/*static */int signal_capturer::handle_all(bool &should_exit)
 {
     INIT_SIG_SETTINGS_ONCE();
 
@@ -209,12 +208,12 @@ static bool capture_is_forbidden(int sig_num)
     }
 
     if (handled_count > 0)
-        csdebug(Signal, "%d signals total, %d triggered and handled\n", registered_count, handled_count);
+        csdebug(signal_capturer, "%d signals total, %d triggered and handled\n", registered_count, handled_count);
 
     return handled_count;
 }
 
-/*static */bool Signal::is_registered(int sig_num)
+/*static */bool signal_capturer::is_registered(int sig_num)
 {
     INIT_SIG_SETTINGS_ONCE();
 

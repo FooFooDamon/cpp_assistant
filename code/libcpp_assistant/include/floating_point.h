@@ -27,15 +27,15 @@
 //       wenxiongchang, wxc, Damon Wen, udc577
 
 /*
- * floating.h
+ * floating_point.h
  *
  *  Created on: 2017/09/23
  *      Author: wenxiongchang
- * Description: A template for floating-point types(float, double and long double).
+ * Description: A template for floating_point-point types(float, double and long double).
  */
 
-#ifndef __CPP_ASSISTANT_FLOATING_CALCULATION_H__
-#define __CPP_ASSISTANT_FLOATING_CALCULATION_H__
+#ifndef __CPP_ASSISTANT_FLOATING_POINT_CALCULATION_H__
+#define __CPP_ASSISTANT_FLOATING_POINT_CALCULATION_H__
 
 #include <stdio.h>
 #include <math.h>
@@ -58,60 +58,60 @@ CA_LIB_NAMESPACE_BEGIN
 #define DOUBLE_TYPE_NAME                                                "double"
 #define LONG_DOUBLE_TYPE_NAME                                           "long double"
 
-#define IS_NOT_FLOATING_TYPE(type)                                      \
+#define IS_NOT_FLOATING_POINT_TYPE(type)                                      \
     (typeid(float) != typeid(type) \
     && typeid(double) != typeid(type) \
     && typeid(long double) != typeid(type))
 
-#define THROW_EXCEPTION_IF_NOT_FLOATING(type)                           \
-    if (IS_NOT_FLOATING_TYPE(type)) \
+#define THROW_EXCEPTION_IF_NOT_FLOATING_POINT(type)                           \
+    if (IS_NOT_FLOATING_POINT_TYPE(type)) \
         throw "Type("#type") is not one of floating point types: float, double, long double."
 
-template<typename FT> class Floating;
+template<typename FT> class floating_point;
 
 /*
- * WARNING: FloatingAccessor is used for testings only, DO NOT use it in any practical projects!
+ * WARNING: floating_point_accessor is used for testings only, DO NOT use it in any practical projects!
  */
 template<typename FT>
-class FloatingAccessor
+class floating_point_accessor
 {
 /* ===================================
  * constructors:
  * =================================== */
 private:
-    FloatingAccessor();
+    floating_point_accessor();
 
 public:
-    explicit FloatingAccessor(const Floating<FT>& tested_obj) : m_tested_object(tested_obj) {}
+    explicit floating_point_accessor(const floating_point<FT>& tested_obj) : m_tested_object(tested_obj) {}
 
 /* ===================================
  * copy control:
  * =================================== */
 private:
-    explicit FloatingAccessor(const FloatingAccessor& src);
-    FloatingAccessor& operator=(const FloatingAccessor& src);
+    explicit floating_point_accessor(const floating_point_accessor& src);
+    floating_point_accessor& operator=(const floating_point_accessor& src);
 
 /* ===================================
  * destructor:
  * =================================== */
 public:
-    ~FloatingAccessor(){}
+    ~floating_point_accessor(){}
 
 /* ===================================
  * abilities:
  * =================================== */
 public:
-    FT GetValue(void) const
+    FT get_value(void) const
     {
         return m_tested_object.m_value;
     }
 
-    int GetDecimalPlaceCount(void) const
+    int get_decimal_place_count(void) const
     {
         return m_tested_object.m_decimal_place_count;
     }
 
-    const std::string* GetString(void) const
+    const std::string* get_string(void) const
     {
         return m_tested_object.m_string;
     }
@@ -120,54 +120,54 @@ public:
  * data:
  * =================================== */
 private:
-    const Floating<FT>& m_tested_object;
-}; // template class FloatingAccessor
+    const floating_point<FT>& m_tested_object;
+}; // template class floating_point_accessor
 
-// TODO: An exception class for Floating ??
+// TODO: An exception class for floating_point ??
 
 template<typename FT>
-class Floating
+class floating_point
 {
 /* ===================================
  * constructors:
  * =================================== */
 public:
-    Floating()
+    floating_point()
         : m_value(0)
         , m_decimal_place_count(DEFAULT_DECIMAL_PLACE_COUNT)
         , m_string(NULL)
     {
-        THROW_EXCEPTION_IF_NOT_FLOATING(FT);
-        ChangePrecision(this->m_decimal_place_count, this->m_value, NULL, NULL);
+        THROW_EXCEPTION_IF_NOT_FLOATING_POINT(FT);
+        change_precision(this->m_decimal_place_count, this->m_value, NULL, NULL);
     }
 
-    Floating(const FT src, const int n_decimal_places = DEFAULT_DECIMAL_PLACE_COUNT)
+    floating_point(const FT src, const int n_decimal_places = DEFAULT_DECIMAL_PLACE_COUNT)
         : m_decimal_place_count(n_decimal_places)
         , m_string(NULL)
     {
-        THROW_EXCEPTION_IF_NOT_FLOATING(FT);
+        THROW_EXCEPTION_IF_NOT_FLOATING_POINT(FT);
         this->m_value = src;
         if (this->m_decimal_place_count < 0)
             this->m_decimal_place_count = 0;
-        ChangePrecision(this->m_decimal_place_count, this->m_value, NULL, NULL);
+        change_precision(this->m_decimal_place_count, this->m_value, NULL, NULL);
     }
 
 /* ===================================
  * copy control:
  * =================================== */
 public:
-    explicit Floating(const Floating& src)
+    explicit floating_point(const floating_point& src)
         : m_string(NULL)
     {
-        THROW_EXCEPTION_IF_NOT_FLOATING(FT);
-        //THROW_EXCEPTION_IF_NOT_FLOATING(src.m_value);
+        THROW_EXCEPTION_IF_NOT_FLOATING_POINT(FT);
+        //THROW_EXCEPTION_IF_NOT_FLOATING_POINT(src.m_value);
         this->m_value = src.m_value;
         this->m_decimal_place_count = src.m_decimal_place_count;
         if (NULL != src.m_string)
             this->m_string = new std::string(*(src.m_string));
     }
 
-    Floating& operator=(const Floating& src)
+    floating_point& operator=(const floating_point& src)
     {
         if (this != &src)
         {
@@ -175,20 +175,20 @@ public:
             this->m_decimal_place_count = src.m_decimal_place_count;
 
             if (NULL != this->m_string)
-                ToString(src.m_value, src.m_decimal_place_count, *(this->m_string));
+                to_string(src.m_value, src.m_decimal_place_count, *(this->m_string));
 
         }
 
         return *this;
     }
 
-    Floating& operator=(const FT src)
+    floating_point& operator=(const FT src)
     {
         this->m_value = src;
         this->m_decimal_place_count = DEFAULT_DECIMAL_PLACE_COUNT;
 
         if (NULL != this->m_string)
-            ToString(this->m_value, this->m_decimal_place_count, *(this->m_string));
+            to_string(this->m_value, this->m_decimal_place_count, *(this->m_string));
 
         return *this;
     }
@@ -197,7 +197,7 @@ public:
  * destructor:
  * =================================== */
 public:
-    ~Floating()
+    ~floating_point()
     {
         if (NULL != m_string)
         {
@@ -209,6 +209,9 @@ public:
 /* ===================================
  * types:
  * =================================== */
+
+    friend class floating_point_accessor<FT>;
+
     /*
      * Replaces enumerations below with static member constants
      * so that they can take different values depending on their types.
@@ -224,9 +227,9 @@ public:
  * abilities:
  * =================================== */
 public:
-    static CA_REENTRANT int FromString(const char *str, FT &result, const int n_decimal_places = -1)
+    static CA_REENTRANT int from_string(const char *str, FT &result, const int n_decimal_places = -1)
     {
-        THROW_EXCEPTION_IF_NOT_FLOATING(FT);
+        THROW_EXCEPTION_IF_NOT_FLOATING_POINT(FT);
 
         if (NULL == str)
             return CA_RET(NULL_PARAM);
@@ -245,7 +248,7 @@ public:
 
         if (n_decimal_places >= 0)
         {
-            int ret = ChangePrecision(n_decimal_places, result, NULL, NULL);
+            int ret = change_precision(n_decimal_places, result, NULL, NULL);
 
             if (ret < 0)
             {
@@ -257,9 +260,9 @@ public:
         return CA_RET_OK;
     }
 
-    static CA_REENTRANT int ToString(const FT num, const int n_decimal_places, std::string& output)
+    static CA_REENTRANT int to_string(const FT num, const int n_decimal_places, std::string& output)
     {
-        THROW_EXCEPTION_IF_NOT_FLOATING(FT);
+        THROW_EXCEPTION_IF_NOT_FLOATING_POINT(FT);
 
         char result[CHAR_COUNT_OF_MAX_VALUE + 1] = {0};
         int result_size = sizeof(result);
@@ -267,7 +270,7 @@ public:
 
         output.clear();
 
-        if ((ret = ToString(num, n_decimal_places, result, result_size)) < 0)
+        if ((ret = to_string(num, n_decimal_places, result, result_size)) < 0)
             return ret;
 
         output.append(result);
@@ -275,13 +278,13 @@ public:
         return CA_RET_OK;
     }
 
-    static CA_REENTRANT int ToString(
+    static CA_REENTRANT int to_string(
         const FT num,
         const int n_decimal_places,
         char *output,
         int &size /* in: max buffer size, out: actual result size*/)
     {
-        THROW_EXCEPTION_IF_NOT_FLOATING(FT);
+        THROW_EXCEPTION_IF_NOT_FLOATING_POINT(FT);
 
         if (size <= 0
             || NULL == output)
@@ -309,24 +312,24 @@ public:
         return CA_RET_OK;
     }
 
-    const std::string *ToString() const
+    const std::string *to_string() const
     {
         if (NULL == m_string)
         {
             m_string = new std::string;
-            ToString(m_value, m_decimal_place_count, *m_string);
+            to_string(m_value, m_decimal_place_count, *m_string);
         }
 
         return m_string;
     }
 
-    static CA_REENTRANT int ChangePrecision(
+    static CA_REENTRANT int change_precision(
         const int n_decimal_places,
         FT &target, /* in: original value, out: value that has been handled */
         char *result_in_str = NULL,
         int *str_size = NULL /* in: max buffer size, out: actual string size*/)
     {
-        THROW_EXCEPTION_IF_NOT_FLOATING(FT);
+        THROW_EXCEPTION_IF_NOT_FLOATING_POINT(FT);
 
         bool str_holder_available = ((NULL != result_in_str) && (NULL != str_size) && (*str_size > 0));
         char str_result[CHAR_COUNT_OF_MAX_VALUE + 1] = {0};
@@ -336,7 +339,7 @@ public:
         if (str_holder_available)
             memset(result_in_str, 0, *str_size);
 
-        if ((ret = ToString(target, n_decimal_places, str_result, result_size)) < 0)
+        if ((ret = to_string(target, n_decimal_places, str_result, result_size)) < 0)
             return ret;
 
         if (typeid(float) == typeid(FT))
@@ -355,12 +358,12 @@ public:
         return CA_RET_OK;
     }
 
-    static CA_REENTRANT int ChangePrecision(
+    static CA_REENTRANT int change_precision(
         const int n_decimal_places,
         FT &target, /* in: original value, out: value that has been handled */
         std::string *result_in_str = NULL)
     {
-        THROW_EXCEPTION_IF_NOT_FLOATING(FT);
+        THROW_EXCEPTION_IF_NOT_FLOATING_POINT(FT);
 
         int ret = CA_RET_GENERAL_FAILURE;
 
@@ -370,7 +373,7 @@ public:
             int result_size = sizeof(str_result);
             FT tmp_result;
 
-            ret = ChangePrecision(n_decimal_places, tmp_result, str_result, &result_size);
+            ret = change_precision(n_decimal_places, tmp_result, str_result, &result_size);
             if (CA_RET_GENERAL_FAILURE != ret)
             {
                 target = tmp_result;
@@ -378,16 +381,16 @@ public:
             }
         }
         else
-            ret = ChangePrecision(n_decimal_places, target, NULL, NULL);
+            ret = change_precision(n_decimal_places, target, NULL, NULL);
 
         return ret;
     }
 
-    int ChangePrecision(const int n_decimal_places)
+    int change_precision(const int n_decimal_places)
     {
         FT tmp_value = m_value;
         std::string tmp_str((NULL != m_string) ? (*m_string) : NULL);
-        int ret = ChangePrecision(n_decimal_places, tmp_value, m_string);
+        int ret = change_precision(n_decimal_places, tmp_value, m_string);
 
         if (ret < 0)
         {
@@ -403,9 +406,9 @@ public:
         return CA_RET_OK;
     }
 
-    static CA_REENTRANT bool AbsolutelyEqual(const FT compared, const FT base)
+    static CA_REENTRANT bool is_absolutely_equal(const FT compared, const FT base)
     {
-        THROW_EXCEPTION_IF_NOT_FLOATING(FT);
+        THROW_EXCEPTION_IF_NOT_FLOATING_POINT(FT);
         /*
          * TODO: Which one is faster for comparation between two floating point numbers?
          */
@@ -414,14 +417,14 @@ public:
     }
 
     /*
-     * LessApproximate() functions check if all conditions below are true:
+     * is_left_approximation() functions check if all conditions below are true:
      *     (1) @compared(or @this) is not greater than @base
      *     (2) @compared(or @this) is approximately equal to @base within some certain deviation
      */
 
-    static CA_REENTRANT bool LessApproximate(const FT compared, const FT base, const FT absolute_deviation)
+    static CA_REENTRANT bool is_left_approximation(const FT compared, const FT base, const FT absolute_deviation)
     {
-        THROW_EXCEPTION_IF_NOT_FLOATING(FT);
+        THROW_EXCEPTION_IF_NOT_FLOATING_POINT(FT);
 
         if (compared > base)
             return false;
@@ -436,9 +439,9 @@ public:
             return difference <= fabsl(static_cast<long double>(absolute_deviation));
     }
 
-    static CA_REENTRANT bool LessApproximate(const FT compared, const FT base, const int n_decimal_places)
+    static CA_REENTRANT bool is_left_approximation(const FT compared, const FT base, const int n_decimal_places)
     {
-        THROW_EXCEPTION_IF_NOT_FLOATING(FT);
+        THROW_EXCEPTION_IF_NOT_FLOATING_POINT(FT);
 
         if (compared > base || DECIMAL_PLACE_COUNT_OUT_OF_RANGE(FT, n_decimal_places))
             return false;
@@ -472,93 +475,93 @@ public:
         else
             deviation_value = strtold(deviation_str, NULL);
 
-        return LessApproximate(compared, base, deviation_value);
+        return is_left_approximation(compared, base, deviation_value);
     }
 
-    bool LessApproximate(const Floating& base) const
+    bool is_left_approximation(const floating_point& base) const
     {
         int n_decimal_places = (this->m_decimal_place_count >= base.m_decimal_place_count)
             ? this->m_decimal_place_count : base.m_decimal_place_count;
 
-        return LessApproximate(this->m_value, base.m_value, n_decimal_places);
+        return is_left_approximation(this->m_value, base.m_value, n_decimal_places);
     }
 
-    bool LessApproximate(const FT base) const
+    bool is_left_approximation(const FT base) const
     {
-        return LessApproximate(m_value, base, m_decimal_place_count);
+        return is_left_approximation(m_value, base, m_decimal_place_count);
     }
 
-    bool LessApproximate(const FT base, const int n_decimal_places) const
+    bool is_left_approximation(const FT base, const int n_decimal_places) const
     {
-        return LessApproximate(m_value, base, n_decimal_places);
+        return is_left_approximation(m_value, base, n_decimal_places);
     }
 
-    bool LessApproximate(const FT base, const FT absolute_deviation) const
+    bool is_left_approximation(const FT base, const FT absolute_deviation) const
     {
-        return LessApproximate(m_value, base, absolute_deviation);
+        return is_left_approximation(m_value, base, absolute_deviation);
     }
 
     /*
-     * GreaterApproximate() functions check if all conditions below are true:
+     * is_right_approximation() functions check if all conditions below are true:
      *     (1) @compared(or @this) is not less than @base
      *     (2) @compared(or @this) is approximately equal to @base within some certain deviation
      */
 
-    static CA_REENTRANT bool GreaterApproximate(const FT compared, const FT base, const FT absolute_deviation)
+    static CA_REENTRANT bool is_right_approximation(const FT compared, const FT base, const FT absolute_deviation)
     {
-        THROW_EXCEPTION_IF_NOT_FLOATING(FT);
+        THROW_EXCEPTION_IF_NOT_FLOATING_POINT(FT);
 
         if (compared < base)
             return false;
 
-        return LessApproximate(base, compared, absolute_deviation);
+        return is_left_approximation(base, compared, absolute_deviation);
     }
 
-    static CA_REENTRANT bool GreaterApproximate(const FT compared, const FT base, const int n_decimal_places)
+    static CA_REENTRANT bool is_right_approximation(const FT compared, const FT base, const int n_decimal_places)
     {
-        THROW_EXCEPTION_IF_NOT_FLOATING(FT);
+        THROW_EXCEPTION_IF_NOT_FLOATING_POINT(FT);
 
         if (compared < base)
             return false;
 
-        return LessApproximate(base, compared, n_decimal_places);
+        return is_left_approximation(base, compared, n_decimal_places);
     }
 
-    bool GreaterApproximate(const Floating& base) const
+    bool is_right_approximation(const floating_point& base) const
     {
         int n_decimal_places = (this->m_decimal_place_count >= base.m_decimal_place_count)
             ? this->m_decimal_place_count : base.m_decimal_place_count;
 
-        return GreaterApproximate(this->m_value, base.m_value, n_decimal_places);
+        return is_right_approximation(this->m_value, base.m_value, n_decimal_places);
     }
 
-    bool GreaterApproximate(const FT base) const
+    bool is_right_approximation(const FT base) const
     {
-        return GreaterApproximate(m_value, base, m_decimal_place_count);
+        return is_right_approximation(m_value, base, m_decimal_place_count);
     }
 
-    bool GreaterApproximate(const FT base, const int n_decimal_places) const
+    bool is_right_approximation(const FT base, const int n_decimal_places) const
     {
-        return GreaterApproximate(m_value, base, n_decimal_places);
+        return is_right_approximation(m_value, base, n_decimal_places);
     }
 
-    bool GreaterApproximate(const FT base, const FT absolute_deviation) const
+    bool is_right_approximation(const FT base, const FT absolute_deviation) const
     {
-        return GreaterApproximate(m_value, base, absolute_deviation);
+        return is_right_approximation(m_value, base, absolute_deviation);
     }
 
-    static CA_REENTRANT bool Approximate(const FT compared, const FT base, const FT absolute_deviation)
+    static CA_REENTRANT bool is_approximative(const FT compared, const FT base, const FT absolute_deviation)
     {
-        THROW_EXCEPTION_IF_NOT_FLOATING(FT);
+        THROW_EXCEPTION_IF_NOT_FLOATING_POINT(FT);
 
         FT _deviation = absolute_deviation / 2;
 
-        return LessApproximate(compared, base, _deviation) || GreaterApproximate(compared, base, _deviation);
+        return is_left_approximation(compared, base, _deviation) || is_right_approximation(compared, base, _deviation);
     }
 
-    static CA_REENTRANT bool Approximate(const FT compared, const FT base, const int n_decimal_places)
+    static CA_REENTRANT bool is_approximative(const FT compared, const FT base, const int n_decimal_places)
     {
-        THROW_EXCEPTION_IF_NOT_FLOATING(FT);
+        THROW_EXCEPTION_IF_NOT_FLOATING_POINT(FT);
 
         if (DECIMAL_PLACE_COUNT_OUT_OF_RANGE(FT, n_decimal_places))
             return false;
@@ -568,33 +571,33 @@ public:
         char result_base[CHAR_COUNT_OF_MAX_VALUE + 1] = {0};
         int size_base = sizeof(result_base);
 
-        ToString(compared, n_decimal_places, result_compared, size_compared);
-        ToString(base, n_decimal_places, result_base, size_base);
+        to_string(compared, n_decimal_places, result_compared, size_compared);
+        to_string(base, n_decimal_places, result_base, size_base);
 
         return (0 == memcmp(result_compared, result_base, strlen(result_base)));
     }
 
-    bool Approximate(const Floating& base) const
+    bool is_approximative(const floating_point& base) const
     {
         int n_decimal_places = (this->m_decimal_place_count >= base.m_decimal_place_count)
             ? this->m_decimal_place_count : base.m_decimal_place_count;
 
-        return Approximate(this->m_value, base.m_value, n_decimal_places);
+        return is_approximative(this->m_value, base.m_value, n_decimal_places);
     }
 
-    bool Approximate(const FT base) const
+    bool is_approximative(const FT base) const
     {
-        return Approximate(m_value, base, m_decimal_place_count);
+        return is_approximative(m_value, base, m_decimal_place_count);
     }
 
-    bool Approximate(const FT base, const int n_decimal_places) const
+    bool is_approximative(const FT base, const int n_decimal_places) const
     {
-        return Approximate(m_value, base, n_decimal_places);
+        return is_approximative(m_value, base, n_decimal_places);
     }
 
-    bool Approximate(const FT base, const FT absolute_deviation) const
+    bool is_approximative(const FT base, const FT absolute_deviation) const
     {
-        return Approximate(m_value, base, absolute_deviation);
+        return is_approximative(m_value, base, absolute_deviation);
     }
 
 /* ===================================
@@ -630,8 +633,6 @@ public:
         return sizeof(FT);
     }
 
-    friend class FloatingAccessor<FT>;
-
 /* ===================================
  * status:
  * =================================== */
@@ -641,7 +642,7 @@ public:
  * operators:
  * =================================== */
 public:
-    bool operator==(const Floating& compared) const
+    bool operator==(const floating_point& compared) const
     {
         return (this->m_decimal_place_count == compared.m_decimal_place_count)
             && (this->m_value == compared.m_value);
@@ -651,12 +652,12 @@ public:
     {
         FT tmp_value = compared;
 
-        //ChangePrecision(m_decimal_place_count, tmp_value);// should not do this!
+        //change_precision(m_decimal_place_count, tmp_value);// should not do this!
 
         return m_value == tmp_value;
     }
 
-    bool operator!=(const Floating& compared) const
+    bool operator!=(const floating_point& compared) const
     {
         return !(*this == compared);
     }
@@ -666,7 +667,7 @@ public:
         return !(this->m_value == compared);
     }
 
-    bool operator<(const Floating& compared) const
+    bool operator<(const floating_point& compared) const
     {
         return this->m_value < compared.m_value;
     }
@@ -676,7 +677,7 @@ public:
         return this->m_value <= compared;
     }
 
-    bool operator>(const Floating& compared) const
+    bool operator>(const floating_point& compared) const
     {
         return this->m_value > compared.m_value;
     }
@@ -709,12 +710,12 @@ protected:
     FT m_value;
     int m_decimal_place_count;
     std::string *m_string;
-}; // template class Floating
+}; // template class floating_point
 
-typedef Floating<float> Float;
-typedef Floating<double> Double;
-typedef Floating<long double> LongDouble;
+typedef floating_point<float> cfloat; // class with the raw type "float"
+typedef floating_point<double> cdouble; // class with the raw type "double"
+typedef floating_point<long double> cldouble; // class with the raw type "long double"
 
 CA_LIB_NAMESPACE_END
 
-#endif /* __CPP_ASSISTANT_FLOATING_CALCULATION_H__ */
+#endif /* __CPP_ASSISTANT_FLOATING_POINT_CALCULATION_H__ */

@@ -26,10 +26,10 @@
 //       for convenience or for a certain purpose, at different places:
 //       wenxiongchang, wxc, Damon Wen, udc577
 
+#include "../../include/signal_capturer.h"
 #include "common_headers.h"
 
 #include "base/ca_return_code.h"
-#include "ca_signal.h"
 
 static bool is_critical_signal(int sig_num)
 {
@@ -58,7 +58,7 @@ static int show_signal(int sig_num)
     return CA_RET_OK;
 }
 
-TEST(Signal, AllInOne)
+TEST(signal_capturer, all_in_one)
 {
     const int INVALID_SIGNAL_MIN = calib::MIN_SIGNAL_NUM - 1;
     const int INVALID_SIGNAL_MAX = calib::MAX_SIGNAL_NUM + 1;
@@ -70,37 +70,37 @@ TEST(Signal, AllInOne)
         bool should_exit = false;
         bool init_should_exit = should_exit;
 
-        ASSERT_FALSE(calib::Signal::is_registered(i));
+        ASSERT_FALSE(calib::signal_capturer::is_registered(i));
 
         if (INVALID_SIGNAL_MIN == i || INVALID_SIGNAL_MAX == i)
         {
-            ASSERT_FALSE(calib::Signal::is_valid(i));
-            register_ret = calib::Signal::Register(i, show_signal, exits_after_handling);
+            ASSERT_FALSE(calib::signal_capturer::is_valid(i));
+            register_ret = calib::signal_capturer::register_one(i, show_signal, exits_after_handling);
             ASSERT_EQ(CA_RET(INVALID_SIGNAL_NUMBER), register_ret);
-            ASSERT_FALSE(calib::Signal::is_registered(i));
-            ASSERT_EQ(CA_RET(INVALID_SIGNAL_NUMBER), calib::Signal::HandleOne(i, should_exit));
+            ASSERT_FALSE(calib::signal_capturer::is_registered(i));
+            ASSERT_EQ(CA_RET(INVALID_SIGNAL_NUMBER), calib::signal_capturer::handle_one(i, should_exit));
             ASSERT_EQ(init_should_exit, should_exit);
             continue;
         }
 
-        ASSERT_TRUE(calib::Signal::is_valid(i));
-        ASSERT_EQ(CA_RET(SIGNAL_NOT_REGISTERED), calib::Signal::HandleOne(i, should_exit));
+        ASSERT_TRUE(calib::signal_capturer::is_valid(i));
+        ASSERT_EQ(CA_RET(SIGNAL_NOT_REGISTERED), calib::signal_capturer::handle_one(i, should_exit));
 
         printf("Registering signal %d\n", i);
-        register_ret = calib::Signal::Register(i, show_signal, exits_after_handling);
+        register_ret = calib::signal_capturer::register_one(i, show_signal, exits_after_handling);
         if (signal_capture_is_forbidden(i))
         {
             printf("Registration for signal %d failed, ret = %d\n", i, register_ret);
             ASSERT_EQ(CA_RET(SIGNAL_CAPTURE_NOT_ALLOWED), register_ret);
-            ASSERT_FALSE(calib::Signal::is_registered(i));
-            ASSERT_EQ(CA_RET(SIGNAL_NOT_REGISTERED), calib::Signal::HandleOne(i, should_exit));
+            ASSERT_FALSE(calib::signal_capturer::is_registered(i));
+            ASSERT_EQ(CA_RET(SIGNAL_NOT_REGISTERED), calib::signal_capturer::handle_one(i, should_exit));
             ASSERT_EQ(init_should_exit, should_exit);
         }
         else
         {
             ASSERT_EQ(CA_RET_OK, register_ret);
             printf("Registration for signal %d successful\n", i);
-            ASSERT_TRUE(calib::Signal::is_registered(i));
+            ASSERT_TRUE(calib::signal_capturer::is_registered(i));
         }
     }
 
@@ -175,7 +175,7 @@ SEND_SIGNALS:
         }
 
         bool should_exit = false;
-        int handle_ret = calib::Signal::HandleAll(should_exit);
+        int handle_ret = calib::signal_capturer::handle_all(should_exit);
 
         ASSERT_GE(handle_ret, 0);
         if (0 == handle_ret)

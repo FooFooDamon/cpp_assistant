@@ -246,7 +246,7 @@ static int extract_config_nodes(const std::vector<TiXmlElement*> &nodes,
     bool allows_missing_attributes,
     const char *first_attr,
     va_list &other_attr,
-    std::vector<ConfigNode> &result)
+    std::vector<config_node> &result)
 {
     int node_count = nodes.size();
 
@@ -258,7 +258,7 @@ static int extract_config_nodes(const std::vector<TiXmlElement*> &nodes,
 
     //DEBUG_PRINT_NS("cans::xml", "node size: %ld, expected node count: %d\n", nodes.size(), node_count);
 
-    ConfigNode node;
+    config_node node;
 
     for (int i = 0; i < node_count; ++i)
     {
@@ -310,10 +310,10 @@ static int extract_config_nodes(const std::vector<TiXmlElement*> &nodes,
     return node_count;
 }
 
-int read_config_nodes(const ConfigElement *parent_element,
+int read_config_nodes(const config_element *parent_element,
     const char *relative_xpath,
     size_t expected_node_count,
-    std::vector<ConfigNode> &result,
+    std::vector<config_node> &result,
     bool allows_missing_attributes/* = false*/,
     const char *first_attr/* = NULL*/,
     .../* Must end with NULL!!! */)
@@ -345,10 +345,10 @@ int read_config_nodes(const ConfigElement *parent_element,
     return extract_ret;
 }
 
-int read_config_nodes(const ConfigFile &file,
+int read_config_nodes(const config_file &file,
     const char *absolute_xpath,
     size_t expected_node_count,
-    std::vector<ConfigNode> &result,
+    std::vector<config_node> &result,
     bool allows_missing_attributes/* = false*/,
     const char *first_attr/* = NULL*/,
     .../* Must end with NULL!!! */)

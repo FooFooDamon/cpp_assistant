@@ -43,34 +43,34 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
-class ScreenLogger : public Logger
+class screen_logger : public logger
 {
 /* ===================================
  * constructors:
  * =================================== */
 public:
-    ScreenLogger();
+    screen_logger();
 
 /* ===================================
  * copy control:
  * =================================== */
 private:
-    ScreenLogger(const ScreenLogger& src);
-    ScreenLogger& operator=(const ScreenLogger& src);
+    screen_logger(const screen_logger& src);
+    screen_logger& operator=(const screen_logger& src);
 
 /* ===================================
  * destructor:
  * =================================== */
 public:
-    ~ScreenLogger();
+    ~screen_logger();
 
 /* ===================================
  * abilities:
  * =================================== */
 public:
-    virtual int Open(int cache_buf_size = DEFAULT_LOG_CACHE_SIZE)/*  = 0 */;
+    virtual int open(int cache_buf_size = DEFAULT_LOG_CACHE_SIZE)/*  = 0 */;
 
-    virtual int Close(bool release_buffer = true)/*  = 0 */;
+    virtual int close(bool release_buffer = true)/*  = 0 */;
 
 /* ===================================
  * attributes:
@@ -140,7 +140,8 @@ protected:
     DECLARE_CLASS_NAME_VAR();
 };
 
-typedef ScreenLogger TerminalLogger;
+typedef screen_logger terminal_logger;
+typedef terminal_logger termlog;
 
 CA_LIB_NAMESPACE_END
 

@@ -41,33 +41,33 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
-class FileLogger : public Logger
+class file_logger : public logger
 {
 /* ===================================
  * constructors:
  * =================================== */
 public:
-    FileLogger();
+    file_logger();
 
 /* ===================================
  * copy control:
  * =================================== */
 private:
-    FileLogger(const FileLogger& src);
-    FileLogger& operator=(const FileLogger& src);
+    file_logger(const file_logger& src);
+    file_logger& operator=(const file_logger& src);
 
 /* ===================================
  * destructor:
  * =================================== */
 public:
-    ~FileLogger();
+    ~file_logger();
 
 /* ===================================
  * abilities:
  * =================================== */
 public:
-    virtual int Open(int cache_buf_size = DEFAULT_LOG_CACHE_SIZE)/*  = 0 */;
-    virtual int Close(bool release_buffer = true)/*  = 0 */;
+    virtual int open(int cache_buf_size = DEFAULT_LOG_CACHE_SIZE)/*  = 0 */;
+    virtual int close(bool release_buffer = true)/*  = 0 */;
 
 /* ===================================
  * attributes:
@@ -91,7 +91,7 @@ public:
 
     virtual int set_directory_length_limit(int limit)/*  = 0 */
     {
-        return __AdjustPathLengthLimit(LOG_DIR_LEN_LIMIT_MAX,
+        return __adjust_path_length_limit(LOG_DIR_LEN_LIMIT_MAX,
             LOG_DIR_LEN_LIMIT_MIN,
             limit,
             m_dir_len_limit,
@@ -114,7 +114,7 @@ public:
 
     virtual int set_name_length_limit(int limit)/*  = 0 */
     {
-        return __AdjustPathLengthLimit(LOG_NAME_LEN_LIMIT_MAX,
+        return __adjust_path_length_limit(LOG_NAME_LEN_LIMIT_MAX,
             LOG_NAME_LEN_LIMIT_MIN,
             limit,
             m_name_len_limit,
@@ -151,13 +151,13 @@ public:
  * private methods:
  * =================================== */
 protected:
-    virtual int __SwitchLoggerStatus(void);
+    virtual int __switch_logger_status(void);
 
-    int __UpdateLogNum(void);
+    int __update_log_num(void);
 
-    int __InnerlySetLogName(const char *base_name, bool updates_log_num = false);
+    int __innerly_set_log_name(const char *base_name, bool updates_log_num = false);
 
-    int __AdjustPathLengthLimit(const int max_limit,
+    int __adjust_path_length_limit(const int max_limit,
         const int min_limit,
         const int target_limit,
         int &path_limit_var,
@@ -176,6 +176,8 @@ protected:
     char *m_log_directory;
     char *m_buffer;
 };
+
+typedef file_logger flog;
 
 CA_LIB_NAMESPACE_END
 

@@ -42,10 +42,10 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
-DEFINE_CLASS_NAME(FileLogger);
+DEFINE_CLASS_NAME(file_logger);
 static const int S_INITIAL_FILE_LOG_NUM = 0;
 
-FileLogger::FileLogger()
+file_logger::file_logger()
     : m_name_len_limit(LOG_NAME_LEN_LIMIT_DEFAULT)
     , m_dir_len_limit(LOG_DIR_LEN_LIMIT_DEFAULT)
     , m_line_limit(LOG_LINE_LIMIT_DEFAULT)
@@ -57,9 +57,9 @@ FileLogger::FileLogger()
     m_to_screen = false;
 }
 
-FileLogger::~FileLogger()
+file_logger::~file_logger()
 {
-    Close();
+    close();
 
     if (NULL != m_log_name)
     {
@@ -74,7 +74,7 @@ FileLogger::~FileLogger()
     }
 }
 
-/*virtual */int FileLogger::Open(int cache_buf_size/* = DEFAULT_LOG_CACHE_SIZE*/)/*  = 0 */
+/*virtual */int file_logger::open(int cache_buf_size/* = DEFAULT_LOG_CACHE_SIZE*/)/*  = 0 */
 {
     if (is_open())
         return CA_RET_OK;
@@ -142,7 +142,7 @@ FileLogger::~FileLogger()
     return CA_RET_OK;
 }
 
-/*virtual */int FileLogger::Close(bool release_buffer/* = true*/)/*  = 0 */
+/*virtual */int file_logger::close(bool release_buffer/* = true*/)/*  = 0 */
 {
     if (!is_open())
         return CA_RET(OK);
@@ -173,7 +173,7 @@ FileLogger::~FileLogger()
     snprintf(src_file, path_len, "%s%c%s.tmp", m_log_directory, DIR_DELIM, m_log_name);
     snprintf(dst_file, path_len, "%s%c%s", m_log_directory, DIR_DELIM, m_log_name);
 
-    __UpdateLogNum(); // Updates some info for the next opening in advance.
+    __update_log_num(); // Updates some info for the next opening in advance.
 
     if (rename(src_file, dst_file) < 0)
     {
@@ -192,7 +192,7 @@ FileLogger::~FileLogger()
     return CA_RET_OK;
 }
 
-/*virtual */int FileLogger::set_log_directory(const char *dir) /*  CA_NOTNULL(2) */
+/*virtual */int file_logger::set_log_directory(const char *dir) /*  CA_NOTNULL(2) */
 {
     if (NULL == dir)
         return CA_RET(NULL_PARAM);
@@ -250,7 +250,7 @@ FileLogger::~FileLogger()
     return CA_RET_OK;
 }
 
-/*virtual */int FileLogger::set_log_name(const char *base_name)/*  CA_NOTNULL(2)  = 0 */
+/*virtual */int file_logger::set_log_name(const char *base_name)/*  CA_NOTNULL(2)  = 0 */
 {
     if (NULL == base_name)
         return CA_RET(NULL_PARAM);
@@ -288,21 +288,21 @@ FileLogger::~FileLogger()
 
     m_log_num = S_INITIAL_FILE_LOG_NUM; // Log number has to be set to initial value for a new name!
 
-    __InnerlySetLogName(base_name);
+    __innerly_set_log_name(base_name);
 
     return CA_RET_OK;
 }
 
-/*virtual */int FileLogger::__SwitchLoggerStatus(void)
+/*virtual */int file_logger::__switch_logger_status(void)
 {
     int ret = CA_RET_OK;
     bool is_used_by_inner_debug = (m_output_holder == __get_debug_output_holder());
     bool is_used_by_inner_error = (m_output_holder == __get_error_output_holder());
 
-    if (CA_RET_OK != (ret = Close(NOT_RELEASE_LOG_BUF_ON_CLOSE))) // Closes it first.
+    if (CA_RET_OK != (ret = close(NOT_RELEASE_LOG_BUF_ON_CLOSE))) // Closes it first.
         return ret;
 
-    if (CA_RET_OK != (ret = Open())) // Re-opens the logger to start a new log file.
+    if (CA_RET_OK != (ret = open())) // Re-opens the logger to start a new log file.
         return ret;
 
     if (is_used_by_inner_debug)
@@ -318,7 +318,7 @@ FileLogger::~FileLogger()
 
 // NOTE: The main purpose of this function is to update log number,
 //     and the whole log name is also updated relatively.
-int FileLogger::__UpdateLogNum(void)
+int file_logger::__update_log_num(void)
 {
     int max_name_len = name_length_limit() + 1;
     char *base_name = (char *)calloc(max_name_len, sizeof(char));
@@ -334,12 +334,12 @@ int FileLogger::__UpdateLogNum(void)
     else
         strncpy(base_name, m_log_name, (size_t)(date_ptr - m_log_name));
 
-    __InnerlySetLogName(base_name, true); // Refreshes the whole name.
+    __innerly_set_log_name(base_name, true); // Refreshes the whole name.
 
     return CA_RET_OK;
 }
 
-int FileLogger::__InnerlySetLogName(const char *base_name, bool updates_log_num/* = false*/)
+int file_logger::__innerly_set_log_name(const char *base_name, bool updates_log_num/* = false*/)
 {
     pid_t pid = getpid();
     struct timeval tv;
@@ -371,7 +371,7 @@ int FileLogger::__InnerlySetLogName(const char *base_name, bool updates_log_num/
     return CA_RET_OK;
 }
 
-int FileLogger::__AdjustPathLengthLimit(const int max_limit,
+int file_logger::__adjust_path_length_limit(const int max_limit,
     const int min_limit,
     const int target_limit,
     int &path_limit_var,

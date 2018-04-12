@@ -47,8 +47,15 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
+#define HIGHLIGHT_COLOR_BLACK                       "\033[1;30m"
 #define HIGHLIGHT_COLOR_RED                         "\033[1;31m"
+#define HIGHLIGHT_COLOR_GREEN                       "\033[1;32m"
 #define HIGHLIGHT_COLOR_YELLOW                      "\033[1;33m"
+#define HIGHLIGHT_COLOR_BLUE                        "\033[1;34m"
+#define HIGHLIGHT_COLOR_PURPLE                      "\033[1;35m"
+#define HIGHLIGHT_COLOR_DARK_GREEN                  "\033[1;36m"
+#define HIGHLIGHT_COLOR_WHITE                       "\033[1;37m"
+
 #define NO_PRINT_ATTRIBUTES                         "\033[0m"
 
 #define WARNING_COLOR                               HIGHLIGHT_COLOR_YELLOW
@@ -99,19 +106,16 @@ void __error(const char *format, ...) CA_NOTNULL(1) CA_PRINTF_CHECK(1, 2);
     func("%s, %s%s%s(): Line %d: "fmt, __FILE__, class_str, ns_delim, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 
 #define debug_is_enabled                                __debug_is_enabled
-#define debug(fmt, ...)                                 __output(__debug, "", "", fmt, ##__VA_ARGS__)
 #define cdebug(fmt, ...)                                __output(__debug, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
 #define csdebug(_class_, fmt, ...)                      __output(__debug, _class_::class_name(), "::", fmt, ##__VA_ARGS__)
 #define nsdebug(ns_str, fmt, ...)                       __output(__debug, ns_str, "::", fmt, ##__VA_ARGS__)
 
 #define __error_report_is_enabled                       __error_report_is_enabled
 
-#define warn(fmt, ...)                                  __output(__warn, "", "", fmt, ##__VA_ARGS__)
 #define cwarn(fmt, ...)                                 __output(__warn, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
 #define cswarn(_class_, fmt, ...)                       __output(__warn, _class_::class_name(), "::", fmt, ##__VA_ARGS__)
 #define nswarn(ns_str, fmt, ...)                        __output(__warn, ns_str, "::", fmt, ##__VA_ARGS__)
 
-#define error(fmt, ...)                                 __output(__error, "", "", fmt, ##__VA_ARGS__)
 #define cerror(fmt, ...)                                __output(__error, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
 #define cserror(_class_, fmt, ...)                      __output(__error, _class_::class_name(), "::", fmt, ##__VA_ARGS__)
 #define nserror(ns_str, fmt, ...)                       __output(__error, ns_str, "::", fmt, ##__VA_ARGS__)

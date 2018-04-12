@@ -43,48 +43,48 @@
 CA_LIB_NAMESPACE_BEGIN
 
 /*
- * SingletonT<T>: A thread-safe class template.
+ * singleton<T>: A thread-safe class template.
  * Usage examples:
  *     (1):
- *         class YourClass : public SingletonT<YourClass>
+ *         class YourClass : public singleton<YourClass>
  *         {
  *         private: // or protected
  *             YourClass(){ // Your implementation }
  *             YourClass(const YourClass& src);
  *             YourClass& operator=(const YourClass& src);
  *             ~YourClass(){ // Your implementation }
- *             friend SingletonT<YourClass>;
+ *             friend singleton<YourClass>;
  *
  *         // Others.
  *         };
- *         YourClass *GetInstance = YourClass::GetInstance();
+ *         YourClass *instance = YourClass::get_instance();
  *
  *     (2):
- *         YourClass *GetInstance = SingletonT<YourClass>::GetInstance();
+ *         YourClass *instance = singleton<YourClass>::get_instance();
  */
 
 template<typename T>
-class SingletonT
+class singleton
 {
 /* ===================================
  * constructors:
  * =================================== */
 //private:
 protected: // for inheritance
-    SingletonT(){}
+    singleton(){}
 
 /* ===================================
  * copy control:
  * =================================== */
 protected:
-    SingletonT(const SingletonT& src);
-    SingletonT& operator=(const SingletonT& src);
+    singleton(const singleton& src);
+    singleton& operator=(const singleton& src);
 
 /* ===================================
  * destructor:
  * =================================== */
 public:
-    // No destructor needed for SingletonT itself, see implementation of GetInstance().
+    // No destructor needed for singleton itself, see implementation of get_instance().
     // TODO: Or needs a empty virtual destructor ??
 
 /* ===================================
@@ -97,28 +97,28 @@ public:
  * abilities:
  * =================================== */
 public:
-    static CA_THREAD_SAFE inline T* GetInstance(void)
+    static CA_THREAD_SAFE inline T* get_instance(void)
     {
         if (NULL == m_instance)
         {
-            Lock();
+            lock();
             if (NULL == m_instance)
             {
-                static T ins; // Constructor of a common class or a derived class has to be accessible to SingletonT<T>.
+                static T ins; // Constructor of a common class or a derived class has to be accessible to singleton<T>.
                 m_instance = &ins;
             }
-            Unlock();
+            unlock();
         }
 
         return m_instance;
     }
 
-    static inline int Lock(void)
+    static inline int lock(void)
     {
         return mutex_lock(&m_lock);
     }
 
-    static inline int Unlock(void)
+    static inline int unlock(void)
     {
         return mutex_unlock(&m_lock);
     }
@@ -155,8 +155,8 @@ private:
     static mutex_t m_lock;
 };
 
-template<typename T> T* SingletonT<T>::m_instance = NULL;
-template<typename T> mutex_t SingletonT<T>::m_lock;
+template<typename T> T* singleton<T>::m_instance = NULL;
+template<typename T> mutex_t singleton<T>::m_lock;
 
 CA_LIB_NAMESPACE_END
 

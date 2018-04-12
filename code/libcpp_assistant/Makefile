@@ -57,7 +57,7 @@ $(LIB_CPP_ASSISTANT.SO):
 	make shared $(DEBUG_FLAG) $(STL_FLAG) $(TINYXML_FLAG) -C $(DIR_3RD_PARTY)
 	make shared $(DEBUG_FLAG) $(STL_FLAG) $(VERSION_DEFINES) -C $(DIR_NATIVE)
 	$(CXX) -shared -o $@.$(CA_MAIN_VER) $(NATIVE_OBJS) $(3RD_PARTY_OBJS)
-	ln -s $@.$(CA_MAIN_VER) $@
+	-ln -s $@.$(CA_MAIN_VER) $@
 
 shared: $(LIB_CPP_ASSISTANT.SO)
 
@@ -104,12 +104,12 @@ install:
 uninstall:
 	make uninstall -C $(DIR_3RD_PARTY)
 	make uninstall -C $(DIR_NATIVE)
-	cd $(DIR_LIB_INSTALL)/ && rm -f $(addsuffix *, $(basename $(TARGETS))) && cd -
+	-cd $(DIR_LIB_INSTALL)/ && rm -f $(addsuffix *, $(basename $(TARGETS))) && cd -
 	@echo "Contents in directory $(HOME)/lib and $(HOME)/include/cpp_assistant have to be cleared manually if necessary."
 
 clean:
 	rm -f $(addsuffix *, $(basename $(TARGETS)))
-	cd $(DIR_LIB_INSTALL)/ && rm -f $(addsuffix *, $(basename $(TARGETS))) && cd -
+	-cd $(DIR_LIB_INSTALL)/ && rm -f $(addsuffix *, $(basename $(TARGETS))) && cd -
 	find . -iname "*.plist" | xargs rm -f
 	make clean -C $(DIR_3RD_PARTY)
 	make clean -C $(DIR_NATIVE)

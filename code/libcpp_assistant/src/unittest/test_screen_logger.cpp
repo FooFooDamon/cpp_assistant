@@ -32,7 +32,7 @@
 #include "base/debug.h"
 #include "screen_logger.h"
 
-TEST(ScreenLogger, AllInOne)
+TEST(screen_logger, AllInOne)
 {
     const char *TEST_STR = "屏幕日志记录器测试\n";
     const int TEST_STR_LEN = strlen(TEST_STR);
@@ -41,10 +41,10 @@ TEST(ScreenLogger, AllInOne)
         calib::LOG_LEVEL_INFO,
         calib::LOG_LEVEL_WARNING,
         calib::LOG_LEVEL_ERROR,
-        calib::LOG_LEVEL_FATAL
+        calib::LOG_LEVEL_CRITICAL
     };
     const int LEVEL_COUNT = sizeof(LOG_LEVELS) / sizeof(calib::enum_log_level);
-    calib::ScreenLogger logger;
+    calib::screen_logger logger;
     const char *INITIAL_LOG_NAME = logger.log_name();
     const char *INITIAL_LOG_DIR = logger.log_directory();
     bool debug_macro_is_defined = calib::__debug_macro_is_defined();
@@ -65,30 +65,30 @@ TEST(ScreenLogger, AllInOne)
     for (int i = 0; i < LEVEL_COUNT; ++i)
     {
         ASSERT_EQ(debug_macro_is_defined ? CA_RET(NULL_PARAM) : NULL_PARAM_RETCODE_DUE_TO_OPTIMIZATION,
-            logger.Output(calib::NO_LOG_PREFIX, LOG_LEVELS[i], NULL));
-        ASSERT_GE(logger.Output(calib::NO_LOG_PREFIX, LOG_LEVELS[i], "[Level: %d]: %s", LOG_LEVELS[i], TEST_STR), TEST_STR_LEN);
+            logger.output(calib::NO_LOG_PREFIX, LOG_LEVELS[i], NULL));
+        ASSERT_GE(logger.output(calib::NO_LOG_PREFIX, LOG_LEVELS[i], "[Level: %d]: %s", LOG_LEVELS[i], TEST_STR), TEST_STR_LEN);
     }
 
     /*
      * It's okay to open the logger multiple times.
      */
-    ASSERT_EQ(CA_RET_OK, logger.Open());
-    ASSERT_EQ(CA_RET_OK, logger.Open());
+    ASSERT_EQ(CA_RET_OK, logger.open());
+    ASSERT_EQ(CA_RET_OK, logger.open());
     ASSERT_TRUE(logger.is_open());
 
     /*
      * It's okay to close the logger multiple times as well,
      * and we can not call Output() in this case.
      */
-    ASSERT_EQ(CA_RET_OK, logger.Close());
-    ASSERT_EQ(CA_RET_OK, logger.Close());
+    ASSERT_EQ(CA_RET_OK, logger.close());
+    ASSERT_EQ(CA_RET_OK, logger.close());
     ASSERT_FALSE(logger.is_open());
     for (int i = 0; i < LEVEL_COUNT; ++i)
     {
         ASSERT_EQ(debug_macro_is_defined ? CA_RET(NULL_PARAM) : CA_RET(FILE_OR_STREAM_NOT_OPEN),
-            logger.Output(calib::NO_LOG_PREFIX, LOG_LEVELS[i], NULL));
+            logger.output(calib::NO_LOG_PREFIX, LOG_LEVELS[i], NULL));
         ASSERT_EQ(CA_RET(FILE_OR_STREAM_NOT_OPEN),
-            logger.Output(calib::NO_LOG_PREFIX, LOG_LEVELS[i], "[Level: %d]: %s", LOG_LEVELS[i], TEST_STR));
+            logger.output(calib::NO_LOG_PREFIX, LOG_LEVELS[i], "[Level: %d]: %s", LOG_LEVELS[i], TEST_STR));
     }
 
     /*
@@ -110,7 +110,7 @@ TEST(ScreenLogger, AllInOne)
     /*
      * Re-opens the logger for afterward testings.
      */
-    ASSERT_EQ(CA_RET_OK, logger.Open());
+    ASSERT_EQ(CA_RET_OK, logger.open());
     ASSERT_TRUE(logger.is_open());
 
     /*
@@ -133,12 +133,12 @@ TEST(ScreenLogger, AllInOne)
             const int EXPECTED_RET = ((!is_enough_level) ? (debug_macro_is_defined ? CA_RET(NULL_PARAM) : 0)
                 : (debug_macro_is_defined ? CA_RET(NULL_PARAM) : NULL_PARAM_RETCODE_DUE_TO_OPTIMIZATION));
 
-            ASSERT_EQ(EXPECTED_RET, logger.Output(calib::NO_LOG_PREFIX, level, NULL));
+            ASSERT_EQ(EXPECTED_RET, logger.output(calib::NO_LOG_PREFIX, level, NULL));
 
             if (is_enough_level)
-                ASSERT_GE(logger.Output(calib::NO_LOG_PREFIX, level, "[Level: %d]: %s", level, TEST_STR), TEST_STR_LEN);
+                ASSERT_GE(logger.output(calib::NO_LOG_PREFIX, level, "[Level: %d]: %s", level, TEST_STR), TEST_STR_LEN);
             else
-                ASSERT_EQ(0, logger.Output(calib::NO_LOG_PREFIX, level, "[Level: %d]: %s", level, TEST_STR));
+                ASSERT_EQ(0, logger.output(calib::NO_LOG_PREFIX, level, "[Level: %d]: %s", level, TEST_STR));
         }
 
         /*
@@ -216,15 +216,15 @@ TEST(ScreenLogger, AllInOne)
             ASSERT_EQ(0, logger.e("%s", TEST_STR));
         }
 
-        if (logger.log_level() <= calib::LOG_LEVEL_FATAL)
+        if (logger.log_level() <= calib::LOG_LEVEL_CRITICAL)
         {
-            ASSERT_EQ(debug_macro_is_defined ? CA_RET(NULL_PARAM) : NULL_PARAM_RETCODE_DUE_TO_OPTIMIZATION, logger.f(NULL));
-            ASSERT_GE(logger.f("%s", TEST_STR), TEST_STR_LEN);
+            ASSERT_EQ(debug_macro_is_defined ? CA_RET(NULL_PARAM) : NULL_PARAM_RETCODE_DUE_TO_OPTIMIZATION, logger.c(NULL));
+            ASSERT_GE(logger.c("%s", TEST_STR), TEST_STR_LEN);
         }
         else
         {
-            ASSERT_EQ(debug_macro_is_defined ? CA_RET(NULL_PARAM) : 0, logger.f(NULL));
-            ASSERT_EQ(0, logger.f("%s", TEST_STR));
+            ASSERT_EQ(debug_macro_is_defined ? CA_RET(NULL_PARAM) : 0, logger.c(NULL));
+            ASSERT_EQ(0, logger.c("%s", TEST_STR));
         }
     }
 

@@ -26,5 +26,5 @@ $(TEST_TARGETS): %: %.o main.o
 
 clean:
 	rm -f *.o $(TEST_TARGETS)
-	rm -rf ca_test_nonexistent failed_cases.txt core
+	rm -rf test_xml_helper.xml ca_test_nonexistent failed_cases.txt core
 

@@ -44,11 +44,11 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
-DEFINE_CLASS_NAME(Daemon);
-bool Daemon::m_is_daemonized = false;
-std::set<Daemon::CleanFunc> Daemon::m_clean_funcs;
+DEFINE_CLASS_NAME(daemon);
+bool daemon::m_is_daemonized = false;
+std::set<daemon::clean_func> daemon::m_clean_funcs;
 
-/*static */void Daemon::Daemonize(bool closes_stdout/* = false*/, bool closes_stderr/* = false*/)
+/*static */void daemon::daemonize(bool closes_stdout/* = false*/, bool closes_stderr/* = false*/)
 {
     if (m_is_daemonized)
         return;
@@ -123,7 +123,7 @@ std::set<Daemon::CleanFunc> Daemon::m_clean_funcs;
     m_is_daemonized = true;
 }
 
-/*static */int Daemon::RegisterCleanFuntion(CleanFunc clean_func)
+/*static */int daemon::register_clean_funtion(clean_func clean_func)
 {
     // Registration of a null function with atexit() may succeed
     // and cause a crash at program termination,
@@ -146,7 +146,7 @@ std::set<Daemon::CleanFunc> Daemon::m_clean_funcs;
     return CA_RET_OK;
 }
 
-/*static */bool Daemon::is_daemonized(void)
+/*static */bool daemon::is_daemonized(void)
 {
     return m_is_daemonized;
 }

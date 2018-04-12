@@ -49,21 +49,45 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
-typedef struct CharLessOperator
+typedef struct char_less_than_operator
 {
     bool operator()(const char *s1, const char *s2) const
     {
         return strcmp(s1, s2) < 0;
     }
-}CharLessOperator;
+}char_less_than_operator;
 
-typedef struct CharEqualOperator
+typedef char_less_than_operator char_lt_op;
+
+typedef struct char_greater_than_operator
+{
+    bool operator()(const char *s1, const char *s2) const
+    {
+        return strcmp(s1, s2) > 0;
+    }
+}char_greater_than_operator;
+
+typedef char_greater_than_operator char_gt_op;
+
+typedef struct char_equal_operator
 {
     bool operator()(const char *s1, const char *s2) const
     {
         return strcmp(s1, s2) == 0;
     }
-}CharEqualOperator;
+}char_equal_operator;
+
+typedef char_equal_operator char_eq_op;
+
+typedef struct char_not_equal_operator
+{
+    bool operator()(const char *s1, const char *s2) const
+    {
+        return strcmp(s1, s2) != 0;
+    }
+}char_not_equal_operator;
+
+typedef char_not_equal_operator char_ne_op;
 
 namespace str
 {

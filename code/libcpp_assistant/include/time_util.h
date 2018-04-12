@@ -27,7 +27,7 @@
 //       wenxiongchang, wxc, Damon Wen, udc577
 
 /*
- * ca_time.h
+ * time_util.h
  *
  *  Created on: 2017/09/22
  *      Author: wenxiongchang
@@ -45,26 +45,26 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
-class Time
+class time_util
 {
 /* ===================================
  * constructors:
  * =================================== */
 public:
-    Time();
+    time_util();
 
 /* ===================================
  * copy control:
  * =================================== */
 private:
-    Time(const Time& src);
-    const Time& operator=(const Time& src);
+    time_util(const time_util& src);
+    const time_util& operator=(const time_util& src);
 
 /* ===================================
  * destructor:
  * =================================== */
 public:
-    ~Time();
+    ~time_util();
 
 /* ===================================
  * types:
@@ -92,27 +92,27 @@ public:
  * abilities:
  * =================================== */
 public:
-    static CA_THREAD_SAFE int GetTimeZone(void);
-    static CA_THREAD_SAFE int SetTimeZone(const int zone_num);
+    static CA_THREAD_SAFE int get_time_zone(void);
+    static CA_THREAD_SAFE int set_time_zone(const int zone_num);
 
-    static inline CA_REENTRANT uint32_t GetSecondsFrom1900To1970(void)
+    static inline CA_REENTRANT uint32_t get_seconds_from_1900_to_1970(void)
     {
         return SECS_FROM_1900_TO_1970;
     }
 
     /*
-     * GetUtcXXX(): Gets current time value of a specified type in time zone 0,
+     * get_utc_xxx(): Gets current time value of a specified type in time zone 0,
      * which starts from 1900 AD.
      */
-    static int64_t GetUtcSeconds(void);
-    static int64_t GetUtcMicroseconds(void);
+    static int64_t get_utc_seconds(void);
+    static int64_t get_utc_microseconds(void);
 
     /*
      * Gets current time value of a specified type in local place,
      * which starts from 1900 AD.
      */
-    static int64_t GetLocalSeconds(void);
-    static int64_t GetLocalMicroseconds(void);
+    static int64_t get_local_seconds(void);
+    static int64_t get_local_microseconds(void);
 
 /* ===================================
  * attributes:

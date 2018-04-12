@@ -27,7 +27,7 @@
 //       wenxiongchang, wxc, Damon Wen, udc577
 
 /*
- * ca_signal.h
+ * signal_capturer.h
  *
  *  Created on: 2017/09/23
  *      Author: wenxiongchang
@@ -76,20 +76,20 @@ typedef struct signal_setting_t
     bool handles_now;
 }signal_setting_t;
 
-class Signal
+class signal_capturer
 {
 /* ===================================
  * constructors:
  * =================================== */
 private:
-    Signal();
+    signal_capturer();
 
 /* ===================================
  * copy control:
  * =================================== */
 private:
-    Signal(const Signal& src);
-    Signal& operator=(const Signal& src);
+    signal_capturer(const signal_capturer& src);
+    signal_capturer& operator=(const signal_capturer& src);
 
 /* ===================================
  * destructor:
@@ -109,23 +109,23 @@ public:
     // execute some operations everytime the target signal occurs. Besides, if @exits_after_handling
     // is true, then a flag somewhere will be set true to remind the calling process
     // that it should exit.
-    static int Register(int sig_num,
+    static int register_one(int sig_num,
         singal_handler sig_handler,
         bool exits_after_handling = false,
         bool handles_now = false);
 
     // Cancels the registration of signal @sig_num so that this signal would not be monitored and captured.
-    static int Unregister(int sig_num);
+    static int unregister(int sig_num);
 
     // Handles a single signal with the number @sig_num, and gets a hint
     // whether the calling process should exit.
     // NOTE: A signal is marked everytime it occurs, but is not handled until this function or handle_all()
     // is called.
-    static int HandleOne(const int sig_num, bool &should_exit);
+    static int handle_one(const int sig_num, bool &should_exit);
 
     // Handles all pending signals.
     // Returns the number of signals handled on success, or a negative number on failure.
-    static int HandleAll(bool &should_exit);
+    static int handle_all(bool &should_exit);
 
 /* ===================================
  * attributes:
@@ -160,6 +160,8 @@ protected:
 protected:
     DECLARE_CLASS_NAME_VAR();
 };
+
+typedef signal_capturer sigcap;
 
 CA_LIB_NAMESPACE_END
 
