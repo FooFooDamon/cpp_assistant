@@ -5,7 +5,7 @@ include $(CA_LIB_ROOT)/ca_lib.mk
 
 DIR_LIB_INSTALL = $(CA_LIB_ROOT)/lib
 
-INCLUDES += -I. -I$(CA_LIB_ROOT)/include
+INCLUDES += -I. -I$(CA_LIB_ROOT)/include -I$(CA_LIB_ROOT)/include/native
 INCLUDES += -I$(CA_LIB_ROOT)/include/3rdparty/tinyxml # for base/stl_adapters/string.cpp
 
 SRCS += $(shell find . -name "*.cpp" | grep -v "\.svn")

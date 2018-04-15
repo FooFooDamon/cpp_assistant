@@ -203,6 +203,7 @@ file_logger::~file_logger()
     int len = strlen(dir);
     int dir_len_limit = directory_length_limit();
 
+    cdebug("dir: %s, dir length: %d\n", dir, len);
     if (len > dir_len_limit)
         return CA_RET(PATH_TOO_LONG);
 
@@ -243,9 +244,11 @@ file_logger::~file_logger()
     }
 
     //memset(m_log_directory, 0, max_dir_len);
-    strncpy(m_log_directory, dir, len);
+    strncpy(m_log_directory, dir, len + 1);
     if (get_directory_delimiter() == m_log_directory[len - 1])
         m_log_directory[len - 1] = '\0'; // removes the trailing delimiter '/' or '\'
+
+    cdebug("m_log_directory: %s\n", m_log_directory);
 
     return CA_RET_OK;
 }

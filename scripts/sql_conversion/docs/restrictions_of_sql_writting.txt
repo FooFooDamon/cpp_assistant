@@ -1,0 +1,13 @@
+1. Save SQL files with UNIX format, not Windows format. -- was fixed on 2017/03/01.
+
+2. Use spaces instead of Tabs as delimiters. -- was fixed on 2017/02/25.
+
+3. Do not add the semicolon (;) to the end of each SQL statement. -- was fixed on 2017/02/28
+
+4. In .oracle.sql and .mysql.sql files, do not use _int, _long, _bigint, _float,
+	_double, _char_, etc, as the basic name of a variable/non-variable. -- was fixed on 2017/03/06
+
+5. Suffixes above must be written in lower case. -- was fixed on 2017/02/25
+
+Restrictions above must be followed, although they might be fixed someday.
+

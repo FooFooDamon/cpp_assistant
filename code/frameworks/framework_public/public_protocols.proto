@@ -1,0 +1,95 @@
+//*********************************************************
+// 规则：
+// 1、协议文件必须以UTF-8格式保存，以保证能正常显示中文。
+// 2、每个协议体类名，若是请求，则以Req结尾，若是响应，则以Resp结尾。
+// 3、类名建议以首字母大写且不同单词以大写字母分隔，以名词词组命名，
+//    但若动词词组更简洁亦可采用。
+// 4、字段名建议采用全小写字母且不同单词以下划线分隔，以便
+//    生成的源代码中set_**()方法的可读性更好。
+// 5、注释“typedef xx yy;”表示yy类的内容与xx完全一样。
+//    在支持typedef语法（或类似的语法）的语言中（例如C++）
+//    可直接在自己的代码中添加这个语句，减少协议数量，从而
+//    令最终的程序文件也尽可能小，节省系统资源。若所用语言
+//    无此语法，则需要显式定义yy类。
+//*********************************************************
+
+package cafw;
+
+message Unused
+{
+	optional bool unused = 1;
+}
+
+message MinimalBody
+{
+	required string session_id = 1;
+}
+
+// ********** Begin of heartbeat: 心跳 ********** //
+
+// 旧心跳
+
+// typedef MinimalBody OldHeartbeatReq;
+
+// typedef MinimalBody OldHeartbeatResp;
+
+// 新心跳：只需包头即可，无包体
+
+// ********** End of heartbeat ********** //
+
+// ********** Begin of identity report: 身份上报 ********** //
+
+// 旧身份上报
+
+message OldIdentityReportReq
+{
+	required string session_id = 1;
+	required int32 server_type = 2;
+	required string server_name = 3;
+}
+
+message OldIdentityReportResp
+{
+	required int32 error_code = 1;
+	required string session_id = 2;
+}
+
+// 新身份上报
+
+// typedef OldIdentityReportReq IdentityReportReq;
+
+// typedef MinimalBody          IdentityReportResp;
+
+// ********** End of identity report ********** //
+
+// ********** Begin of body prefix: 包体前缀 ********** //
+
+message OldReqBodyPrefix
+{
+	required string session_id = 1;
+	required int32 route_id = 2;
+}
+
+message OldRespBodyPrefix
+{
+	required int32 error_code = 1;
+	required string session_id = 2;
+	required int32 route_id = 3;
+}
+
+// typedef MinimalBody ReqBodyPrefix;
+
+// typedef MinimalBody RespBodyPrefix;
+
+// ********** End of body prefix ********** //
+
+
+// ********** Simple multi-packet test ********** //
+
+message SimpleMultiPacketTestReq
+{
+	required string session_id = 1;
+	repeated int32 packet_number = 2;
+}
+
+// typedef MinimalBody SimpleMultiPacketTestResp;

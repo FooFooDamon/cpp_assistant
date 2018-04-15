@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Wen Xiongchang <udc577 at 126 dot com>
+ * Copyright (c) 2016-2018, Wen Xiongchang <udc577 at 126 dot com>
  * All rights reserved.
  *
  * This software is provided 'as-is', without any express or implied
@@ -27,54 +27,24 @@
 //       wenxiongchang, wxc, Damon Wen, udc577
 
 /*
- * debug.h
+ * mutable_customization.h
  *
- *  Created on: 2017-09-17
+ *  Created on: 2016/12/29
  *      Author: wenxiongchang
- * Description: Providing easy ways of outputting readable and well-formatted info
- *              during debugging.
+ * Description: Definitions completely specified by user.
  */
 
-#ifndef __CPP_ASSISTANT_DEBUG_H__
-#define __CPP_ASSISTANT_DEBUG_H__
+#ifndef __MUTABLE_CUSTOMIZATION_H__
+#define __MUTABLE_CUSTOMIZATION_H__
 
-#include <stdio.h>
-
-#include "ca_inner_necessities.h"
-#include "platforms/threading.h"
-
-CA_LIB_NAMESPACE_BEGIN
-
-namespace debug
+typedef struct extra_config_t
 {
+    ; // TODO: Add your own configuration items here, or leave it empty if there is none.
+}extra_config_t;
 
-extern bool g_debug_enabled;
-
-void enable_output_prefix(void);
-
-void disable_output_prefix(void);
-
-inline bool debug_is_enabled(void)
+typedef struct extra_resource_t
 {
-    return g_debug_enabled;
-}
+    ; // TODO: Add your own resource items here, or leave it empty if there is none.
+}extra_resource_t;
 
-void redirect_debug_output(const FILE *where);
-
-const FILE* get_debug_output_holder(void);
-
-void set_debug_lock(const mutex_t *lock);
-
-bool error_report_is_enabled(void);
-
-void redirect_error_output(const FILE *where);
-
-const FILE* get_error_output_holder(void);
-
-void set_error_lock(const mutex_t *lock);
-
-} // namespace debug
-
-CA_LIB_NAMESPACE_END
-
-#endif /* __CPP_ASSISTANT_DEBUG_H__ */
+#endif /* __MUTABLE_CUSTOMIZATION_H__ */

@@ -1,0 +1,35 @@
+#
+# This should be the ONE AND ONLY ONE makefile located in the root directory
+# of a single-target project.
+#
+
+USER_PROGRAM_ROOT = $(shell pwd)
+
+# CPP_ASSISTANT_ROOT is recommended to set as an environment variable,
+# or you can specify it manually(using absolute path).
+CPP_ASSISTANT_ROOT = $(shell echo $$CPP_ASSISTANT_ROOT)
+
+# For main.mk/prerequisites.mk
+CONFIG_DIRS = [Your value(s). Use relative paths!]
+SRC_CODE_DIRS = [Your value(s). Use relative paths!]
+PROTO_DIRS = [Your value(s). Use relative paths!]
+FRAMEWORK = [Pick one of the frameworks of CASDK. Just a directory name, not a full path!]
+
+# For main.mk/single_executive_template.mk
+IS_SINGLE_TARGET = 1
+MAKEFILE_DIR = $(CPP_ASSISTANT_ROOT)/makefiles
+DEFINES += $(MODULE_DEFINES) $(REQUIRED_DEFINES) [Your macros, or none]
+INCLUDES += $(REQUIRED_INCLUDES) $(addprefix -I$(USER_PROGRAM_ROOT)/, $(addsuffix /framework_core, $(SRC_CODE_DIRS))) \
+	-I[Path to your mutable_customization.h] -I[Your other private directories to be included, or none]
+CXXFLAGS += [Your flags, or none] $(DEFINES) $(INCLUDES)
+LDFLAGS += [Your flags, or none] $(REQUIRED_LDFLAGS)
+SRCS_PUBLIC = $(shell find $(CPP_ASSISTANT_ROOT)/code/frameworks/framework_public/ -iname "*.c*" | grep -v "\.svn\|public_protocols")
+SRCS_CORE = $(shell find $(CPP_ASSISTANT_ROOT)/code/frameworks/$(FRAMEWORK)/ -iname "*.c*" | grep -v "\.svn\|public_protocols")
+SRCS += $(subst $(CPP_ASSISTANT_ROOT)/code/frameworks/framework_public,./framework_public,$(SRCS_PUBLIC))
+SRCS += $(subst $(CPP_ASSISTANT_ROOT)/code/frameworks/$(FRAMEWORK),./framework_core,$(SRCS_CORE))
+SRCS += [Your own source files(see the example below for reference), or none]
+#SRCS += $(shell find ./business/ -iname "*.c*" | grep -v "\.svn")
+TARGET := [Your value]
+
+include $(MAKEFILE_DIR)/basic_rules.mk
+include $(MAKEFILE_DIR)/main.mk

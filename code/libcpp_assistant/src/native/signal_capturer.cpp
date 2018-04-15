@@ -30,7 +30,7 @@
 #include <stdlib.h>
 #include <signal.h>
 
-#include "../../include/signal_capturer.h"
+#include "signal_capturer.h"
 #include "base/ca_return_code.h"
 #include "private/debug.h"
 

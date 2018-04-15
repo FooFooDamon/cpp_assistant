@@ -26,7 +26,7 @@
 //       for convenience or for a certain purpose, at different places:
 //       wenxiongchang, wxc, Damon Wen, udc577
 
-#include "../../include/signal_capturer.h"
+#include "signal_capturer.h"
 #include "common_headers.h"
 
 #include "base/ca_return_code.h"

@@ -32,7 +32,7 @@
 #include <sys/time.h>
 #include <time.h>
 
-#include "../../include/time_util.h"
+#include "time_util.h"
 #include "base/ca_return_code.h"
 #include "base/platforms/threading.h"
 #include "private/debug.h"

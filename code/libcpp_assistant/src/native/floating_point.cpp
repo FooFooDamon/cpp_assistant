@@ -26,7 +26,7 @@
 //       for convenience or for a certain purpose, at different places:
 //       wenxiongchang, wxc, Damon Wen, udc577
 
-#include "../../include/floating_point.h"
+#include "floating_point.h"
 
 CA_LIB_NAMESPACE_BEGIN
 

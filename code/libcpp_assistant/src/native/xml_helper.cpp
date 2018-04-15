@@ -84,7 +84,7 @@ static int __recursively_find_nodes(const TiXmlElement *cur_node,
     bool type_invalid = (TiXmlNode::TINYXML_ELEMENT != t);
     bool reaches_final_level = (int)(node_names.size() - 1) == depth_recorder;
 
-    /*DEBUG_PRINT_NS("cans::xml", "searching level %d: expected node name: %s, actual node name: %s\n",
+    /*nsdebug(CA_LIB_NAMESPACE_STR, "searching level %d: expected node name: %s, actual node name: %s\n",
         depth_recorder, expected_node_name, cur_node_name);*/
     if (type_invalid ||
         !name_satisfied ||
@@ -108,7 +108,7 @@ static int __recursively_find_nodes(const TiXmlElement *cur_node,
                 --depth_recorder;
                 return CA_RET(STL_ERROR);
             }
-            /*DEBUG_PRINT_NS("cans::xml", "reached the final level and the bottom node has been successfully"
+            /*nsdebug(CA_LIB_NAMESPACE_STR, "reached the final level and the bottom node has been successfully"
                 " added to result set, ptr = %p, depth = %d\n", cur_node, depth_recorder);*/
         }
 
@@ -118,7 +118,7 @@ static int __recursively_find_nodes(const TiXmlElement *cur_node,
         return CA_RET_OK;
     }
 
-    //DEBUG_PRINT_NS("cans::xml", "~ ~ ~ ~ ~ node %s validated, depth = %d\n", cur_node_name, depth_recorder);
+    //nsdebug(CA_LIB_NAMESPACE_STR, "~ ~ ~ ~ ~ node %s validated, depth = %d\n", cur_node_name, depth_recorder);
 
     /*
      * Until now, node names are OK and the final level of path has not been reached,
@@ -160,7 +160,7 @@ static int __generally_find_nodes(const TiXmlElement *cur_node,
             " ret = %d, result size = %d\n", path, ret, node_count);
         return (ret < 0) ? ret : CA_RET_GENERAL_FAILURE;
     }
-    //DEBUG_PRINT_NS("cans::xml", "path[%s] has been split in to %d part(s) successfully\n", path, node_count);
+    //nsdebug(CA_LIB_NAMESPACE_STR, "path[%s] has been split in to %d part(s) successfully\n", path, node_count);
 
     if (path_contains_cur_node)
     {
@@ -256,7 +256,7 @@ static int extract_config_nodes(const std::vector<TiXmlElement*> &nodes,
     if ((size_t)node_count > expected_node_count)
         node_count = expected_node_count;
 
-    //DEBUG_PRINT_NS("cans::xml", "node size: %ld, expected node count: %d\n", nodes.size(), node_count);
+    //nsdebug(CA_LIB_NAMESPACE_STR, "node size: %ld, expected node count: %d\n", nodes.size(), node_count);
 
     config_node node;
 
@@ -282,7 +282,7 @@ static int extract_config_nodes(const std::vector<TiXmlElement*> &nodes,
         va_copy(argp, other_attr);
         while (NULL != attribute)
         {
-            //DEBUG_PRINT_NS("cans::xml", "Attribute = %s\n", attribute);
+            //nsdebug(CA_LIB_NAMESPACE_STR, "Attribute = %s\n", attribute);
             const char *attr_value = element->Attribute(attribute);
 
             if (NULL == attr_value)

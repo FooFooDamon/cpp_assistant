@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<root>
+	<constants>
+		<log-configs>
+			<levels>
+				<item name="all"      value="0"/>
+				<item name="debug"    value="0"/>
+				<item name="info"     value="1"/>
+				<item name="warning"  value="2"/>
+				<item name="error"    value="3"/>
+				<item name="critical" value="4"/>
+			</levels>
+		</log-configs>
+		<master-types>
+			<item name="peer"   value="0"/>
+			<item name="master" value="1"/>
+			<item name="slave"  value="2"/>
+		</master-types>
+		<server-types>
+			<item name="self"           value="0"/>
+			<item name="client"         value="1"/>
+			<item name="casdk_server"   value="2"/>
+			<item name="casdk_client"   value="3"/>
+			<!-- More types are decided by the user, add them as you need. -->
+		</server-types>
+		<dispatch-policies>
+			<item name="randomly"      value="0"/>
+			<item name="by-id"         value="1"/>
+			<item name="to-least-load" value="2"/>
+		</dispatch-policies>
+	</constants>
+	<variables>
+		<timezone> +8 </timezone>
+		<timed-task-settings unit="millisecond">
+			<intervals>
+				<message-clean> 10000 </message-clean>
+				<session-clean> 30000 </session-clean>
+				<heartbeat> 20000 </heartbeat>
+				<log-flushing> 1800000 </log-flushing>
+			</intervals>
+			<timeouts>
+				<default-message-processing> 30000 </default-message-processing>
+				<max-message-processing> 28800000 </max-message-processing>
+				<session-keeping> 28800000 </session-keeping>
+				<default-waiting-for-peer-reply> 60000 </default-waiting-for-peer-reply>
+				<longest-waiting-for-peer-reply> 28800000 </longest-waiting-for-peer-reply>
+				<connect-trying> 3000 </connect-trying>
+				<poll-waiting> 10 </poll-waiting>
+			</timeouts>
+		</timed-task-settings>
+		<buffer-settings unit="KB">
+			<tcp-send> 128 </tcp-send>
+			<tcp-receive> 128 </tcp-receive>
+		</buffer-settings>
+		<counters>
+			<message-processing-per-round> 10 </message-processing-per-round>
+			<forward-retries-on-failure> 4 </forward-retries-on-failure>
+			<worker-thread> 0 </worker-thread>
+		</counters>
+		<dispatch-settings>
+			<policy> by-id </policy>
+		</dispatch-settings>
+	</variables>
+</root>

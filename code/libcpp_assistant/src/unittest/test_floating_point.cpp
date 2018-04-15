@@ -29,7 +29,7 @@
 #include "common_headers.h"
 
 #define CA_USE_STL 1 // gtest uses STL, thus it's difficult to test the version without STL.
-#include "../../include/floating_point.h"
+#include "floating_point.h"
 
 typedef unsigned int InvalidType;
 

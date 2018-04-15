@@ -37,7 +37,7 @@
 #ifndef __CPP_ASSISTANT_XML_HELPER_H__
 #define __CPP_ASSISTANT_XML_HELPER_H__
 
-#include "3rdparty/tinyxml/tinyxml.h"
+#include "../3rdparty/tinyxml/tinyxml.h"
 #include "base/ca_inner_necessities.h"
 #include "base/stl_adapters/string.h"
 #include "base/stl_adapters/vector.h"

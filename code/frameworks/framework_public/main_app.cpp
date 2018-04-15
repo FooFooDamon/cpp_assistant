@@ -1,0 +1,905 @@
+/*
+ * Copyright (c) 2016-2018, Wen Xiongchang <udc577 at 126 dot com>
+ * All rights reserved.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any
+ * damages arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any
+ * purpose, including commercial applications, and to alter it and
+ * redistribute it freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must
+ * not claim that you wrote the original software. If you use this
+ * software in a product, an acknowledgment in the product documentation
+ * would be appreciated but is not required.
+ *
+ * 2. Altered source versions must be plainly marked as such, and
+ * must not be misrepresented as being the original software.
+ *
+ * 3. This notice may not be removed or altered from any source
+ * distribution.
+ */
+
+// NOTE: The original author also uses (short/code) names listed below,
+//       for convenience or for a certain purpose, at different places:
+//       wenxiongchang, wxc, Damon Wen, udc577
+
+#include "main_app.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <signal.h>
+
+#include <sstream>
+
+#include <google/protobuf/stubs/common.h>
+#include <otlv4.h>
+
+#include "customization.h"
+
+#include "base/all.h"
+#include "signal_registration.h"
+#include "config_manager.h"
+#include "resource_manager.h"
+#include "timed_task_scheduler.h"
+#include "connection_cache.h"
+#if defined(HAS_TCP)
+#include "message_cache.h"
+#include "packet_processor.h"
+#endif
+
+#if defined(COMPLEX_APP) && !defined(HAS_CONFIG_FILES)
+#error "A complex application requires the HAS_CONFIG_FILES macro and operations for configuration file(s)!"
+#endif
+
+#ifndef HELP_DESC
+#define HELP_DESC                       DEFAULT_HELP_DESC
+#endif
+
+#ifndef VERSION_DESC
+#define VERSION_DESC                    DEFAULT_VERSION_DESC
+#endif
+
+#ifndef CONFIG_LOADING_DESC
+#define CONFIG_LOADING_DESC             DEFAULT_CONFIG_LOADING_DESC
+#endif
+
+#ifndef CONFIG_FILE_COUNT
+#define CONFIG_FILE_COUNT               DEFAULT_CONFIG_FILE_COUNT
+#endif
+
+#ifndef CONFIG_ASSIGN_EXPRESSION
+#define CONFIG_ASSIGN_EXPRESSION        DEFAULT_CONFIG_ASSIGN_EXPRESSION
+#endif
+
+#ifndef DAEMON_DESC
+#define DAEMON_DESC                     DEFAULT_DAEMON_DESC
+#endif
+
+#ifndef QUIET_MODE_DESC
+#define QUIET_MODE_DESC                 DEFAULT_QUIET_MODE_DESC
+#endif
+
+#ifndef USAGE_FORMAT
+#define USAGE_FORMAT                    DEFAULT_USAGE_FORMAT
+#endif
+
+extern const cal::command_line::user_option *g_kPrivateOptions;
+
+EXTERN_DECLARE_ALL_CUSTOMIZED_SIG_HANDLER_VARS();
+
+namespace cafw
+{
+
+main_app::main_app()
+    : m_cmdline(cal::singleton<cal::command_line>::get_instance())
+#if defined(HAS_CONFIG_FILES)
+    , m_config_manager(cal::singleton<config_manager>::get_instance())
+#else
+    , m_config_manager(NULL)
+#endif
+    , m_resource_manager(cal::singleton<resource_manager>::get_instance())
+    , m_timed_task_scheduler(cal::singleton<timed_task_scheduler>::get_instance())
+#if defined(HAS_TCP)
+    , m_packet_processor(cal::singleton<packet_processor>::get_instance())
+#else
+    , m_packet_processor(NULL)
+#endif
+{
+    ;
+}
+
+main_app::~main_app()
+{
+    release_resources();
+}
+
+int main_app::prepare_prerequisites(void)
+{
+    if (NULL != g_screen_logger)
+        return RET_OK;
+
+    try
+    {
+        g_screen_logger = new cal::screen_logger;
+    }
+    catch(std::bad_alloc &ex)
+    {
+        CA_ERROR_C("Failed to create g_screen_logger instance: %s\n", ex.what());
+        return RET_FAILED;
+    }
+
+    return RET_OK;
+}
+
+#ifndef USAGE_TITLE
+#define USAGE_TITLE ""
+#endif
+
+int main_app::parse_commandLine(int argc, char **argv)
+{
+    cal::command_line *cmdline = m_cmdline;
+    cal::command_line::user_option builtin_options[] = {
+        {
+            /* .name = */"h,help",
+            /* .description = */HELP_DESC,
+            /* .least_value_count = */0,
+            /* .value_count_is_fixed = */true,
+            /* .assign_expression = */"",
+            /* .default_values = */NULL
+        },
+        {
+            /* .name = */"v,version",
+            /* .description = */VERSION_DESC,
+            /* .least_value_count = */0,
+            /* .value_count_is_fixed = */true,
+            /* .assign_expression = */"",
+            /* .default_values = */NULL
+        },
+#ifdef HAS_CONFIG_FILES
+        {
+            /* .name = */"c,config-file",
+            /* .description = */CONFIG_LOADING_DESC,
+            /* .least_value_count = */CONFIG_FILE_COUNT,
+#ifdef CONFIG_FILE_COUNT_NOT_FIXED
+            /* .value_count_is_fixed = */false,
+#else
+            /* .value_count_is_fixed = */true,
+#endif
+            /* .assign_expression = */CONFIG_ASSIGN_EXPRESSION,
+            /* .default_values = */DEFAULT_CONFIG_FILES
+        },
+#endif
+        {
+            /* .name = */"d,daemon",
+            /* .description = */DAEMON_DESC,
+            /* .least_value_count = */0,
+            /* .value_count_is_fixed = */true,
+            /* .assign_expression = */"",
+            /* .default_values = */NULL
+        },
+        {
+            /* .name = */"q,quiet-mode",
+            /* .description = */QUIET_MODE_DESC,
+            /* .least_value_count = */0,
+            /* .value_count_is_fixed = */true,
+            /* .assign_expression = */"",
+            /* .default_values = */NULL
+        }
+    };
+    int builtin_option_count = sizeof(builtin_options) / sizeof(cal::command_line::user_option);
+    int learn_ret = cmdline->learn_options(builtin_options, builtin_option_count);
+
+    if (learn_ret < 0)
+    {
+        GLOG_ERROR_C("Failed to learn built-in command line options, ret = %d\n", learn_ret);
+        return RET_FAILED;
+    }
+
+    if (NULL != g_kPrivateOptions)
+    {
+        int private_option_count = -1;
+
+        while (g_kPrivateOptions[++private_option_count].name);
+
+        if ((learn_ret = cmdline->learn_options(g_kPrivateOptions, private_option_count)) < 0)
+        {
+            GLOG_ERROR_C("Failed to learn private command line options, ret = %d\n", learn_ret);
+            return RET_FAILED;
+        }
+    }
+
+    cmdline->set_usage_header(USAGE_TITLE);
+    cmdline->set_usage_format(USAGE_FORMAT);
+
+    int parse_ret = cmdline->parse(argc, (const char **)argv);
+    std::string usage_str;
+
+    if (parse_ret < 0)
+    {
+        GLOG_ERROR_C("Failed to parse command line, ret = %d\n", parse_ret);
+
+        std::string parsing_result;
+
+        cmdline->get_parsing_result(&parsing_result);
+        fprintf(stderr, "%s\n", parsing_result.c_str());
+
+        CA_RAW_WARN("See the usage below for reference:\n");
+        cmdline->usage(&usage_str);
+        fprintf(stderr, "%s\n", usage_str.c_str());
+
+        return RET_FAILED;
+    }
+
+    const cal::command_line::option_entry *opt_entry = NULL;
+
+    opt_entry = cmdline->get_option_entry("help");
+    if (opt_entry->is_specified)
+    {
+        cmdline->usage(&usage_str);
+        printf("%s\n", usage_str.c_str());
+        exit(EXIT_SUCCESS);
+    }
+
+    opt_entry = cmdline->get_option_entry("version");
+    if (opt_entry->is_specified)
+    {
+        printf("%s version: %s\n", cmdline->program_name(), MODULE_VERSION);
+        printf("%s version: %s\n", CASDK_FRAMEWORK_NAME, CASDK_FRAMEWORK_VERSION);
+        printf(CPP_ASSISTANT_NAME" library version: %s\n", cal::get_library_version());
+#ifdef HAS_PROTOBUF
+        printf("Protocol buffer version: v%d.%d.%d\n", GOOGLE_PROTOBUF_VERSION / 1000000,
+            (GOOGLE_PROTOBUF_VERSION % 1000000) / 1000, GOOGLE_PROTOBUF_VERSION % 1000);
+#endif
+#ifdef HAS_DATABASE
+        printf("OTL version: v%ld.%ld.%ld\n", (OTL_VERSION_NUMBER & (0xff << 16)) >> 16,
+            (OTL_VERSION_NUMBER & (0xf << 12)) >> 12, OTL_VERSION_NUMBER & 0xfff);
+#endif
+        exit(EXIT_SUCCESS);
+    }
+
+    opt_entry = cmdline->get_option_entry("quiet-mode");
+    if (opt_entry->is_specified)
+        enable_quiet_mode();
+
+#ifdef HAS_CONFIG_FILES
+    opt_entry = cmdline->get_option_entry("config-file");
+    if (opt_entry->is_specified && !is_quiet_mode())
+    {
+        printf("Configuration file(s):");
+        for (size_t i = 0; i < opt_entry->values.size(); ++i)
+        {
+            printf(" [%s]", opt_entry->values[i].c_str());
+        }
+        printf("\n");
+    }
+#endif
+
+    bool should_exit = false;
+
+    if (check_private_commandline_options(*cmdline, should_exit) < 0)
+    {
+        GLOG_ERROR_C("Failed to check private options\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (should_exit)
+        exit(EXIT_SUCCESS);
+
+    // This option should be the last one to handle.
+    opt_entry = cmdline->get_option_entry("daemon");
+    if (opt_entry->is_specified)
+    {
+        printf("Program is about to run as a daemon ...\n");
+
+        // Eliminates memory leaks info caused by exceptional abort.
+        // It's safe to be called multiple times
+        //
+        // wxc, 20160625: DO NOT do this until a process really exits,
+        // otherwise, some weird problems may occur, for example:
+        // crash due to a parsing by an unmatched protocol object.
+        // Memory leak checking programs, e.g. valgrind, may report
+        // much annoying info. Just ignore it, since those memory leaks
+        // are "possible lost" and "still reachable", which mean that they
+        // are not real leaks.
+        //
+        //google::protobuf::ShutdownProtobufLibrary();
+
+        cal::daemon::daemonize();
+    }
+
+    return RET_OK;
+}
+
+#if defined(HAS_CONFIG_FILES)
+int main_app::load_configurations(void)
+{
+    const char *config_file = m_cmdline->get_option_entry("config-file")->values[0].c_str();
+
+    if (m_config_manager->open_file(config_file) < 0)
+    {
+        GLOG_ERROR_C("failed to open %s\n", config_file);
+        return RET_FAILED;
+    }
+
+    if (m_config_manager->load() < 0)
+    {
+        GLOG_ERROR_C("failed to load contents from %s\n",
+            m_config_manager->config_content()->config_file_path.c_str());
+        return RET_FAILED;
+    }
+
+    GQ_LOG_INFO_C("configuration file [%s] was loaded successfully\n", config_file);
+
+    m_config_manager->close_file();
+
+    return RET_OK;
+}
+#endif
+
+int main_app::prepare_resources(void)
+{
+    const config_content_t *config = NULL;
+
+    if (NULL != m_config_manager)
+        config = m_config_manager->config_content();
+
+    if (m_resource_manager->prepare((config_content_t *)config) < 0)
+    {
+        GLOG_ERROR_C("ResourceManager::Prepare() failed\n");
+        return RET_FAILED;
+    }
+
+#ifdef MULTI_THREADING
+    if (prepare_thread_resource() < 0)
+    {
+        GLOG_ERROR_C("prepare_thread_resource() failed\n");
+        return RET_FAILED;
+    }
+#endif
+
+#ifdef HAS_TCP
+    if (m_packet_processor->build_component_map())
+    {
+        GLOG_ERROR_C("PacketProcessor::BuildComponentMap() failed\n");
+        return RET_FAILED;
+    }
+#endif
+
+    return RET_OK;
+}
+
+const signal_registration_info g_sig_configs[] = {
+    { SIGTERM, "SIGTERM", CUSTOMIZED_SIG_HANDLER(sigterm), true, false },
+    { SIGINT, "SIGINT", CUSTOMIZED_SIG_HANDLER(sigint), true, false },
+    { SIGPIPE, "SIGPIPE", CUSTOMIZED_SIG_HANDLER(sigpipe), false, false },
+    { SIGUSR2, "SIGUSR2", CUSTOMIZED_SIG_HANDLER(sigusr2), false, false },
+    { SIGUSR1, "SIGUSR1", CUSTOMIZED_SIG_HANDLER(sigusr1), false, false },
+    { SIGCHLD, "SIGCHLD", CUSTOMIZED_SIG_HANDLER(sigchild), false, false },
+    { SIGHUP, "SIGHUP", CUSTOMIZED_SIG_HANDLER(sighup), false, false },
+    { SIGALRM, "SIGALRM", CUSTOMIZED_SIG_HANDLER(sigalarm), false, false },
+    { SIGTRAP, "SIGTRAP", CUSTOMIZED_SIG_HANDLER(sigtrap), false, false },
+    { SIGSEGV, "SIGSEGV", CUSTOMIZED_SIG_HANDLER(sigsegv), true, true },
+    { cal::INVALID_SIGNAL_NUM, /* The leftover members are not cared."INVALID_SIGNUM", NULL, false, false*/ }
+};
+
+int main_app::register_signals(void)
+{
+    int ret = CA_RET_GENERAL_FAILURE;
+
+    for (int i = 0; cal::INVALID_SIGNAL_NUM != g_sig_configs[i].sig_num; ++i)
+    {
+        const signal_registration_info &sig_config = g_sig_configs[i];
+
+        ret = cal::sigcap::register_one(sig_config.sig_num,
+            sig_config.sig_func, sig_config.exit_after_handling,
+            sig_config.handles_now);
+
+        if (CA_RET_OK != ret)
+        {
+            GLOG_ERROR_C("failed to register %s, ret = %d\n", sig_config.sig_name, ret);
+            return RET_FAILED;
+        }
+
+        GQ_LOG_INFO_C("signal{ name[%s] | num[%d] | exit_after_handling[%d] | handles_now[%d] } registered\n",
+            sig_config.sig_name, sig_config.sig_num, sig_config.exit_after_handling, sig_config.handles_now);
+    }
+
+    return RET_OK;
+}
+
+const char *g_built_in_timed_task_names[] = {
+    XNODE_MSG_CLEAN,
+    XNODE_SESSION_CLEAN,
+    XNODE_HEARTBEAT,
+    XNODE_LOG_FLUSHING,
+    NULL
+};
+
+timed_task_config g_built_in_timed_task_settings[] = {
+    // trigger_type, has_triggered, event_time/last_op_time[us], time_offset/time_interval[ms], operation
+    { timed_task_config::TRIGGERED_PERIODICALLY,   true,   {0},    {1000},    default_message_clean_timed_task },
+    { timed_task_config::TRIGGERED_PERIODICALLY,   true,   {0},    {1000},    default_session_clean_timed_task },
+    { timed_task_config::TRIGGERED_PERIODICALLY,   true,   {0},    {1000},    default_heartbeat_timed_task },
+    { timed_task_config::TRIGGERED_PERIODICALLY,   true,   {0},    {1000},    default_log_flushing_timed_task }
+};
+
+int main_app::register_timed_tasks(void)
+{
+    const char **task_names[] = {
+        g_built_in_timed_task_names,
+        g_timed_task_names
+    };
+
+    timed_task_config *task_settings[] = {
+        g_built_in_timed_task_settings,
+        g_timed_task_settings
+    };
+
+    for (unsigned int i = 0; i < sizeof(task_names) / sizeof(const char **); ++i)
+    {
+        for (int j = 0; NULL != task_names[i][j]; ++j)
+        {
+            if (timed_task_config::TRIGGERED_PERIODICALLY == task_settings[i][j].trigger_type)
+            {
+#ifdef HAS_CONFIG_FILES
+                int64_t time_interval = m_config_manager->get_time_interval_in_microseconds(task_names[i][j]);
+
+                if (RET_FAILED == time_interval)
+                {
+                    GLOG_WARN_C("can not find interval value for %s\n", task_names[i][j]);
+                    if (g_built_in_timed_task_names == task_names[i])
+                        return RET_FAILED;
+
+                    GLOG_INFO_C("use the value in the code\n");
+                }
+                else
+                    task_settings[i][j].time_interval = time_interval / 1000; // switched to millisecond
+#endif
+            }
+            else
+            {
+                task_settings[i][j].event_time = 0; // will be refreshed in init_business() or in a specific function
+                task_settings[i][j].time_offset = 0; // TODO: gets value from config or within init_business()
+            }
+
+            if (m_timed_task_scheduler->register_one(task_names[i][j], task_settings[i][j]) < 0)
+                return RET_FAILED;
+
+            GQ_LOG_INFO_C("timed task{ name[%s] | trigger_type[%s] | event_time/last_op_time[%ld us]"
+                " | time_offset/time_interval[%ld ms] } registered successfully\n",
+                task_names[i][j], timed_task_scheduler::get_trigger_type_description(task_settings[i][j].trigger_type),
+                task_settings[i][j].event_time, task_settings[i][j].time_offset);
+        }
+    }
+
+    return RET_OK;
+}
+
+static void run_timed_tasks(thread_context *ctx, bool should_exit)
+{
+    int64_t cur_time = cal::time_util::get_utc_microseconds();
+    const int64_t kTimeDeviationUsecs = 200000;
+
+    bool should_flush_log = (cur_time < ctx->timed_task_refresh_times[thread_context::WORKER_TASK_LOG_FLUSHING] + kTimeDeviationUsecs);
+
+    if (should_flush_log)
+    {
+        TLOG_INFO_NS("cafw", "flushing log ...\n");
+        ctx->file_logger.flush();
+    }
+
+#ifdef HAS_DATABASE
+    bool should_send_heartbeat = (cur_time < ctx->timed_task_refresh_times[thread_context::WORKER_TASK_DB_HEARTBEAT] + kTimeDeviationUsecs);
+
+    if (should_send_heartbeat)
+    {
+        TLOG_INFO_NS("cafw", "sending heart beat to check if database connection is ok ...\n");
+        // TODO: heart beat ...
+    }
+#endif
+}
+
+static void handle_packets(const int max_packet_count, thread_context *ctx, bool should_exit)
+{
+    // TODO
+    // g_packet_handler_components
+    /*cal::Buffer *in_buf = ctx->input_packet_cache;
+    int handle_count = 0;
+
+    while (!(in_buf->empty()) && handle_count < max_packet_count)
+    {
+        char *in_data = (char *)(in_buf->GetReadPointer());
+        int in_len = in_buf->data_size();
+
+        cal::NetConnection **mutable_output_conn = &(input_conn);
+        cal::Buffer *out_buf = input_conn->send_buf;
+        char *out_data = (char *)(out_buf->GetWritePointer());
+
+        int bytes_handled = 0;
+        int bytes_output = 0;
+
+        ++handle_count;
+
+        if (bytes_handled > 0)
+            in_buf->MoveReadPointer(bytes_handled);
+
+        GLOG_DEBUG("%d bytes input handled, %d bytes result generated\n", bytes_handled, bytes_output);
+
+        if (bytes_output <= 0)
+            continue;
+
+        (*mutable_output_conn)->send_buf->MoveWritePointer(bytes_output);
+    }*/
+}
+
+// WARNING: DO NOT use GLOG_*() within this function and its sub-functions,
+//     use TLOG_*() instead !!!
+void* workder_thread(void* arg)
+{
+    int *thread_index = (int*)arg;
+    thread_context *ctx = &(g_thread_contexts[*thread_index]);
+    int wait_secs = 0;
+
+    delete thread_index;
+
+    while (wait_secs < THREAD_TERMINATION_TIMEOUT_SECS)
+    {
+        if (ctx->status >= thread_context::STATUS_FULLY_INITIALIZED)
+            break;
+
+        sleep(1);
+        ++wait_secs;
+    }
+    TLOG_DEBUG_NS("cafw", "wait_secs = %d\n", wait_secs);
+
+    if (ctx->status < thread_context::STATUS_FULLY_INITIALIZED)
+    {
+        TLOG_ERROR_NS("cafw", "thread initialization timed out\n");
+        pthread_exit(NULL);
+    }
+
+    pthread_t self_tid = ctx->tid;
+    bool should_exit = false;
+    const int kMaxPacketsToHandle = CFG_GET_COUNTER(XNODE_MSG_PROCESS_COUNT_PER_ROUND);
+
+    pthread_detach(self_tid); // TODO: ??
+
+    while(true)
+    {
+        run_timed_tasks(ctx, should_exit);
+        if (should_exit)
+            break;
+
+        handle_packets(kMaxPacketsToHandle, ctx, should_exit);
+        if (should_exit)
+            break;
+
+        if (ctx->should_exit)
+        {
+            TLOG_WARN("Supervisor thread forces me to exit!\n");
+            break;
+        }
+
+        usleep(100); // TODO: use sigwait() in future.
+    }
+
+    pthread_mutex_lock(&(ctx->lock));
+    ctx->status = thread_context::STATUS_EXITED_NORMALLY;
+    pthread_mutex_unlock(&(ctx->lock));
+
+    pthread_exit(NULL);
+}
+
+int main_app::initialize_business(void)
+{
+#ifdef MULTI_THREADING
+    const int kThreadCount = CFG_GET_COUNTER(XNODE_WORKER_THREAD);
+
+    for (int i = 0; i < kThreadCount; ++i)
+    {
+        pthread_t tid;
+        int *thread_index = new int(i);
+        int ret = pthread_create(&tid, NULL, workder_thread, thread_index);
+
+        if (ret < 0)
+        {
+            GLOG_ERROR_C("failed to create new thread, i = %d\n", i);
+            return ret;
+        }
+
+        g_thread_contexts[i].tid = tid;
+        g_thread_contexts[i].status = thread_context::STATUS_FULLY_INITIALIZED;
+
+        GLOG_INFO_C("new thread: num = %d, tid = 0x%x, type = %d, name = %s\n",
+            i, tid, g_thread_contexts[i].type, g_thread_contexts[i].name.c_str());
+    }
+#endif
+
+    return init_business();
+}
+
+void main_app::finalize_business(void)
+{
+#ifdef MULTI_THREADING
+    // TODO: thread resources retrieving.
+#endif
+    ::finalize_business();
+}
+
+int main_app::run_business(void)
+{
+    int ret = RET_FAILED;
+#if defined(HAS_TCP)
+
+#if defined(HAS_UPSTREAM_SERVERS)
+    cal::tcp_client *client_requester = m_resource_manager->resource()->client_requester;
+#endif
+
+#if defined(ACCEPTS_CLIENTS)
+    cal::tcp_server *server_listener = m_resource_manager->resource()->server_listener;
+#endif // defined(ACCEPTS_CLIENTS)
+
+#endif // defined(HAS_TCP)
+
+    fprintf(stdout, "%s started successfully, version: %s, pid: %d\n",
+        m_cmdline->program_name(), MODULE_VERSION, getpid());
+
+    while (true)
+    {
+        if (expires())
+        {
+            GLOG_ERROR_C("program has expired, exits now\n");
+            break;
+        }
+
+        ret = RET_OK;
+
+        bool should_exit = false;
+
+        cal::sigcap::handle_all(should_exit);
+        if (should_exit)
+        {
+            GLOG_WARN_C("critical signals captured, process about to exit !!!\n");
+            break;
+        }
+
+#if defined(HAS_TCP)
+#if defined(ACCEPTS_CLIENTS)
+        poll_and_process(server_listener, should_exit);
+        if (should_exit) break;
+#endif
+#if defined(HAS_UPSTREAM_SERVERS)
+        poll_and_process(client_requester, should_exit);
+        if (should_exit) break;
+#endif
+#endif // defined(HAS_TCP)
+
+        m_timed_task_scheduler->check_and_execute();
+
+        ret = run_private_business(should_exit);
+        if (should_exit) break;
+    }
+
+    return ret;
+}
+
+void main_app::release_resources(void)
+{
+#ifdef MULTI_THREADING
+    release_thread_resource();
+#endif
+
+    if (NULL != m_resource_manager)
+        m_resource_manager->clean();
+
+    /*if (NULL != g_screen_logger)
+    {
+        delete g_screen_logger;
+        g_screen_logger = NULL;
+    }*/
+#ifdef HAS_PROTOBUF
+    google::protobuf::ShutdownProtobufLibrary();
+#endif
+}
+
+bool main_app::expires(void)
+{
+#ifdef CHECKS_EXPIRATION
+    int64_t cur_time = cal::TimeHelper::GetUtcMicroseconds();
+
+    return (cur_time >= m_config_manager->config_entries()->private_configs.expiration);
+#else
+    return false;
+#endif
+}
+
+#if defined(HAS_TCP)
+
+void main_app::poll_and_process(cal::tcp_base *tcp_manager, bool &should_exit)
+{
+    int active_peer_count = tcp_manager->poll();
+    cal::tcp_base::conn_info_array *active_peer_array = &(tcp_manager->get_active_peers());
+    const int kMaxHandleCountPerCycle = CFG_GET_COUNTER(XNODE_MSG_PROCESS_COUNT_PER_ROUND);
+    const int kSendBufSize = CFG_GET_BUF_SIZE(XNODE_TCP_SEND_BUF);
+    const int kRecvBufSize = CFG_GET_BUF_SIZE(XNODE_TCP_RECV_BUF);
+
+    for (int i = 0; i < active_peer_count; ++i)
+    {
+        int in_fd = ((cal::net_connection*)(active_peer_array->elements[i].data.ptr))->fd;
+
+        if (tcp_manager->listening_fd() == in_fd)
+        {
+            cal::tcp_server *tcp_server = dynamic_cast<cal::tcp_server *>(tcp_manager);
+
+            if (NULL == tcp_server)
+            {
+                GLOG_WARN_C("this connection node is not a server,"
+                    " can not accept a connection, fd = %d\n", in_fd);
+                continue;
+            }
+
+            accept_new_connection(tcp_server, kSendBufSize, kRecvBufSize);
+        }
+        else
+        {
+            cal::net_connection *conn = (cal::net_connection*)(active_peer_array->elements[i].data.ptr);
+            int recv_ret = tcp_manager->recv_to_connection(conn);
+
+            if (recv_ret < 0)
+            {
+                char errmsg[256] = {0};
+
+                cal::parse_retcode(recv_ret, sizeof(errmsg), errmsg);
+                GLOG_ERROR_C("failed to received packets and put them into connection[%d],"
+                    " ret = %d, err = %s\n", conn->fd, recv_ret, errmsg);
+
+                if (CA_RET(CONNECTION_BROKEN) == recv_ret)
+                {
+                    shut_bad_connection(tcp_manager, conn);
+                    continue;
+                }
+            }
+            else
+            {
+                if (recv_ret > 0)
+                    GLOG_DEBUG("%d bytes received\n", recv_ret);
+            }
+
+            if (conn->recv_buf->empty())
+                continue;
+
+            handle_received_packets(conn, kMaxHandleCountPerCycle);
+        }
+    }
+
+    send_result_packets(tcp_manager);
+}
+
+int main_app::accept_new_connection(cal::tcp_server *tcp_server, int send_buf_size, int recv_buf_size)
+{
+    int accfd = tcp_server->accept_new_connection(send_buf_size, recv_buf_size);
+
+    if (accfd < 0)
+    {
+        char errmsg[256] = {0};
+
+        cal::parse_retcode(accfd, sizeof(errmsg), errmsg);
+        GLOG_ERROR_C("failed to accept new connection, ret = %d, err = %s\n", accfd, errmsg);
+
+        return RET_FAILED;
+    }
+
+    cal::tcp_base::conn_map *all_peers = tcp_server->peers();
+    cal::net_connection *new_conn = (*all_peers)[accfd];
+
+    snprintf(new_conn->self_name, sizeof(new_conn->self_name), "%s", tcp_server->self_name());
+
+    GLOG_INFO("new connection[%d] arrived: fd[%d] | self_ip[%s] | self_port[%u] | self_name[%s]"
+        " | peer_ip[%s] | peer_port[%u] | peer_name[%s] | status[0x%08X]"
+        " | is_blocking[%d] | is_validated[%d] | send_buffer[%d bytes] | recv_buffer[%d bytes]\n",
+        accfd, new_conn->fd, new_conn->self_ip, new_conn->self_port, new_conn->self_name,
+        new_conn->peer_ip, new_conn->peer_port, new_conn->peer_name, new_conn->conn_status,
+        new_conn->is_blocking, new_conn->is_validated, new_conn->send_buf->total_size(), new_conn->recv_buf->total_size());
+
+    return RET_OK;
+}
+
+void main_app::shut_bad_connection(cal::tcp_base *tcp_manager, cal::net_connection *bad_conn)
+{
+    GLOG_WARN_C("peer shut down, fd = %d, name = %s, ip = %s, port = %u\n",
+        bad_conn->fd, bad_conn->peer_name, bad_conn->peer_ip, bad_conn->peer_port);
+
+    dict_entry_ptr owner = (dict_entry_ptr)(bad_conn->owner);
+    net_conn_index* conn_index = NULL;
+
+    if (NULL != owner
+        && NULL != (conn_index = (net_conn_index*)GET_CHAR_DICT_VALUE(owner)))
+    {
+        GLOG_INFO("found connection cache info of this node, name is [%s],"
+            " cleaned up cache info\n", GET_CHAR_DICT_KEY(owner));
+        conn_index->fd = cal::INVALID_SOCK_FD;
+        conn_index->conn_detail = NULL;
+    }
+
+    tcp_manager->shutdown_connection(bad_conn);
+    GLOG_INFO("finished releasing connection resource at local end\n");
+}
+
+void main_app::handle_received_packets(cal::net_connection *input_conn, int max_packet_count)
+{
+    cal::buffer *in_buf = input_conn->recv_buf;
+    int handle_count = 0;
+
+    while (!(in_buf->empty()) && handle_count < max_packet_count)
+    {
+        GLOG_DEBUG("handling packets from input connection{ fd[%d] | name[%s] }.recv_buf: %d bytes pending,"
+            " current read position = %d, write position = %d\n",
+            input_conn->fd, input_conn->peer_name, in_buf->data_size(),
+            in_buf->read_position(), in_buf->write_position());
+
+        int bytes_handled = 0;
+        int bytes_output = 0;
+        cal::net_connection **mutable_output_conn = &(input_conn);
+
+        m_packet_processor->process(input_conn, bytes_handled, mutable_output_conn, bytes_output);
+
+        ++handle_count;
+
+        if (bytes_handled > 0)
+            in_buf->move_read_pointer(bytes_handled);
+
+        GLOG_DEBUG("%d bytes input handled, %d bytes output generated\n", bytes_handled, bytes_output);
+
+        if (bytes_output <= 0)
+            continue;
+
+        cal::net_connection *actual_output_conn = (*mutable_output_conn);
+        cal::buffer *out_buf = actual_output_conn->send_buf;
+
+        out_buf->move_write_pointer(bytes_output);
+
+        GLOG_DEBUG("loading packets into output connection{ fd[%d] | name[%s] }.send_buf: %d bytes free,"
+            " current read position = %d, write position = %d\n",
+            actual_output_conn->fd, actual_output_conn->peer_name, out_buf->free_size(),
+            out_buf->read_position(), out_buf->write_position());
+    }
+
+    if (handle_count > 0)
+        GLOG_DEBUG("%d messages handled during this round\n", handle_count);
+}
+
+void main_app::send_result_packets(cal::tcp_base *tcp_manager)
+{
+    cal::tcp_base::conn_map *all_peers = tcp_manager->peers();
+    char errmsg[256] = {0};
+
+    for (cal::tcp_base::conn_map::iterator iter = all_peers->begin(); iter != all_peers->end(); ++iter)
+    {
+        cal::net_connection *conn = iter->second;
+
+        if (NULL == conn)
+            continue;
+
+        if (conn->send_buf->empty())
+            continue;
+
+        int ret = 0;
+
+        if ((ret = tcp_manager->send_from_connection(conn)) < 0)
+        {
+            cal::parse_retcode(ret, sizeof(errmsg), errmsg);
+            GLOG_ERROR_C("failed to send contents of connection[%d], ret = %d, err = %s\n",
+                iter->first, ret, errmsg);
+        }
+        else
+            GLOG_DEBUG("%d bytes sent\n", ret);
+    }
+}
+
+#endif // defined(HAS_TCP)
+
+}

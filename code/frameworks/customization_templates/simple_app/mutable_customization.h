@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Wen Xiongchang <udc577 at 126 dot com>
+ * Copyright (c) 2016-2018, Wen Xiongchang <udc577 at 126 dot com>
  * All rights reserved.
  *
  * This software is provided 'as-is', without any express or implied
@@ -27,35 +27,24 @@
 //       wenxiongchang, wxc, Damon Wen, udc577
 
 /*
- * changelog.h
+ * mutable_customization.h
  *
- *  Created on: 2017-09-10
- *      Author: wenxiongchang(AKA: wxc)
- * Description: Change log of cpp-assistant library.
+ *  Created on: 2016/12/29
+ *      Author: wenxiongchang
+ * Description: Definitions completely specified by user.
  */
 
-#ifndef __CPP_ASSISTANT_CHANGELOG_H__
-#define __CPP_ASSISTANT_CHANGELOG_H__
+#ifndef __MUTABLE_CUSTOMIZATION_H__
+#define __MUTABLE_CUSTOMIZATION_H__
 
-/*
- * Change log of cpp-assistant (in reversed order !!!)
- *
- * Log format is defined as below:
- * Author, Date, Version:
- *      Descriptions.
- *
- * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- *
- * WARNING: DO NOT change the format of these comments
- *     because commands in Makefiles depend on it to determine some compile info!!!
- *
- * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- *
- * wxc, 2018/04/12, 0.01.00:
- *      Refactoring under the rules of new code style.
- *
- * wxc, 2017/09/10, 0.00.01:
- *      Created.
- */
+typedef struct extra_config_t
+{
+    ; // TODO: Add your own configuration items here, or leave it empty if there is none.
+}extra_config_t;
 
-#endif /* __CPP_ASSISTANT_CHANGELOG_H__ */
+typedef struct extra_resource_t
+{
+    ; // TODO: Add your own resource items here, or leave it empty if there is none.
+}extra_resource_t;
+
+#endif /* __MUTABLE_CUSTOMIZATION_H__ */

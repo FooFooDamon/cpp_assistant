@@ -383,9 +383,6 @@ int command_line::learn_option(const char *name,
     if (NULL != default_values)
         str::split(default_values, strlen(default_values), " ", value_ref.values);*/
 
-    free(short_name);
-    free(long_name);
-
     return CA_RET_OK;
 }
 

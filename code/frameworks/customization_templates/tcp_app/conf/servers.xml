@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<root>
+	<shared ref="/home/foo/etc/common.xml"/>
+	<private>
+		<log-configs>
+			<file-logger enabled="yes">
+				<basename> tcp_server </basename>
+				<directory> . </directory>
+				<level> debug </level>
+			</file-logger>
+			<terminal-logger>
+				<level> debug </level>
+			</terminal-logger>
+		</log-configs>
+		<identities>
+			<item enabled="yes" name="tcp_server_1" address="127.0.0.1:32760"/>
+			<item enabled="yes" name="tcp_server_2" address="127.0.0.1:32761"/>
+			<item enabled="yes" name="tcp_server_3" address="127.0.0.1:32762"/>
+		</identities>
+		<db-configs>
+			<connection owner="test" encrypted-dsn="ycZDIBr9FYq4CrXmGfcXAzXBrrmfVn6F"/>
+		</db-configs>
+		<timed-task-settings unit="millisecond">
+			<intervals>
+				<heartbeat> 10000 </heartbeat>
+			</intervals>
+		</timed-task-settings>
+		<buffer-settings unit="KB">
+			<tcp-send> 5 </tcp-send>
+			<tcp-receive> 5 </tcp-receive>
+		</buffer-settings>
+	</private>
+</root>
