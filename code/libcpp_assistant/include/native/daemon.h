@@ -37,7 +37,8 @@
 #ifndef __CPP_ASSISTANT_DAEMON_H__
 #define __CPP_ASSISTANT_DAEMON_H__
 
-#include "base/stl_adapters/set.h"
+#include <set>
+
 #include "base/ca_inner_necessities.h"
 
 CA_LIB_NAMESPACE_BEGIN

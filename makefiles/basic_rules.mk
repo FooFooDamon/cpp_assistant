@@ -15,7 +15,7 @@ CASDK_NEWEST_MOD_DATE = $(shell echo "$(FRAMEWORK_CHANGE_LOG_ITEM)" | awk -F ", 
 CASDK_NEWEST_MAIN_VER = $(shell echo "$(FRAMEWORK_CHANGE_LOG_ITEM)" | awk -F ", " '{ print $$3 }' | awk -F ":" '{ print $$1 }')
 CASDK_SVN_VER = $(shell svn info $(FRAMEWORK_DIR) | grep -e 'Last Changed Rev' -e '最后修改的版本' | sed 's/.* \([0-9]\)/\1/')
 # ******** End *************************************************
-REQUIRED_DEFINES = -DCA_USE_STL=1 -DCASDK_NEWEST_MOD_DATE=\"$(CASDK_NEWEST_MOD_DATE)\" \
+REQUIRED_DEFINES = -DCASDK_NEWEST_MOD_DATE=\"$(CASDK_NEWEST_MOD_DATE)\" \
     -DCASDK_NEWEST_MAIN_VER=\"$(CASDK_NEWEST_MAIN_VER)\"
 ifneq ($(CASDK_SVN_VER),)
 	REQUIRED_DEFINES += -DCASDK_SVN_VER=\"$(CASDK_SVN_VER)\"
@@ -30,6 +30,9 @@ ifeq ("$(findstring DB_ORACLE, $(MODULE_DEFINES))","DB_ORACLE")
 endif
 endif
 REQUIRED_INCLUDES = -I. -I.. -I$(HOME)/include
+ifneq ($(CPP_ASSISTANT_ROOT),)
+	REQUIRED_INCLUDES += -I$(CPP_ASSISTANT_ROOT)/code/libcpp_assistant/include
+endif
 ifeq ("$(findstring HAS_DATABASE, $(MODULE_DEFINES))","HAS_DATABASE")
 ifeq ("$(findstring DB_ORACLE, $(MODULE_DEFINES))","DB_ORACLE")
 	REQUIRED_INCLUDES += -I$(ORACLE_HOME)/rdbms/public
@@ -37,7 +40,7 @@ else
 	REQUIRED_INCLUDES += -I$(MYSQL_HOME)/include
 endif
 endif
-REQUIRED_LDFLAGS = -L$(HOME)/lib -lcpp_assistant \
+REQUIRED_LDFLAGS = -L$(HOME)/lib -lcpp_assistant -ljsoncpp \
 	-L/usr/local/lib -lprotobuf -lpthread
 ifeq ("$(findstring HAS_DATABASE, $(MODULE_DEFINES))","HAS_DATABASE")
 ifeq ("$(findstring DB_ORACLE, $(MODULE_DEFINES))","DB_ORACLE")

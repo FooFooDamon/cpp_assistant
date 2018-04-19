@@ -51,6 +51,9 @@
  *
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  *
+ * wxc, 2018/04/19, 0.01.02:
+ *      Removed: STL adapters.
+ *
  * wxc, 2018/04/15, 0.01.01:
  *      Added: tcp_client, tcp_server and their relative classes or APIs.
  *

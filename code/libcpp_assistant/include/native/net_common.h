@@ -42,10 +42,9 @@
 #include <sys/time.h>
 #include <string.h>
 
-#include "base/ca_inner_necessities.h"
-//#include "base/ca_return_code.h"
+#include <map>
 
-#include "base/stl_adapters/map.h"
+#include "base/ca_inner_necessities.h"
 
 CA_LIB_NAMESPACE_BEGIN
 

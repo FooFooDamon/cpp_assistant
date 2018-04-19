@@ -43,7 +43,7 @@
 
 #include <typeinfo>
 
-#include <cpp_assistant/ca_full.h>
+#include "ca_full.h"
 
 #define __FUNC__                                    __FUNCTION__
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Wen Xiongchang <udc577 at 126 dot com>
+ * Copyright (c) 2016-2018, Wen Xiongchang <udc577 at 126 dot com>
  * All rights reserved.
  *
  * This software is provided 'as-is', without any express or implied
@@ -26,16 +26,25 @@
 //       for convenience or for a certain purpose, at different places:
 //       wenxiongchang, wxc, Damon Wen, udc577
 
-#include "base/stl_adapters/string.h"
+#include "handler_component_definitions.h"
 
-#ifndef CA_USE_STL
-
-namespace std
+namespace cafw
 {
 
-;
+#ifdef USE_JSON_MSG
 
-} // namespace std
+DECLARE_ALLOC_FUNC(json)
+{
+    return new Json::Value();
+}
 
-#endif // #ifndef CA_USE_STL
+DECLARE_ASSEMBLE_OUT_FUNC(minimal)
+{
+    DECLARE_AND_CAST(in_body, req, Json::Value);
+    DECLARE_AND_CAST(out_body, resp, Json::Value);
+    SET_RESP_PREFIX((*req), (*resp), retcode);
+}
 
+#endif // #ifdef USE_JSON_MSG
+
+} // namespace cafw

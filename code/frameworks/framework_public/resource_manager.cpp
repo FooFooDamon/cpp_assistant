@@ -170,8 +170,9 @@ int resource_manager::__prepare_loggers(const void *condition)
 
 int resource_manager::__prepare_network(const void *condition)
 {
+#if defined(ACCEPTS_CLIENTS)
     int ret = -1;
-
+#endif
     config_content_t *config = (config_content_t*)condition;
     const net_node_config &self_info = config->private_configs.self;
     const char *self_node_name = self_info.node_name.c_str();

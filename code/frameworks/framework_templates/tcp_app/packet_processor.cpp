@@ -30,7 +30,6 @@
 
 #include "config_manager.h"
 #include "resource_manager.h"
-//#include "program_template/app_tools/db_auxiliary.h"
 #include "connection_cache.h"
 #include "protocol_common.h"
 #include "message_cache.h"
@@ -186,8 +185,8 @@ int packet_processor::process(const struct cal::net_connection *input_conn,
         return RET_OK;
     }
 
-    int length = get_proto_length(in_data);
-    uint32_t command = get_proto_command(in_data);
+    int32_t length = get_proto_length(in_data);
+    int32_t command = get_proto_command(in_data);
     const int kMaxErrorSeconds = 5;
     const int64_t kCurUtcSecs = cal::time_util::get_utc_seconds();
     const int kMaxErrorCount = 20;
@@ -200,16 +199,18 @@ int packet_processor::process(const struct cal::net_connection *input_conn,
     if (m_error_counts->end() == m_error_counts->find(kConnName))
         m_error_counts->insert(std::map<std::string, int>::value_type(kConnName, 0));
 
-    if (in_len < length || in_len < PROTO_HEADER_SIZE)
+    if (in_len < length || in_len < (int)PROTO_HEADER_SIZE)
     {
         ++((*m_error_counts)[kConnName]);
-        GLOG_WARN_C("incomplete packet in connection[fd:%d, name:%s]: expected length = %d, actual length = %d,"
+        GLOG_WARN_C("incomplete packet in recv_buf of connection[fd:%d, name:%s]: expected length = %d, actual length = %d,"
             " minimum length = %d, command code = 0x%08X, fd = %d, error count = %d\n",
             in_fd, kConnName, length, in_len,
-            PROTO_HEADER_SIZE, command, in_fd, (*m_error_counts)[kConnName]);
+            (int)PROTO_HEADER_SIZE, command, in_fd, (*m_error_counts)[kConnName]);
         if ((kCurUtcSecs - (*m_error_timestamps)[kConnName] >= kMaxErrorSeconds) ||
             ((*m_error_counts)[kConnName] >= kMaxErrorCount))
         {
+            GLOG_WARN_C("too many retries, recv_buf of connection[fd:%d, name:%s]"
+                " may contains bad data, reset it now\n", in_fd, kConnName);
             in_buf->reset();
         }
         return RET_FAILED;
@@ -226,27 +227,27 @@ int packet_processor::process(const struct cal::net_connection *input_conn,
         return RET_FAILED;
     }
 
-    int32_t packet_num = get_proto_packet_number(in_data);
-    bool is_end = is_final_packet(in_data);
+    int16_t packet_num = get_proto_packet_number(in_data);
+    int16_t flag_bits = get_proto_flag_bits(in_data);
     int64_t route_id = get_proto_route_id(in_data);
-    uint32_t error_code = get_proto_error_code(in_data);
+    int32_t error_code = get_proto_error_code(in_data);
     bool is_heartbeat = proto_is_heartbeat(command);
-    bool is_registration = (CMD_IDENTITY_REPORT_REQ == command || CMD_IDENTITY_REPORT_RESP == command);
+    bool is_identity_report = (CMD_IDENTITY_REPORT_REQ == command || CMD_IDENTITY_REPORT_RESP == command);
 
     PACKET_START_FORMAT_LINES(is_heartbeat);
 
     if (!is_heartbeat)
     {
-        GLOG_INFO("%d bytes new packet from connection{ fd[%d] | name[%s] | address[%s:%u] }:"
-            " header{ Length[%u] | RouteId[%ld] | Command[0x%08X] | PacketNumber[%d]"
-            " | IsFinalPacket[%d] | ErrorCode[%u] }\n",
+        GLOG_INFO("%d bytes new packet from connection{ fd[%d] | name[%s] | address[%s:%hu] }:"
+            " header{ length[%d] | route_id[%ld] | command[0x%08X] | flag_bits[0x%04X]"
+            " | packet_number[%hd] | error_code[%d] }\n",
             in_len, in_fd, input_conn->peer_name, input_conn->peer_ip, input_conn->peer_port,
-            length, route_id, command, packet_num,
-            is_end, error_code);
+            length, route_id, command, flag_bits,
+            packet_num, error_code);
     }
 
 #ifdef VALIDATES_CONNECTION
-    if (!input_conn->is_validated && !is_registration)
+    if (!input_conn->is_validated && !is_identity_report)
     {
         if (!is_heartbeat)
         {
@@ -261,7 +262,7 @@ int packet_processor::process(const struct cal::net_connection *input_conn,
 
     int ret = -1;
 
-    if (is_heartbeat || is_registration)
+    if (is_heartbeat || is_identity_report)
     {
         ret = diagnose_connection(input_conn, length, mutable_output_conn, output_len);
         PACKET_END_FORMAT_LINES(is_heartbeat);
@@ -284,7 +285,9 @@ int packet_processor::process(const struct cal::net_connection *input_conn,
         goto RETURN;
     }
 
-    extract_session_id(in_data, sid, is_req);
+    if (it->second.filters_repeated_session)
+        extract_session_id(in_data, sid, is_req);
+
     if (it->second.filters_repeated_session && session_exists(sid))
     {
         if (is_req)
@@ -327,56 +330,51 @@ int packet_processor::single_operator_general_flow(const struct cal::net_connect
     struct cal::net_connection **mutable_output_conn,
     int &output_len)
 {
-    uint32_t command = component.in_cmd;
+    output_len = 0;
+
+    int32_t command = component.in_cmd;
     int retcode = PROTO_RET_SUCCESS;
     msg_base *partial_in_body = component.partial_in_body;
+    int partial_in_body_len = 0;
     msg_base *whole_in_body = component.whole_in_body;
+    int whole_in_body_len = 0;
+    msg_base *actual_body_for_parsing = component.has_multi_fragments ? partial_in_body : whole_in_body;
+    int &body_len_after_parsing = component.has_multi_fragments ? partial_in_body_len : whole_in_body_len;
     msg_cache_value *msg_cache_item = NULL;
     msg_base *out_body = component.out_body;
     char body_container_type[128] = {0};
     void* in_data_ptr = input_conn->recv_buf->get_read_pointer();
-    uint32_t total_len = get_proto_length(in_data_ptr);
-    int body_len = CALC_BODY_LEN(total_len);
+    int32_t total_len = get_proto_length(in_data_ptr);
+    int32_t body_len = CALC_BODY_LEN(total_len);
     const char *sid = "see_sid_in_other_places";
     const int sid_len = SID_LEN;
-    int packet_num = -1;
+    int16_t packet_num = 1;
     int64_t cur_time = cal::time_util::get_utc_microseconds();
     bool all_parsed_ok = false;
+#ifndef USE_JSON_MSG
     bool prefix_parsed_ok = false;
-    bool has_done_business = false;
-    //MinimalBody *body_prefix = NULL; // DO NOT use such a pointer to operate *_in_body, it will corrupt the contents
+    // DO NOT use such a pointer to operate *_in_body, it will corrupt the contents, use an object instead!
+    //MinimalBody *body_prefix = NULL;
     MinimalBody body_prefix;
+#endif
+    bool has_done_business = false;
 
-    output_len = 0;
     if (NULL != out_body)
-        out_body->Clear();
+        clear_message_holder(*out_body);
 
     /*
      * Parses data from buffer.
      */
 
-    if (component.has_multi_fragments)
-    {
-        /*LOG_DEBUG("has_multi_fragments = %d, use partial_in_body to hold parsed contents\n",
-            component.has_multi_fragments);*/
-        partial_in_body->Clear();
-        all_parsed_ok = partial_in_body->ParseFromArray(GET_BODY_ADDR(in_data_ptr), body_len);
-        //body_base = dynamic_cast<UnifiedBodyBase *>(partial_in_body); // failed
-        //body_base = reinterpret_cast<UnifiedBodyBase *>(partial_in_body); // static_cast works too
-    }
-    else
-    {
-        /*LOG_DEBUG("has_multi_fragments = %d, use whole_in_body to hold parsed contents\n",
-            component.has_multi_fragments);*/
-        whole_in_body->Clear();
-        all_parsed_ok = whole_in_body->ParseFromArray(GET_BODY_ADDR(in_data_ptr), body_len);
-        //body_base = dynamic_cast<UnifiedBodyBase *>(whole_in_body); // failed
-        //body_base = reinterpret_cast<UnifiedBodyBase *>(whole_in_body); // static_cast works too
-    }
+    clear_message_holder(*actual_body_for_parsing);
+    body_len_after_parsing = parse_message(GET_BODY_ADDR(in_data_ptr), body_len, *actual_body_for_parsing);
+    all_parsed_ok = (body_len_after_parsing > 0);
+    //body_base = dynamic_cast<UnifiedBodyBase *>(actual_body_for_parsing); // failed
+    //body_base = reinterpret_cast<UnifiedBodyBase *>(actual_body_for_parsing); // static_cast works too
 
     if (!all_parsed_ok)
     {
-        GLOG_ERROR_C("protobuf::ParseFromArray() failed\n");
+        GLOG_ERROR_C("protocol parse function failed\n");
         return RET_FAILED;
     }
 
@@ -388,11 +386,16 @@ int packet_processor::single_operator_general_flow(const struct cal::net_connect
         goto OUTPUT;
     }
 
+#ifndef USE_JSON_MSG
+    // Why do we has to do a partial parse again? Because msg_base is a base class and has no member named session_id.
     prefix_parsed_ok = body_prefix.ParseFromArray(GET_BODY_ADDR(in_data_ptr), get_unified_proto_prefix_length());
-
-    sid = body_prefix.session_id().c_str();
-    packet_num = get_proto_packet_number(in_data_ptr);
     //GLOG_DEBUG_C("prefix_parsed_ok = %d\n", prefix_parsed_ok);
+    sid = body_prefix.session_id().c_str();
+#else
+    if (!(*actual_body_for_parsing)[SID_KEY_STR].empty())
+        sid = (*actual_body_for_parsing)[SID_KEY_STR].asCString();
+#endif
+    packet_num = get_proto_packet_number(in_data_ptr);
 
     /*
      * Step 1: Group fragments together, for multi-packet case only.
@@ -450,22 +453,22 @@ int packet_processor::single_operator_general_flow(const struct cal::net_connect
         {
             GLOG_INFO("part[%d] of packet(%s) received, expected total len = %d, actual buffer len = %d, "
                 "bodylen = %d, and END flag found, starting detail process ...\n",
-                packet_num, sid, total_len, input_len, partial_in_body->ByteSize());
+                packet_num, sid, total_len, input_len, partial_in_body_len);
         }
         else
         {
             GLOG_INFO("part[%d] of packet(%s) received, expected total len = %d, actual buffer len = %d, "
                 "bodylen = %d, waiting for more parts to complete the process ...\n",
-                packet_num, sid, total_len, input_len, partial_in_body->ByteSize());
+                packet_num, sid, total_len, input_len, partial_in_body_len);
             return RET_OK;
         }
-    }
+    } // end if (component.has_multi_fragments)
 
     strncpy(body_container_type, typeid(*whole_in_body).name(), sizeof(body_container_type));
-    GLOG_INFO("%s parsed successfully, cmd = 0x%08X, desc = %s,"
+    GLOG_INFO("%s was parsed successfully, cmd = 0x%08X, desc = %s,"
         " sid = %s, total bodylen = %d, in_fd = %d\n",
         body_container_type, command, component.description,
-        sid, whole_in_body->ByteSize(), input_conn->fd);
+        sid, get_message_length(*whole_in_body), input_conn->fd);
 
     /*
      * Step 2: Do validation if required.
@@ -529,7 +532,7 @@ OUTPUT:
     /*
      * Step 5: Serialize output data(if existed) to send buffer.
      */
-    if (NULL != out_body && out_body->ByteSize() > 0)
+    if (NULL != out_body && get_message_length(*out_body) > 0)
     {
         cal::net_connection *output_conn = *(mutable_output_conn);
         cal::buffer *out_buf = output_conn->send_buf;
@@ -594,7 +597,7 @@ int packet_processor::dispacher_general_flow(const struct cal::net_connection *i
     cal::net_connection *connection = in.connection;
     void *in_data = in.data_ptr;
     int in_len = get_proto_length(in_data);
-    uint32_t command = get_proto_command(in_data);
+    int32_t command = get_proto_command(in_data);
     int retcode = PROTO_RET_SUCCESS;
 
     const char *sid = "NULL";
@@ -858,12 +861,25 @@ DECLARE_BUSINESS_FUNC(identity_report_request_handling)
 {
     cal::net_connection *connection = NULL;
     int fd = in_conn->fd;
+#ifndef USE_JSON_MSG
     IdentityReportReq *req = (IdentityReportReq *)in_body;
     IdentityReportResp *resp = (IdentityReportResp *)out_body;
+    const char *sid = req->session_id().c_str();
+    int server_type = req->server_type();
+    const char *client_name = req->server_name().c_str();
+#else
+    Json::Value *req = (Json::Value *)in_body;
+    Json::Value *resp = (Json::Value *)out_body;
+    const Json::Value &sid_json_value = (*req)[SID_KEY_STR];
+    const char *sid = sid_json_value.empty() ? "" : sid_json_value.asCString();
+    const Json::Value &server_type_json_value = (*req)[SERVER_TYPE_KEY_STR];
+    int server_type = server_type_json_value.empty() ? 0 : server_type_json_value.asInt();
+    const Json::Value &client_name_json_value = (*req)[SERVER_NAME_KEY_STR];
+    const char *client_name = client_name_json_value.empty() ? "" : client_name_json_value.asCString();
+#endif
     cal::tcp_server *listener = cal::singleton<resource_manager>::get_instance()->resource()->server_listener;
 
-    GLOG_INFO("identity report request contents: session_id[%s] | server_type[%d] | server_name[%s]\n",
-        req->session_id().c_str(), req->server_type(), req->server_name().c_str());
+    GLOG_INFO("identity report request contents: session_id[%s] | server_type[%d] | server_name[%s]\n", sid, server_type, client_name);
 
     retcode = PROTO_RET_SUCCESS;
 
@@ -874,10 +890,13 @@ DECLARE_BUSINESS_FUNC(identity_report_request_handling)
         return RET_FAILED;
     }
 
-    resp->set_session_id(req->session_id());
+#ifndef USE_JSON_MSG
+    resp->set_session_id(sid);
+#else
+    (*resp)[SID_KEY_STR] = sid;
+#endif
 
-    const char *client_name = req->server_name().c_str();
-    int name_len = req->server_name().length();
+    int name_len = strlen(client_name);
     connection_cache *conn_cache = cal::singleton<resource_manager>::get_instance()->resource()->master_connection_cache;
     net_conn_index *conn_index = conn_cache->return_as_index(client_name, name_len);
 
@@ -962,11 +981,17 @@ DECLARE_BUSINESS_FUNC(identity_report_response_handling)
 {
     cal::net_connection *connection = NULL;
     int fd = in_conn->fd;
+#ifndef USE_JSON_MSG
     IdentityReportResp *resp = (IdentityReportResp *)in_body;
+    const char *sid = resp->session_id().c_str();
+#else
+    Json::Value *resp = (Json::Value *)in_body;
+    const Json::Value &sid_json_value = (*resp)[SID_KEY_STR];
+    const char *sid = sid_json_value.empty() ? "" : sid_json_value.asCString();
+#endif
     cal::tcp_client *requester = cal::singleton<resource_manager>::get_instance()->resource()->client_requester;
 
-    GLOG_INFO("identity report response contents: error_code[%d] | session_id[%s]\n",
-        retcode, resp->session_id().c_str());
+    GLOG_INFO("identity report response contents: error_code[%d] | session_id[%s]\n", retcode, sid);
 
     connection = requester->find_peer(fd);
     if (NULL == connection)
@@ -989,15 +1014,19 @@ int packet_processor::diagnose_connection(const struct cal::net_connection *inpu
     void *in_data_ptr = input_conn->recv_buf->get_read_pointer();
     int in_len = input_len;
     int body_len = CALC_BODY_LEN(in_len);
-    uint32_t command = get_proto_command(in_data_ptr);
-    uint32_t out_cmd = 0;
+    int32_t command = get_proto_command(in_data_ptr);
+    int32_t out_cmd = 0;
     void *out_data_ptr = (*mutable_output_conn)->send_buf->get_write_pointer();
+#ifndef USE_JSON_MSG
     static IdentityReportReq s_id_report_req;
     static IdentityReportResp s_id_report_resp;
+#else
+    static Json::Value s_id_report_req;
+    static Json::Value s_id_report_resp;
+#endif
     msg_base *in_body = NULL;
     msg_base *out_body = NULL;
     int retcode = PROTO_RET_SUCCESS;
-    bool parsing_is_ok = false;
     int business_ret = -1;
     business_func business_op = NULL;
 
@@ -1031,18 +1060,14 @@ int packet_processor::diagnose_connection(const struct cal::net_connection *inpu
         return RET_FAILED;
     }
 
-    if (NULL != in_body)
+    if (NULL != in_body && parse_message(GET_BODY_ADDR(in_data_ptr), body_len, *in_body) < 0)
     {
-        parsing_is_ok = in_body->ParseFromArray(GET_BODY_ADDR(in_data_ptr), body_len);
-        if (!parsing_is_ok)
-        {
-            GLOG_ERROR_C("protobuf::ParseFromArray() failed\n");
-            return RET_FAILED;
-        }
+        GLOG_ERROR_C("protocol parse function failed\n");
+        return RET_FAILED;
     }
 
     if (NULL != out_body)
-        out_body->Clear();
+        clear_message_holder(*out_body);
 
     business_ret = business_op(input_conn, in_body, mutable_output_conn, out_body, retcode);
     if (!proto_is_heartbeat(command))
@@ -1067,9 +1092,13 @@ void packet_processor::print_supported_commands(void)
     {
         handler_component &component = g_packet_handler_components[i];
 
+#ifndef USE_JSON_MSG
         printf("0x%08X\t%s(%s)\n", component.in_cmd, component.description,
             (NULL != component.whole_in_body) ? typeid(*(component.whole_in_body)).name()
                 : typeid(*(component.partial_in_body)).name());
+#else
+        printf("0x%08X\t%s\n", component.in_cmd, component.description);
+#endif
     }
 #endif
 }

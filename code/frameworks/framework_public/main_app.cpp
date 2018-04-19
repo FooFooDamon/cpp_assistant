@@ -411,68 +411,80 @@ int main_app::register_signals(void)
     return RET_OK;
 }
 
-const char *g_built_in_timed_task_names[] = {
-    XNODE_MSG_CLEAN,
-    XNODE_SESSION_CLEAN,
-    XNODE_HEARTBEAT,
-    XNODE_LOG_FLUSHING,
-    NULL
-};
+timed_task_info_t g_built_in_timed_tasks[] = {
+    /*
+     * {
+     *      task name,
+     *      { trigger_type, has_triggered, event_time/last_op_time[us], time_offset/time_interval[ms], operation }
+     * }
+     */
 
-timed_task_config g_built_in_timed_task_settings[] = {
-    // trigger_type, has_triggered, event_time/last_op_time[us], time_offset/time_interval[ms], operation
-    { timed_task_config::TRIGGERED_PERIODICALLY,   true,   {0},    {1000},    default_message_clean_timed_task },
-    { timed_task_config::TRIGGERED_PERIODICALLY,   true,   {0},    {1000},    default_session_clean_timed_task },
-    { timed_task_config::TRIGGERED_PERIODICALLY,   true,   {0},    {1000},    default_heartbeat_timed_task },
-    { timed_task_config::TRIGGERED_PERIODICALLY,   true,   {0},    {1000},    default_log_flushing_timed_task }
+    {
+        XNODE_MSG_CLEAN,
+        { timed_task_config::TRIGGERED_PERIODICALLY,   true,   {0},    {1000},    default_message_clean_timed_task }
+    },
+    {
+        XNODE_SESSION_CLEAN,
+        { timed_task_config::TRIGGERED_PERIODICALLY,   true,   {0},    {1000},    default_session_clean_timed_task }
+    },
+    {
+        XNODE_HEARTBEAT,
+        { timed_task_config::TRIGGERED_PERIODICALLY,   true,   {0},    {1000},    default_heartbeat_timed_task }
+    },
+    {
+        XNODE_LOG_FLUSHING,
+        { timed_task_config::TRIGGERED_PERIODICALLY,   true,   {0},    {1000},    default_log_flushing_timed_task }
+    },
+    {
+        NULL,
+        {}
+    }
 };
 
 int main_app::register_timed_tasks(void)
 {
-    const char **task_names[] = {
-        g_built_in_timed_task_names,
-        g_timed_task_names
+    timed_task_info_t *task_items[] = {
+        g_built_in_timed_tasks,
+        g_customized_timed_tasks
     };
 
-    timed_task_config *task_settings[] = {
-        g_built_in_timed_task_settings,
-        g_timed_task_settings
-    };
-
-    for (unsigned int i = 0; i < sizeof(task_names) / sizeof(const char **); ++i)
+    for (unsigned int i = 0; i < 2; ++i)
     {
-        for (int j = 0; NULL != task_names[i][j]; ++j)
+        for (int j = 0; NULL != task_items[i][j].name; ++j)
         {
-            if (timed_task_config::TRIGGERED_PERIODICALLY == task_settings[i][j].trigger_type)
+            timed_task_config &task_config = task_items[i][j].config;
+            const char *TASK_NAME = task_items[i][j].name;
+
+            if (timed_task_config::TRIGGERED_PERIODICALLY == task_config.trigger_type)
             {
 #ifdef HAS_CONFIG_FILES
-                int64_t time_interval = m_config_manager->get_time_interval_in_microseconds(task_names[i][j]);
+                int64_t time_interval = m_config_manager->get_time_interval_in_microseconds(TASK_NAME);
 
                 if (RET_FAILED == time_interval)
                 {
-                    GLOG_WARN_C("can not find interval value for %s\n", task_names[i][j]);
-                    if (g_built_in_timed_task_names == task_names[i])
+                    GLOG_WARN_C("can not find interval value for %s\n", TASK_NAME);
+                    if (g_built_in_timed_tasks == task_items[i])
                         return RET_FAILED;
 
                     GLOG_INFO_C("use the value in the code\n");
                 }
                 else
-                    task_settings[i][j].time_interval = time_interval / 1000; // switched to millisecond
+                    task_config.time_interval = time_interval / 1000; // switched to millisecond
 #endif
             }
             else
             {
-                task_settings[i][j].event_time = 0; // will be refreshed in init_business() or in a specific function
-                task_settings[i][j].time_offset = 0; // TODO: gets value from config or within init_business()
+                task_config.event_time = 0; // will be refreshed in init_business() or in a specific function
+                task_config.time_offset = 0; // TODO: gets value from config or within init_business()
             }
 
-            if (m_timed_task_scheduler->register_one(task_names[i][j], task_settings[i][j]) < 0)
+            if (m_timed_task_scheduler->register_one(TASK_NAME, task_config) < 0)
                 return RET_FAILED;
 
             GQ_LOG_INFO_C("timed task{ name[%s] | trigger_type[%s] | event_time/last_op_time[%ld us]"
                 " | time_offset/time_interval[%ld ms] } registered successfully\n",
-                task_names[i][j], timed_task_scheduler::get_trigger_type_description(task_settings[i][j].trigger_type),
-                task_settings[i][j].event_time, task_settings[i][j].time_offset);
+                TASK_NAME, timed_task_scheduler::get_trigger_type_description(task_config.trigger_type),
+                task_config.event_time, task_config.time_offset);
         }
     }
 

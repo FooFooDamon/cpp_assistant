@@ -37,7 +37,7 @@
 #ifndef __CASDK_FRAMEWORK_SIGNAL_REGISTRATION_H__
 #define __CASDK_FRAMEWORK_SIGNAL_REGISTRATION_H__
 
-#include <cpp_assistant/ca_full.h>
+#include "ca_full.h"
 
 namespace cafw
 {

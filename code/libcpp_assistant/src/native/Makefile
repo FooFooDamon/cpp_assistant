@@ -38,12 +38,6 @@ shared: $(LIB_CA_NATIVE.SO)
 debug:
 	make all DEBUG=1
 
-pure:
-	make all CA_USE_STL=0
-
-pure_debug:
-	make all DEBUG=1 CA_USE_STL=0
-
 obj_only: $(OBJS)
 
 check:

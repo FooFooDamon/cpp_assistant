@@ -52,7 +52,7 @@ namespace cafw
     return RET_OK;
 }*/
 
-/*int validate_protocol_header(void *buf, int len, uint32_t cmd)
+/*int validate_protocol_header(void *buf, int len, int32_t cmd)
 {
     if (NULL == buf)
         return CA_RET(NULL_PARAM);
@@ -60,7 +60,7 @@ namespace cafw
     if (cmd != get_proto_command(buf))
         return CA_RET(OBJECT_MISMATCHED);
 
-    uint32_t expected_total_len = get_proto_length(buf);
+    int32_t expected_total_len = get_proto_length(buf);
 
     if (len < (int)expected_total_len)
         return CA_RET(LENGTH_TOO_SMALL);
@@ -73,25 +73,27 @@ int parse_header(const void *inbuf, proto_header_t *result)
     if (NULL == inbuf || NULL == result)
         return RET_FAILED;
 
-    const int kInt32Len = sizeof(uint32_t);
-    uint32_t value = 0;
-
-    memcpy(&value, (char *)inbuf + HEADER_OFFSET_LENGTH, kInt32Len);
-    result->length = ntohl(value);
-
-    memcpy(&value, (char *)inbuf + HEADER_OFFSET_COMMAND, kInt32Len);
-    result->command = ntohl(value);
-
-    memcpy(&value, (char *)inbuf + HEADER_OFFSET_PACKET_NUM, kInt32Len);
-    result->packet_number = ntohl(value);
-
+    uint16_t value_int16 = 0;
+    uint32_t value_int32 = 0;
     uint64_t value_int64 = 0;
+
+    memcpy(&value_int32, (char *)inbuf + HEADER_OFFSET_LENGTH, sizeof(uint32_t));
+    result->length = ntohl(value_int32);
 
     memcpy(&value_int64, (char *)inbuf + HEADER_OFFSET_ROUTE_ID, sizeof(uint64_t));
     result->route_id = cal::sys::ntohl64(value_int64);
 
-    memcpy(&value, (char *)inbuf + HEADER_OFFSET_ERR_CODE, kInt32Len);
-    result->error_code = ntohl(value);
+    memcpy(&value_int32, (char *)inbuf + HEADER_OFFSET_COMMAND, sizeof(uint32_t));
+    result->command = ntohl(value_int32);
+
+    memcpy(&value_int16, (char *)inbuf + HEADER_OFFSET_FLAG_BITS, sizeof(uint16_t));
+    result->flag_bits = ntohs(value_int16);
+
+    memcpy(&value_int16, (char *)inbuf + HEADER_OFFSET_PACKET_NUM, sizeof(uint16_t));
+    result->packet_number = ntohs(value_int16);
+
+    memcpy(&value_int32, (char *)inbuf + HEADER_OFFSET_ERR_CODE, sizeof(uint32_t));
+    result->error_code = ntohl(value_int32);
 
     // TODO: how to fill extensions?
 
@@ -103,33 +105,34 @@ int assemble_header(const proto_header_t *src, void *outbuf)
     if (NULL == src || NULL == outbuf)
         return RET_FAILED;
 
-    const int kInt32Len = sizeof(uint32_t);
-    int offset = 0;
-    uint32_t value = 0;
+    uint16_t value_int16 = 0;
+    uint32_t value_int32 = 0;
+    uint64_t value_int64 = 0;
 
-    value = htonl(src->length);
-    memcpy((char *)outbuf + offset, &value, kInt32Len);
+    value_int32 = htonl(src->length);
+    memcpy((char *)outbuf + HEADER_OFFSET_LENGTH, &value_int32, sizeof(uint32_t));
 
-    offset += kInt32Len;
-    uint64_t value_int64 = cal::sys::htonl64(src->route_id);
-    memcpy((char *)outbuf + offset, &value_int64, sizeof(uint64_t));
+    value_int64 = cal::sys::htonl64(src->route_id);
+    memcpy((char *)outbuf + HEADER_OFFSET_ROUTE_ID, &value_int64, sizeof(uint64_t));
 
-    offset += sizeof(uint64_t);
-    value = htonl(src->command);
-    memcpy((char *)outbuf + offset, &value, kInt32Len);
+    value_int32 = htonl(src->command);
+    memcpy((char *)outbuf + HEADER_OFFSET_COMMAND, &value_int32, sizeof(uint32_t));
 
-    offset += kInt32Len;
-    value = htonl(src->packet_number);
-    memcpy((char *)outbuf + offset, &value, kInt32Len);
+    value_int16 = htons(src->flag_bits);
+    memcpy((char *)outbuf + HEADER_OFFSET_FLAG_BITS, &value_int16, sizeof(uint16_t));
 
-    offset += kInt32Len;
-    value = htonl(src->error_code);
-    memcpy((char *)outbuf + offset, &value, kInt32Len);
+    value_int16 = htons(src->packet_number);
+    memcpy((char *)outbuf + HEADER_OFFSET_PACKET_NUM, &value_int16, sizeof(uint16_t));
+
+    value_int32 = htonl(src->error_code);
+    memcpy((char *)outbuf + HEADER_OFFSET_ERR_CODE, &value_int32, sizeof(uint32_t));
 
     // TODO: how to fill extensions?
 
     return RET_OK;
 }
+
+#ifndef USE_JSON_MSG
 
 enum ProtoPrefix
 {
@@ -208,10 +211,14 @@ int get_response_proto_prefix_length(void)
     return s_prefix_len;
 }
 
+#endif // #ifndef USE_JSON_MSG
+
 int extract_session_id(const void *raw_buf, char *result, bool is_req/* = true*/)
 {
     if (NULL == raw_buf || NULL == result)
         return CA_RET(NULL_PARAM);
+
+#ifndef USE_JSON_MSG
 
     int prefix_len = get_unified_proto_prefix_length();
 
@@ -221,22 +228,69 @@ int extract_session_id(const void *raw_buf, char *result, bool is_req/* = true*/
 
         prefix.ParsePartialFromArray(GET_BODY_ADDR(raw_buf), prefix_len);
         memset(result, 0, SID_LEN + 1);
-        strncpy(result, prefix.session_id().c_str(), SID_LEN + 1);
+        prefix.session_id().copy(result, SID_LEN);
 
         return RET_OK;
     }
 
+#else
+
+    Json::Value parsed_msg;
+    int total_len = get_proto_length(raw_buf);
+    int body_len = CALC_BODY_LEN(total_len);
+
+    if (parse_message(GET_BODY_ADDR(raw_buf), body_len, parsed_msg) > 0)
+    {
+        if (!parsed_msg[SID_KEY_STR].empty())
+        {
+            memset(result, 0, SID_LEN + 1);
+            parsed_msg[SID_KEY_STR].asString().copy(result, SID_LEN);
+
+            return RET_OK;
+        }
+    }
+
+#endif // #ifndef USE_JSON_MSG
+
     return RET_FAILED;
 }
 
-int serialize_to_buffer(const uint32_t out_cmd,
+#ifdef USE_JSON_MSG
+int parse_message(const void* data, const int size, msg_base &result)
+{
+    char *begin_ptr = (char *)data;
+    char *end_ptr = (char *)(begin_ptr + size);
+    Json::CharReaderBuilder read_builder;
+    JSONCPP_STRING json_error_info;
+    Json::CharReader *reader = read_builder.newCharReader();
+    bool parse_ok = false;
+
+    if (NULL == reader)
+    {
+        GLOG_ERROR_NS("cafw", "Json::CharReaderBuilder::newCharReader() failed\n");
+        return RET_FAILED;
+    }
+
+    parse_ok = reader->parse(begin_ptr, end_ptr, &result, &json_error_info);
+    delete reader;
+    if (!parse_ok)
+    {
+        GLOG_ERROR_NS("cafw", "Json::CharReader::parse() failed\n");
+        return RET_FAILED;
+    }
+
+    return size;
+}
+#endif
+
+int serialize_to_buffer(const int32_t out_cmd,
     const msg_base *out_body,
     const void *in_header_buf,
     void *out_buf,
     int &out_len,
-    const uint32_t errcode/* = PROTO_RET_SUCCESS*/,
+    const int32_t errcode/* = PROTO_RET_SUCCESS*/,
     const bool is_final_fragment/* = true*/,
-    const int32_t packet_num/* = 1*/)
+    const int16_t packet_num/* = 1*/)
 {
     out_len = 0;
 
@@ -244,16 +298,22 @@ int serialize_to_buffer(const uint32_t out_cmd,
         || NULL == out_buf)
         return CA_RET(NULL_PARAM);
 
-    if (NULL != out_body && !(out_body->SerializeToArray(GET_BODY_ADDR(out_buf), out_body->ByteSize())))
+    int body_len = 0;
+
+    if (NULL != out_body && (body_len = serialize_message(*out_body, GET_BODY_ADDR(out_buf))) < 0)
         return CA_RET(UNDERLYING_ERROR);
 
     proto_header_t header;
 
     parse_header(in_header_buf, &header);
-    header.length = PROTO_HEADER_SIZE + ((NULL == out_body) ? 0 : out_body->ByteSize());
+    header.length = PROTO_HEADER_SIZE + ((NULL == out_body) ? 0 : body_len);
     header.command = out_cmd;
+    if (is_final_fragment)
+        header.flag_bits |= PROTO_FLAG_BIT_PACKET_END;
+    else
+        header.flag_bits &= (~PROTO_FLAG_BIT_PACKET_END);
+    header.packet_number = packet_num;
     header.error_code = errcode;
-    header.packet_number = is_final_fragment ? (-(packet_num)) : (packet_num);
     assemble_header(&header, out_buf);
 
     out_len = header.length;
@@ -262,12 +322,12 @@ int serialize_to_buffer(const uint32_t out_cmd,
 }
 
 int send_lite_packet(const int fd,
-    const uint32_t cmd,
-    const uint32_t errcode,
+    const int32_t cmd,
+    const int32_t errcode,
     const msg_base *msg_body,
-    const uint64_t route_id/* = 0*/,
+    const int64_t route_id/* = 0*/,
     const bool is_final_fragment/* = true*/,
-    const int32_t packet_num/* = 1*/)
+    const int16_t packet_num/* = 1*/)
 {
     if (fd < 0)
         return CA_RET(INVALID_PARAM_VALUE);
@@ -278,11 +338,8 @@ int send_lite_packet(const int fd,
 
     if (NULL != msg_body)
     {
-        body_len = msg_body->ByteSize();
-        if (body_len <= 0)
-            return RET_OK;
-
-        if (!(msg_body->SerializeToArray(GET_BODY_ADDR(data), body_len)))
+        body_len = serialize_message(*msg_body, GET_BODY_ADDR(data));
+        if (body_len < 0)
             return CA_RET(UNDERLYING_ERROR);
     }
 
@@ -294,14 +351,14 @@ int send_lite_packet(const int fd,
 
 int send_lite_packet(const char *node_type,
     const int max_node_count,
-    const uint32_t cmd,
-    const uint32_t errcode,
+    const int32_t cmd,
+    const int32_t errcode,
     const msg_base *msg_body,
     const bool to_all/* = true */,
     const int policy/* = 0 */,
-    const uint64_t route_id/* = 0 */,
+    const int64_t route_id/* = 0 */,
     const bool is_final_fragment/* = true*/,
-    const int32_t packet_num/* = 1*/)
+    const int16_t packet_num/* = 1*/)
 {
     if (NULL == node_type
         || max_node_count <= 0)
@@ -313,12 +370,8 @@ int send_lite_packet(const char *node_type,
 
     if (NULL != msg_body)
     {
-
-        body_len = msg_body->ByteSize();
-        if (body_len <= 0)
-            return RET_OK;
-
-        if (!(msg_body->SerializeToArray(GET_BODY_ADDR(data), body_len)))
+        body_len = serialize_message(*msg_body, GET_BODY_ADDR(data));
+        if (body_len < 0)
             return CA_RET(UNDERLYING_ERROR);
     }
 
@@ -381,14 +434,18 @@ int send_identity_report_request(const int fd)
         return RET_FAILED;
     }
 
-    const uint64_t kRouteId = 0;
+    const int64_t kRouteId = 0;
     char sid[SID_LEN + 1] = {0};
-    IdentityReportReq msg;
     const net_node_config &self_node = cal::singleton<config_manager>::get_instance()->config_content()->private_configs.self;
     char self_name[cal::MAX_CONNECTION_NAME_LEN + 1] = {0};
-    uint32_t cmd = CMD_IDENTITY_REPORT_REQ;
+    int32_t cmd = CMD_IDENTITY_REPORT_REQ;
 
     make_session_id(&kRouteId, sizeof(sid), sid);
+
+#ifndef USE_JSON_MSG
+
+    IdentityReportReq msg;
+
     msg.set_session_id(sid);
     msg.set_server_type(self_node.type_value);
     /*snprintf(self_name, sizeof(self_name), "%s_%s:%u",
@@ -396,6 +453,18 @@ int send_identity_report_request(const int fd)
     snprintf(self_name, sizeof(self_name), "%s", self_node.node_name.c_str());
     msg.set_server_name(self_name);
     GLOG_INFO_NS("cafw", "0x%08X | %s | %d | %s\n", cmd, msg.session_id().c_str(), msg.server_type(), msg.server_name().c_str());
+
+#else
+
+    Json::Value msg;
+
+    msg[SID_KEY_STR] = sid;
+    msg[SERVER_TYPE_KEY_STR] = self_node.type_value;
+    snprintf(self_name, sizeof(self_name), "%s", self_node.node_name.c_str());
+    msg[SERVER_NAME_KEY_STR] = self_name;
+    GLOG_INFO_NS("cafw", "0x%08X | %s | %d | %s\n", cmd, msg[SID_KEY_STR].asCString(), msg[SERVER_TYPE_KEY_STR].asInt(), msg[SERVER_NAME_KEY_STR].asCString());
+
+#endif // #ifndef USE_JSON_MSG
 
     return send_lite_packet(fd, cmd, PROTO_RET_SUCCESS, &msg);
 }

@@ -39,13 +39,6 @@
 
 #include "handler_component_definitions.h"
 
-/*namespace cans
-{
-
-struct NetConnection;
-
-}*/
-
 namespace cafw
 {
 

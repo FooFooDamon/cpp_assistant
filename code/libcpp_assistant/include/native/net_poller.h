@@ -39,7 +39,7 @@
 
 #include <sys/epoll.h>
 
-#include "base/stl_adapters/map.h"
+#include <map>
 
 #include "base/ca_inner_necessities.h"
 

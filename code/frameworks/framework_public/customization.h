@@ -40,6 +40,8 @@
 
 #include "mutable_customization.h"
 
+#include "timed_task_scheduler.h"
+
 CA_LIB_NAMESPACE_BEGIN
 
 class command_line;
@@ -88,14 +90,17 @@ extern void release_extra_resource(struct extra_resource_t **target);
 namespace cafw
 {
 
-struct timed_task_config;
+typedef struct timed_task_info_t
+{
+    const char *name;
+    struct timed_task_config config;
+}timed_task_info_t;
 
 struct handler_component;
 
 }
 
-extern const char *g_timed_task_names[];
-extern struct cafw::timed_task_config g_timed_task_settings[];
+extern cafw::timed_task_info_t g_customized_timed_tasks[];
 
 extern struct cafw::handler_component g_packet_handler_components[];
 

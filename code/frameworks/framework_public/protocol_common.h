@@ -44,13 +44,26 @@
 
 #include <typeinfo>
 
-#include <cpp_assistant/ca_full.h>
-#include <mutable_customization.h> // A header file defined by user.
+#include "ca_full.h"
+#include "mutable_customization.h" // A header file defined by user.
 
+#ifndef USE_JSON_MSG
 #include "public_protocols.pb.h"
+#else
+#include "json/json.h"
+#endif
 
 namespace cafw
 {
+
+#ifndef SID_LEN
+#define SID_LEN                         32
+#endif
+
+#define DECLARE_AND_CAST(base_ptr, derived_ptr, derived_type)                       \
+    derived_type *derived_ptr = dynamic_cast<derived_type *>(base_ptr)
+
+#ifndef USE_JSON_MSG
 
 typedef ::google::protobuf::Message     msg_base;
 
@@ -63,13 +76,6 @@ typedef MinimalBody                     IdentityReportResp;
 typedef MinimalBody                     ReqBodyPrefix;
 typedef MinimalBody                     RespBodyPrefix;
 typedef MinimalBody                     UnifiedBodyPrefix;
-
-#ifndef SID_LEN
-#define SID_LEN                         32
-#endif
-
-#define DECLARE_AND_CAST(base_ptr, derived_ptr, derived_type)                       \
-    derived_type *derived_ptr = dynamic_cast<derived_type *>(base_ptr)
 
 #ifndef SET_REQ_PREFIX
 #define SET_REQ_PREFIX(req_body, sid, route_id)                                      do{\
@@ -84,9 +90,6 @@ typedef MinimalBody                     UnifiedBodyPrefix;
 }while (0)
 #endif
 
-#define G_OUTPUT_REQ_PREFIX(req_body)                                               OUTPUT_REQ_PREFIX(req_body, G)
-#define T_OUTPUT_REQ_PREFIX(req_body)                                               OUTPUT_REQ_PREFIX(req_body, T)
-
 #ifndef SET_RESP_PREFIX
 #define SET_RESP_PREFIX(req_body, resp_body, retcode)                               do{\
     (resp_body).set_session_id((req_body).session_id().c_str(), SID_LEN); \
@@ -100,8 +103,66 @@ typedef MinimalBody                     UnifiedBodyPrefix;
 }while (0)
 #endif
 
+#define GLOG_PROTO_FIELD(field_owner, field_name, fmt, ...)                          do{\
+    if ((field_owner).has_##field_name()) \
+        GLOG_INFO(fmt, ##__VA_ARGS__); \
+}while(0)
+
+#else
+
+typedef Json::Value                     msg_base;
+
+#define SID_KEY_STR                     "session_id"
+#define SERVER_TYPE_KEY_STR             "server_type"
+#define SERVER_NAME_KEY_STR             "server_name"
+
+#ifndef SET_REQ_PREFIX
+#define SET_REQ_PREFIX(req_body, sid, route_id)                                      do{\
+    (req_body)[SID_KEY_STR] = sid; \
+}while (0)
+#endif
+
+#ifndef OUTPUT_REQ_PREFIX
+#define OUTPUT_REQ_PREFIX(req_body, logger_prefix)                                  do{\
+    const Json::Value &_sid_json_value = (req_body)[SID_KEY_STR]; \
+    if (!_sid_json_value.empty()) \
+        logger_prefix##LOG_INFO("Request body prefix: session_id[%s]\n", \
+            _sid_json_value.asCString()); \
+}while (0)
+#endif
+
+#ifndef SET_RESP_PREFIX
+#define SET_RESP_PREFIX(req_body, resp_body, retcode)                               do{\
+    (resp_body)[SID_KEY_STR] = (req_body)[SID_KEY_STR].asString(); \
+}while (0)
+#endif
+
+#ifndef OUTPUT_RESP_PREFIX
+#define OUTPUT_RESP_PREFIX(resp_body, logger_prefix)                                do{\
+    const Json::Value &_sid_json_value = (resp_body)[SID_KEY_STR]; \
+    if (!_sid_json_value.empty()) \
+        logger_prefix##_LOG_INFO("Response body prefix: session_id[%s]\n", \
+            _sid_json_value.asCString()); \
+}while (0)
+#endif
+
+#define GLOG_PROTO_FIELD(field_owner, field_name, fmt, ...)                          do{\
+    if (!(field_owner)[#field_name].empty()) \
+        GLOG_INFO(fmt, ##__VA_ARGS__); \
+}while(0)
+
+#endif // #ifndef USE_JSON_MSG
+
+#define G_OUTPUT_REQ_PREFIX(req_body)                                               OUTPUT_REQ_PREFIX(req_body, G)
+#define T_OUTPUT_REQ_PREFIX(req_body)                                               OUTPUT_REQ_PREFIX(req_body, T)
+
 #define G_OUTPUT_RESP_PREFIX(resp_body)                                             OUTPUT_RESP_PREFIX(resp_body, G)
 #define T_OUTPUT_RESP_PREFIX(resp_body)                                             OUTPUT_RESP_PREFIX(resp_body, T)
+
+enum
+{
+    INVALID_COMMAND = 0x44444444
+};
 
 #ifndef CMD_HEARTBEAT_REQ
 #define CMD_HEARTBEAT_REQ                                   0x00000000
@@ -120,7 +181,7 @@ typedef MinimalBody                     UnifiedBodyPrefix;
 #endif
 
 #ifndef CMD_UNUSED
-#define CMD_UNUSED                                          0x11111111
+#define CMD_UNUSED                                          cafw::INVALID_COMMAND
 #endif
 
 #ifndef PROTO_RET_SUCCESS
@@ -135,9 +196,103 @@ typedef MinimalBody                     UnifiedBodyPrefix;
 #define PROTO_RET_PACKET_PARSE_ERROR                        444444
 #endif
 
-/*#ifndef PROTO_RET_PACKET_ASSEMBLE_ERROR
-#define PROTO_RET_PACKET_ASSEMBLE_ERROR                     90002
-#endif*/
+enum
+{
+    INVALID_PACKET_LENGTH = 0
+};
+
+#ifndef PROTO_HEADER_EXTENSIONS_SIZE
+#define PROTO_HEADER_EXTENSIONS_SIZE                        0
+#endif
+
+typedef struct proto_header_t
+{
+    /*
+     * Since some languages do not support unsigned integer type,
+     * therefore all integer type fields should be defined as signed.
+     *
+     * NOTE: The header should be 4-byte aligned.
+     */
+
+    // total length = fixed header length + mutable body length
+    int32_t length;
+
+    // For route searching, packet dispatching, etc.
+    int64_t route_id;
+
+    // For determining what a packet is.
+    // For example, 0x00000000 indicates the packet is a heart-beat request.
+    int32_t command;
+
+    // A set of flags. A bit or some bits mean(s) something:
+    // bit 0: packet end flag: 0 for not ended, 1 for ended.
+    // other bits: reserved for future use.
+    int16_t flag_bits;
+
+    // The number of the current packet, starting from 1.
+    int16_t packet_number;
+
+    // For determining the error reason if an error occurs during packet handling.
+    // For example, 888888 means successful, 444444 means packet parse exception.
+    int32_t error_code;
+
+    // This extension field is totally defined by user.
+    char extension_padding[PROTO_HEADER_EXTENSIONS_SIZE];
+}proto_header_t;
+
+#define HEADER_OFFSET_LENGTH                                0
+
+#define HEADER_OFFSET_ROUTE_ID                              (HEADER_OFFSET_LENGTH + sizeof(int32_t))
+
+#define HEADER_OFFSET_COMMAND                               (HEADER_OFFSET_ROUTE_ID + sizeof(int64_t))
+
+#define HEADER_OFFSET_FLAG_BITS                             (HEADER_OFFSET_COMMAND + sizeof(int32_t))
+
+#define HEADER_OFFSET_PACKET_NUM                            (HEADER_OFFSET_FLAG_BITS + sizeof(int16_t))
+
+#define HEADER_OFFSET_ERR_CODE                              (HEADER_OFFSET_PACKET_NUM + sizeof(int16_t))
+
+#define HEADER_OFFSET_EXTENSIONS                            (HEADER_OFFSET_ERR_CODE + sizeof(int32_t))
+
+#ifndef PROTO_HEADER_BASICS_SIZE
+#define PROTO_HEADER_BASICS_SIZE                            HEADER_OFFSET_EXTENSIONS
+#endif
+
+#define PROTO_HEADER_SIZE                                   (PROTO_HEADER_BASICS_SIZE + PROTO_HEADER_EXTENSIONS_SIZE)
+
+inline void fill_proto_header(proto_header_t &header,
+    const int32_t body_len,
+    const int32_t cmd,
+    const int32_t errcode,
+    const int64_t route_id = 0,
+    const int16_t packet_num = 1,
+    const int16_t flag_bits = 1,
+    const char* extensions = NULL)
+{
+    header.length = PROTO_HEADER_SIZE + body_len;
+    header.route_id = route_id;
+    header.command = cmd;
+    header.flag_bits = flag_bits;
+    header.packet_number = packet_num;
+    header.error_code = errcode;
+    // TODO: how to fill extensions?
+}
+
+#define CALC_BODY_LEN(total_len)                ((total_len) - PROTO_HEADER_SIZE)
+#define GET_HEADER_ADDR(buf)                    ((void *)buf)
+#define GET_BODY_ADDR(buf)                      ((void *)((char *)buf + PROTO_HEADER_SIZE))
+
+enum enum_proto_flag_bit
+{
+    PROTO_FLAG_BIT_PACKET_END = (1 << 0)
+    // TODO: More flags bit definitions in future ...
+};
+
+enum enum_packet_end_flag
+{
+    PACKET_NOT_ENDED = 0,
+    PACKET_ENDED = 1
+};
 
 template <typename Int>
 static Int get_proto_header_field(const void *raw_buf,
@@ -162,123 +317,41 @@ static Int get_proto_header_field(const void *raw_buf,
         return (Int)cal::sys::ntohl64(value);
 }
 
-enum
+inline int32_t get_proto_length(const void *raw_buf)
 {
-    ERR_INVALID_LENGTH = 0x00000000,
-    ERR_INVALID_COMMAND = 0x00000000
-};
-
-#define GLOG_PROTO_FIELD(field_owner, field_name, fmt, ...)                          do{\
-    if ((field_owner).has_##field_name()) \
-    GLOG_INFO(fmt, ##__VA_ARGS__); \
-}while(0)
-
-#ifndef PROTO_HEADER_BASICS_SIZE
-#define PROTO_HEADER_BASICS_SIZE                            24
-#endif
-
-#ifndef PROTO_HEADER_EXTENSIONS_SIZE
-#define PROTO_HEADER_EXTENSIONS_SIZE                        0
-#endif
-
-#ifndef PROTO_HEADER_SIZE
-#define PROTO_HEADER_SIZE                                   (PROTO_HEADER_BASICS_SIZE + PROTO_HEADER_EXTENSIONS_SIZE)
-#endif
-
-typedef struct proto_header_t
-{
-    uint32_t length; // total length = fixed header length + mutable body length
-    // TODO: ifdef LONG_ROUTE_ID: uint64_t else: uint32_t
-    uint64_t route_id; // for route searching, packet dispatching, etc.
-    uint32_t command;
-    int32_t packet_number; // MSB is the end flag: 0 for not ended, 1 for ended. abs(packet_number) is the actual number.
-    uint32_t error_code;
-    char extension_padding[PROTO_HEADER_EXTENSIONS_SIZE];
-}proto_header_t;
-
-#ifndef HEADER_OFFSET_LENGTH
-#define HEADER_OFFSET_LENGTH                                0
-#endif
-
-#ifndef HEADER_OFFSET_ROUTE_ID
-#define HEADER_OFFSET_ROUTE_ID                              (HEADER_OFFSET_LENGTH + sizeof(uint32_t))
-#endif
-
-#ifndef HEADER_OFFSET_COMMAND
-#define HEADER_OFFSET_COMMAND                               (HEADER_OFFSET_ROUTE_ID + sizeof(uint64_t))
-#endif
-
-#ifndef HEADER_OFFSET_PACKET_NUM
-#define HEADER_OFFSET_PACKET_NUM                            (HEADER_OFFSET_COMMAND + sizeof(uint32_t))
-#endif
-
-#ifndef HEADER_OFFSET_ERR_CODE
-#define HEADER_OFFSET_ERR_CODE                              (HEADER_OFFSET_PACKET_NUM + sizeof(int32_t))
-#endif
-
-#ifndef HEADER_OFFSET_EXTENSIONS
-#define HEADER_OFFSET_EXTENSIONS                            (HEADER_OFFSET_ERR_CODE + sizeof(uint32_t))
-#endif
-
-inline void fill_proto_header(proto_header_t &header,
-    const uint32_t body_len,
-    const uint32_t cmd,
-    const uint32_t errcode,
-    const uint64_t route_id = 0,
-    const int32_t packet_num = 1,
-    const bool is_final_packet = true,
-    const char* extensions = NULL)
-{
-    header.length = PROTO_HEADER_SIZE + body_len;
-    header.command = cmd;
-    header.packet_number = (is_final_packet) ? (-(packet_num)) : (packet_num);
-    header.route_id = route_id;
-    header.error_code = errcode;
-    // TODO: how to fill extensions?
+    return get_proto_header_field(raw_buf, HEADER_OFFSET_LENGTH, (int32_t)INVALID_PACKET_LENGTH);
 }
 
-#define CALC_BODY_LEN(total_len)                ((total_len) - PROTO_HEADER_SIZE)
-#define GET_HEADER_ADDR(buf)                    ((void *)buf)
-#define GET_BODY_ADDR(buf)                      ((void *)((char *)buf + PROTO_HEADER_SIZE))
-
-enum PacketEndFlag
+inline int64_t get_proto_route_id(const void *raw_buf)
 {
-    PACKET_NOT_ENDED = 0,
-    PACKET_ENDED = 1
-};
-
-inline uint32_t get_proto_length(const void *raw_buf)
-{
-    return get_proto_header_field(raw_buf, HEADER_OFFSET_LENGTH, (uint32_t)ERR_INVALID_LENGTH);
+    return get_proto_header_field(raw_buf, HEADER_OFFSET_ROUTE_ID, (int64_t)0);
 }
 
-inline uint32_t get_proto_command(const void *raw_buf)
+inline int32_t get_proto_command(const void *raw_buf)
 {
-    return get_proto_header_field(raw_buf, HEADER_OFFSET_COMMAND, (uint32_t)ERR_INVALID_COMMAND);
+    return get_proto_header_field(raw_buf, HEADER_OFFSET_COMMAND, (int32_t)INVALID_COMMAND);
 }
 
-inline uint32_t get_proto_packet_number(const void *raw_buf)
+inline int16_t get_proto_flag_bits(const void *raw_buf)
 {
-    int32_t value = get_proto_header_field(raw_buf, HEADER_OFFSET_PACKET_NUM, (int32_t)-1);
-
-    return (value < 0) ? (-value) : value;
+    return get_proto_header_field(raw_buf, HEADER_OFFSET_FLAG_BITS, (int16_t)PROTO_FLAG_BIT_PACKET_END);
 }
 
 inline bool is_final_packet(const void *raw_proto_buf)
 {
-    int32_t value = get_proto_header_field(raw_proto_buf, HEADER_OFFSET_PACKET_NUM, (int32_t)-1);
+    int16_t flag_bits = get_proto_flag_bits(raw_proto_buf);
 
-    return (value < 0);
+    return (flag_bits & ((int16_t)PROTO_FLAG_BIT_PACKET_END));
 }
 
-inline uint64_t get_proto_route_id(const void *raw_buf)
+inline int16_t get_proto_packet_number(const void *raw_buf)
 {
-    return get_proto_header_field(raw_buf, HEADER_OFFSET_ROUTE_ID, (uint64_t)0);
+    return get_proto_header_field(raw_buf, HEADER_OFFSET_PACKET_NUM, (int16_t)1);
 }
 
-inline uint32_t get_proto_error_code(const void *raw_buf)
+inline int32_t get_proto_error_code(const void *raw_buf)
 {
-    return get_proto_header_field(raw_buf, HEADER_OFFSET_ERR_CODE, (uint32_t)0);
+    return get_proto_header_field(raw_buf, HEADER_OFFSET_ERR_CODE, (int32_t)0);
 }
 
 //int proto_precheck(const int inlen, const void* inbuf, int &outlen, void* outbuf, int &retcode);
@@ -288,83 +361,105 @@ inline uint32_t get_proto_error_code(const void *raw_buf)
 int parse_header(const void *inbuf, proto_header_t *result);
 int assemble_header(const proto_header_t *src, void *outbuf);
 
-inline bool proto_is_request(const uint32_t cmd)
+inline bool proto_is_request(const int32_t cmd)
 {
     return (0 == cmd % 2);
 }
 
-inline bool proto_is_heartbeat(const uint32_t cmd)
+inline bool proto_is_heartbeat(const int32_t cmd)
 {
     return (CMD_HEARTBEAT_REQ == cmd ||
         CMD_HEARTBEAT_RESP == cmd);
 }
 
+#ifndef USE_JSON_MSG
+
 int get_unified_proto_prefix_length(void);
 int get_request_proto_prefix_length(void);
 int get_response_proto_prefix_length(void);
 
+#endif // #ifndef USE_JSON_MSG
+
 int extract_session_id(const void *raw_buf, char *result, bool is_req = true);
 
-int serialize_to_buffer(const uint32_t out_cmd,
+#ifndef USE_JSON_MSG
+inline int parse_message(const void* data, const int size, msg_base &result)
+{
+    if (!result.ParseFromArray(data, size))
+        return -1;
+
+    return result.ByteSize();
+}
+#else
+int parse_message(const void* data, const int size, msg_base &result); // implemented in .cpp file
+#endif
+
+inline int get_message_length(const msg_base &msg) // may be time-consuming
+{
+#ifndef USE_JSON_MSG
+    return msg.ByteSize();
+#else
+    return msg.toStyledString().length();
+#endif
+}
+
+inline void clear_message_holder(msg_base &holder)
+{
+#ifndef USE_JSON_MSG
+    holder.Clear();
+#else
+    holder.clear();
+#endif
+}
+
+inline int serialize_message(const msg_base &msg, void* out_buf)
+{
+#ifndef USE_JSON_MSG
+    int size = msg.ByteSize();
+
+    if (!msg.SerializePartialToArray(out_buf, size))
+        return -1;
+
+    return size;
+#else
+    Json::StreamWriterBuilder writer_factory;
+    std::string serialized_str = Json::writeString(writer_factory, msg);
+
+    return serialized_str.copy((char *)out_buf, serialized_str.length());
+#endif
+}
+
+int serialize_to_buffer(const int32_t out_cmd,
     const msg_base *out_body,
     const void *in_header_buf,
     void *out_buf,
     int &out_len,
-    const uint32_t errcode = PROTO_RET_SUCCESS,
+    const int32_t errcode = PROTO_RET_SUCCESS,
     const bool is_final_fragment = true,
-    const int32_t packet_num = 1);
+    const int16_t packet_num = 1);
 
 int send_lite_packet(const int fd,
-    const uint32_t cmd,
-    const uint32_t errcode,
+    const int32_t cmd,
+    const int32_t errcode,
     const msg_base *msg_body,
-    const uint64_t route_id = 0,
+    const int64_t route_id = 0,
     const bool is_final_fragment = true,
-    const int32_t packet_num = 1);
+    const int16_t packet_num = 1);
 
 // NOTE: This function should be executed by supervisor thread only.
 int send_lite_packet(const char *node_type,
     const int max_node_count,
-    const uint32_t cmd,
-    const uint32_t errcode,
+    const int32_t cmd,
+    const int32_t errcode,
     const msg_base *msg_body,
     const bool to_all = true,
     const int policy = 0,
-    const uint64_t route_id = 0,
+    const int64_t route_id = 0,
     const bool is_final_fragment = true,
-    const int32_t packet_num = 1);
+    const int16_t packet_num = 1);
 
 int send_heartbeat_request(const int fd);
 int send_identity_report_request(const int fd);
-
-// Contents commented below should be put into user's code.
-/*#define PRECHECK_BEFORE_PRINTING(out_body_type, out_body_var, msg_ptr, msg_len, cmd) \
-    out_body_type out_body_var; \
-    if (RET_OK != validate_protocol_header(msg_ptr, msg_len, cmd)) \
-        return; \
-    uint32_t total_len = get_proto_length(msg_ptr); \
-    int body_len = CALC_BODY_LEN(total_len); \
-    out_body_var.ParseFromArray(GET_BODY_ADDR(msg_ptr), body_len)
-
-// usually used in packet validation functions
-#define CHK_FIELD_EXISTENCE(field_owner, field_name, retcode_var)                   do{\
-    if (!(field_owner).has_##field_name()) \
-    {\
-        LOG_ERROR_V("missing "#field_name"\n"); \
-        (retcode_var) = PROTO_RET_MISSING_PROTO_FIELD; \
-        return false; \
-    }\
-}while(0)
-
-// usually used in packet validation functions
-#define CHK_INT_FIELD_RANGE(field_var, min, max, rc_var, rc_val)                    do{\
-    if (field_var < min || field_var > max) \
-    {\
-        LOG_ERROR_V("value of "#field_var" is beyond range[%d, %d]\n", min, max); \
-        (rc_var) = (rc_val); \
-        return false; \
-    }\
-}while(0)*/
 
 const char *desc_of_end_flag(int src_value);
 /*const char *desc_of_operation_type(int src_value);
@@ -372,7 +467,7 @@ const char *desc_of_effect_status(int src_value);*/
 
 } // namespace cafw
 
-extern bool proto_uses_general_prefix(const uint32_t cmd);
+extern bool proto_uses_general_prefix(const int32_t cmd);
 
 extern int make_session_id(const void *condition, const int sid_holder_size, char *sid_result);
 
@@ -384,7 +479,7 @@ extern int update_session_info(const void *buf, int buflen, bool commit_now = fa
 extern int update_session_info(const cafw::msg_base *body, const cafw::proto_header_t &header, bool commit_now = false);
 extern void clean_expired_sessions(void);
 
-extern bool message_is_time_consuming(const uint32_t cmd);
+extern bool message_is_time_consuming(const int32_t cmd);
 
 extern bool do_security_check_to_packet(const void* packet);
 

@@ -41,7 +41,7 @@
 
 #include <map>
 
-#include <cpp_assistant/ca_full.h>
+#include "ca_full.h"
 #include "protocol_common.h"
 
 namespace cafw
@@ -80,8 +80,8 @@ inline int fake_db_rollback(int thread_num = -1)
 
 typedef struct handler_component
 {
-    uint32_t in_cmd;
-    uint32_t out_cmd;
+    int32_t in_cmd;
+    int32_t out_cmd;
     const char *description;
     bool filters_repeated_session;
     bool has_multi_fragments;
@@ -121,22 +121,40 @@ typedef std::map<uint32_t, handler_component> component_map;
 #define SET_ALLOC_FUNC(name, func_ptr)          cafw::body_container_alloc_func ALLOC_PACKET_CONTAINER_FUNC(name) = func_ptr
 #define SET_ALLOC_FUNC_TO_NULL(name)            SET_ALLOC_FUNC(name, NULL)
 
+#ifndef USE_JSON_MSG
+
 #define DEFINE_ALLOC_FUNC(name, container_type) \
     cafw::msg_base* ALLOC_PACKET_CONTAINER_FUNC(name)(void) \
     {\
         return new container_type; \
     }
 
+#else
+
+//DECLARE_ALLOC_FUNC(json); // compile error
+msg_base* alloc_json_body_container(void);
+
+#endif // #ifndef USE_JSON_MSG
+
 #define SET_ASSEMBLE_OUT_FUNC(name, func_ptr)   cafw::assemble_output_packet_func ASSEMBLE_OUT_PACKET_FUNC(name) = func_ptr
 #define SET_ASSEMBLE_OUT_FUNC_TO_NULL(name)     SET_ASSEMBLE_OUT_FUNC(name, NULL)
 
+#ifndef USE_JSON_MSG
+
 #define DEFINE_DEFAULT_ASSEMBLE_OUT_FUNC(name, in_type, out_type) \
-    void ASSEMBLE_OUT_PACKET_FUNC(name)(const void *original_msg, int retcode, cafw::msg_base *in, cafw::msg_base *out) \
+    DECLARE_ASSEMBLE_OUT_FUNC(name) \
     {\
-        DECLARE_AND_CAST(in, req, in_type); \
-        DECLARE_AND_CAST(out, resp, out_type); \
+        DECLARE_AND_CAST(in_body, req, in_type); \
+        DECLARE_AND_CAST(out_body, resp, out_type); \
         SET_RESP_PREFIX((*req), (*resp), retcode); \
     }
+
+#else
+
+//DECLARE_ASSEMBLE_OUT_FUNC(minimal); // compile error
+void assemble_minimal_out_packet(const void *original_msg, int retcode, msg_base *in_body, msg_base *out_body);
+
+#endif // #ifndef USE_JSON_MSG
 
 
 #define DECLARE_GROUP_FUNC(name)                int GROUP_PACKET_FUNC(name)(const cafw::msg_base *fragment, cafw::msg_base *whole)
@@ -148,7 +166,7 @@ typedef std::map<uint32_t, handler_component> component_map;
 
 #define DECLARE_ALLOC_FUNC(name)                cafw::msg_base* ALLOC_PACKET_CONTAINER_FUNC(name)(void)
 
-#define DECLARE_ASSEMBLE_OUT_FUNC(name)         void ASSEMBLE_OUT_PACKET_FUNC(name)(void *original_msg, int retcode, \
+#define DECLARE_ASSEMBLE_OUT_FUNC(name)         void ASSEMBLE_OUT_PACKET_FUNC(name)(const void *original_msg, int retcode, \
     cafw::msg_base *in_body, cafw::msg_base *out_body)
 
 #define CALL_GROUP_FUNC(name, fragment, whole)                                          \
@@ -185,11 +203,23 @@ typedef std::map<uint32_t, handler_component> component_map;
 #define SET_ALL_HANDLER_FUNCS_TO_NULL()                                                \
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 
+#ifndef USE_JSON_MSG
+
 #define SET_BODY_CONTAINERS(has_multi_fragments, in_class, has_output, out_class)      \
     has_multi_fragments, \
     (has_multi_fragments) ? (new in_class) : NULL, \
     (!has_multi_fragments) ? (new in_class) : NULL, \
     (has_output) ? (new out_class) : NULL
+
+#else
+
+#define SET_BODY_CONTAINERS(has_multi_fragments, has_output)      \
+    has_multi_fragments, \
+    (has_multi_fragments) ? (new Json::Value) : NULL, \
+    (!has_multi_fragments) ? (new Json::Value) : NULL, \
+    (has_output) ? (new Json::Value) : NULL
+
+#endif // #ifndef USE_JSON_MSG
 
 #define SET_ALL_BODY_CONTAINERS_TO_NULL()                                              \
     NULL, NULL, NULL

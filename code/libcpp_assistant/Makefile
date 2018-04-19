@@ -65,12 +65,6 @@ debug:
 	echo "Newest change log item: $(CA_CHANGE_LOG_ITEM)"
 	make all DEBUG=1
 
-pure:
-	make all CA_USE_STL=0
-
-pure_debug:
-	make all DEBUG=1 CA_USE_STL=0
-
 obj_only: validate_and_prepare
 	make obj_only $(DEBUG_FLAG) $(STL_FLAG) $(TINYXML_FLAG) -C $(DIR_3RD_PARTY)
 	make obj_only $(DEBUG_FLAG) $(STL_FLAG) -C $(DIR_NATIVE)

@@ -37,11 +37,12 @@
 #ifndef __CPP_ASSISTANT_XML_HELPER_H__
 #define __CPP_ASSISTANT_XML_HELPER_H__
 
+#include <string>
+#include <vector>
+#include <map>
+
 #include "../3rdparty/tinyxml/tinyxml.h"
 #include "base/ca_inner_necessities.h"
-#include "base/stl_adapters/string.h"
-#include "base/stl_adapters/vector.h"
-#include "base/stl_adapters/map.h"
 
 CA_LIB_NAMESPACE_BEGIN
 

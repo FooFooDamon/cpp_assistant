@@ -41,11 +41,11 @@
 #include <string.h>
 
 #include <typeinfo>
+#include <string>
+#include <vector>
 
 #include "base/ca_inner_necessities.h"
 #include "base/ca_return_code.h"
-#include "base/stl_adapters/string.h"
-#include "base/stl_adapters/vector.h"
 
 CA_LIB_NAMESPACE_BEGIN
 

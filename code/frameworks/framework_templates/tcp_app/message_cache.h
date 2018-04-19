@@ -49,9 +49,9 @@ typedef struct msg_cache_value
 {
     union
     {
-        uint32_t reqcmd;
-        uint32_t respcmd;
-        uint32_t cmd;
+        int32_t reqcmd;
+        int32_t respcmd;
+        int32_t cmd;
     };
     //union
     //{

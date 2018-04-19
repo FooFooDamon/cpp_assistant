@@ -37,9 +37,10 @@
 #ifndef __CPP_ASSISTANT_COMMAND_LINE_H__
 #define __CPP_ASSISTANT_COMMAND_LINE_H__
 
+#include <vector>
+#include <map>
+
 #include "base/ca_inner_necessities.h"
-#include "base/stl_adapters/vector.h"
-#include "base/stl_adapters/map.h"
 #include "ca_string.h"
 #include "system.h"
 

@@ -40,18 +40,15 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "base/stl_adapters/map.h"
-#include "base/stl_adapters/vector.h"
-#include "base/stl_adapters/string.h"
-#include "base/debug.h"
+#include <map>
+#include <vector>
+#include <string>
 
-//#include "sequential_buffer.h"
+#include "base/debug.h"
 #include "net_common.h"
 #include "net_poller.h"
 
 CA_LIB_NAMESPACE_BEGIN
-
-//class seqbuffer;
 
 class tcp_base
 {

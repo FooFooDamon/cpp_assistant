@@ -28,10 +28,10 @@ INCLUDES += $(REQUIRED_INCLUDES) $(addprefix -I$(USER_PROGRAM_ROOT)/, $(addsuffi
 CXXFLAGS += -O2 $(DEFINES) $(INCLUDES)
 LDFLAGS += $(REQUIRED_LDFLAGS)
 SRCS_PUBLIC = $(shell find $(CPP_ASSISTANT_ROOT)/code/frameworks/framework_public/ -iname "*.c*" | grep -v "\.svn\|public_protocols")
-SRCS_CORE = $(shell find $(CPP_ASSISTANT_ROOT)/code/frameworks/$(FRAMEWORK)/ -iname "*.c*" | grep -v "\.svn\|public_protocols")
+SRCS_CORE = $(shell find $(CPP_ASSISTANT_ROOT)/code/frameworks/framework_templates/$(FRAMEWORK)/ -iname "*.c*" | grep -v "\.svn\|public_protocols")
 SRCS += $(subst $(CPP_ASSISTANT_ROOT)/code/frameworks/framework_public,./framework_public,$(SRCS_PUBLIC))
 SRCS += ./framework_public/public_protocols.pb.cc
-SRCS += $(subst $(CPP_ASSISTANT_ROOT)/code/frameworks/$(FRAMEWORK),./framework_core,$(SRCS_CORE))
+SRCS += $(subst $(CPP_ASSISTANT_ROOT)/code/frameworks/framework_templates/$(FRAMEWORK),./framework_core,$(SRCS_CORE))
 SRCS += $(shell find . -iname "*.cpp" | grep -v "\.svn\|framework_")
 TARGET := simple_app
 
