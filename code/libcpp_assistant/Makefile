@@ -108,21 +108,21 @@ clean:
 	make clean -C $(DIR_3RD_PARTY)
 	make clean -C $(DIR_NATIVE)
 
-add_copyright:
-	# add_code_copyright.sh is a self-made script that adds copyright info into all code files.
+update_copyright:
+	# update_code_copyright.sh is a self-made script that adds copyright info into all code files, or updates them.
 	-for i in `find ./src/ -path ./src/3rdparty -prune -o -type f -iname "*.[ch]*" -print | grep -v "\.svn"`; \
 	do \
-		add_code_copyright.sh $$i; \
+		update_code_copyright.sh $$i; \
 	done
 	-for i in `find ./include/ -path ./include/3rdparty -prune -o -type f -iname "*.h" -print | grep -v "\.svn"`; \
 	do \
-		add_code_copyright.sh $$i; \
+		update_code_copyright.sh $$i; \
 	done
 
 pack:
 	make clean
 	make clean -C src/unittest
-	make add_copyright
+	make update_copyright
 	# tts.sh is a self-made script that turns all tabs in files into spaces.
 	-tts.sh ../libcpp_assistant/
 	tar -zcvf ~/libcpp_assistant_v$(CA_MAIN_VER).tar.gz ../libcpp_assistant/

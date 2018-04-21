@@ -83,6 +83,8 @@ typedef struct config_content_t
     private_config private_configs; // private configurations only for this program
 }config_content_t;
 
+extern int load_extra_server_types(const config_file_t *config_file, std::map<std::string, int> &result);
+
 class config_manager
 {
 /* ===================================

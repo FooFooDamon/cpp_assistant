@@ -21,7 +21,7 @@
 			<item name="client"         value="1"/>
 			<item name="casdk_server"   value="2"/>
 			<item name="casdk_client"   value="3"/>
-			<!-- More types are decided by the user, add them as you need. -->
+			<!-- More types are defined by the user in the private configuration file. -->
 		</server-types>
 		<dispatch-policies>
 			<item name="randomly"      value="0"/>

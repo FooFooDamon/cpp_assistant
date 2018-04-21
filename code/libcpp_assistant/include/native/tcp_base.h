@@ -97,6 +97,7 @@ protected:
  * =================================== */
 public:
     static CA_REENTRANT int set_nonblocking(int fd);
+
     /*
      * Sends/Receives at most @len bytes of data fragment, data destination/origin is @buf,
      * and the target connection is specified by file descriptor @fd.
@@ -104,23 +105,29 @@ public:
      */
     static CA_REENTRANT int send_fragment(int fd, const void *buf, int len);
     static CA_REENTRANT int recv_fragment(int fd, void *buf, int len);
+
     /*
-     * Like XXFragment() above, except that the target is the connection
+     * Like xx_fragment() above, except that the target is the connection
      * specified by @conn or @fd.
      */
     static CA_REENTRANT int send_from_connection(net_connection *conn);
     static CA_REENTRANT int recv_to_connection(net_connection *conn);
     int send_from_connection(int fd);
     int recv_to_connection(int fd);
+
     // Shows contents of a TCP instance, such as IP, port, its peers, etc.
     // By default, these contents will be copied into @result_holder if it's not null, otherwise,
     // they'll be printed or logged by logger or by system print function, depending on how
     // @logger is like.
     virtual void has_what(std::string *result_holder = NULL, format_output_func logger = NULL);
+
     net_connection *find_peer(int fd);
+
     conn_info_array& get_active_peers(void) const;
+
     virtual int shutdown_connection(net_connection *conn);
     virtual int shutdown_connection(int fd);
+
     int poll(void);
 
 /* ===================================
@@ -169,8 +176,10 @@ public:
             m_poller->set_timeout(timeout);
     }
 
-    // Returns the socket file descriptor for listening.
+    // listening_xxx() returns the socket file descriptor, IP or port number for listening.
     // It's meaningful only if the instance is a server.
+    // Below are default implementations, re-write them in a server class afterwards!
+
     virtual inline int listening_fd(void) const
     {
         return INVALID_SOCK_FD;

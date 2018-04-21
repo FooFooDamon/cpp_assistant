@@ -73,7 +73,7 @@ static void test_invalid_conditions(void)
      */
     for (int i = -1; i < MIN_BUF_LEN; ++i)
     {
-        ASSERT_EQ(EXPECTED_FAILURE_CODE, calib::parse_retcode(TESTED_RETCODE, i, msg));
+        ASSERT_EQ(EXPECTED_FAILURE_CODE, calib::parse_return_code(TESTED_RETCODE, i, msg));
     }
 }
 
@@ -143,18 +143,18 @@ static void test_message_displaying(void)
     /*
      * validates positive number(s)
      */
-    ASSERT_EQ(EXPECTED_OK_CODE, calib::parse_retcode(TESTED_POSITIVE_NUM, sizeof(msg), msg));
+    ASSERT_EQ(EXPECTED_OK_CODE, calib::parse_return_code(TESTED_POSITIVE_NUM, sizeof(msg), msg));
     printf("%d:\t%s\n", TESTED_POSITIVE_NUM, msg);
 
     /*
      * validates special numbers
      */
 
-    ASSERT_EQ(EXPECTED_OK_CODE, calib::parse_retcode(CA_RET_OK, sizeof(msg), msg));
+    ASSERT_EQ(EXPECTED_OK_CODE, calib::parse_return_code(CA_RET_OK, sizeof(msg), msg));
     ASSERT_STREQ(SUCCESS_RET_STRING, msg);
     printf("%d:\t%s\n", CA_RET_OK, msg);
 
-    ASSERT_EQ(EXPECTED_OK_CODE, calib::parse_retcode(CA_RET_GENERAL_FAILURE, sizeof(msg), msg));
+    ASSERT_EQ(EXPECTED_OK_CODE, calib::parse_return_code(CA_RET_GENERAL_FAILURE, sizeof(msg), msg));
     printf("%d:\t%s\n", CA_RET_GENERAL_FAILURE, msg);
 
     /*
@@ -165,7 +165,7 @@ static void test_message_displaying(void)
 
     for (int i = SYS_RET_BEGIN; i > SYS_RET_END; --i)
     {
-        ASSERT_EQ(EXPECTED_OK_CODE, calib::parse_retcode(i, sizeof(msg), msg));
+        ASSERT_EQ(EXPECTED_OK_CODE, calib::parse_return_code(i, sizeof(msg), msg));
         ASSERT_TRUE('\0' != msg[0]);
         printf("%d:\t%s\n", i, msg);
     }
@@ -184,7 +184,7 @@ static void test_message_displaying(void)
         {
             int retcode = calib::USER_RET_CODE_BEGIN - i + 1;
 
-            ASSERT_EQ(EXPECTED_OK_CODE, calib::parse_retcode(retcode, sizeof(msg), msg));
+            ASSERT_EQ(EXPECTED_OK_CODE, calib::parse_return_code(retcode, sizeof(msg), msg));
             printf("%d:\t%s\n", retcode, msg);
         }
 
@@ -204,7 +204,7 @@ static void test_message_displaying(void)
     {
         int retcode = calib::USER_RET_CODE_BEGIN - line_num + 1;
 
-        ASSERT_EQ(EXPECTED_OK_CODE, calib::parse_retcode(retcode, sizeof(msg), msg));
+        ASSERT_EQ(EXPECTED_OK_CODE, calib::parse_return_code(retcode, sizeof(msg), msg));
         ASSERT_STREQ(line_str.c_str(), msg);
         printf("%d:\t%s\n", retcode, msg);
 
@@ -222,21 +222,21 @@ static void test_message_displaying(void)
     delete_retcode_description_file();
 }
 
-TEST(ca_return_code, parse_retcode)
+TEST(ca_return_code, parse_return_code)
 {
     test_invalid_conditions();
     test_message_displaying();
 }
 
-TEST(ca_return_code_DeathTest, parse_retcode)
+TEST(ca_return_code_DeathTest, parse_return_code)
 {
     char msg[512] = {0};
     const int TESTED_RETCODE = 0;
 
     if (calib::__debug_macro_is_defined())
-        ASSERT_EQ(-1, calib::parse_retcode(TESTED_RETCODE, sizeof(msg), NULL));
+        ASSERT_EQ(-1, calib::parse_return_code(TESTED_RETCODE, sizeof(msg), NULL));
     else
-        ASSERT_DEATH(calib::parse_retcode(TESTED_RETCODE, sizeof(msg), NULL), "");
+        ASSERT_DEATH(calib::parse_return_code(TESTED_RETCODE, sizeof(msg), NULL), "");
 
 }
 

@@ -51,6 +51,18 @@
  *
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  *
+ * wxc, 2018/04/21, 0.0.07:
+ *      Added a new configuration item: /root/private/server-types/item
+ *
+ * wxc, 2018/04/19, 0.0.06:
+ *      Added support for JSON format message handling, and all header fields were turned into signed type.
+ *
+ * wxc, 2018/04/15, 0.0.05:
+ *      Refactoring under the rules of new code style.
+ *
+ * wxc, 2017/05/09, 0.0.04:
+ *      Finished single-threading packet handling flow.
+ *
  * wxc, 2017/04/25, 0.0.03:
  *      Corrected errors in heart beat and identity report operations.
  *

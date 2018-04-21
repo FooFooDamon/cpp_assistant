@@ -123,6 +123,8 @@ public:
     // Creates a poller instance which can monitor at most @max_conn_count
     // or MAX_CONNECTION_COUNT connections and limits poll timeout to @timeout milliseconds.
     int create(int max_conn_count, int timeout);
+
+    // Destroys the current poller instance.
     void destroy(void);
 
     /*
@@ -151,6 +153,7 @@ public:
     // Polls and finds out active connections, and then they can be accessed by active_connections().
     // Returns the count of active connections on success, or a negative number on failure.
     int poll(void);
+
     // Tests if an connection with file descriptor @fd is readable/writable.
     bool is_readable(int fd);
     bool is_writable(int fd);

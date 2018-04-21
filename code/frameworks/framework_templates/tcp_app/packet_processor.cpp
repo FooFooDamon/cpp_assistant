@@ -374,7 +374,22 @@ int packet_processor::single_operator_general_flow(const struct cal::net_connect
 
     if (!all_parsed_ok)
     {
+#ifndef USE_JSON_MSG
         GLOG_ERROR_C("protocol parse function failed\n");
+#else
+        char *failed_msg = (char *)calloc(body_len + 1, sizeof(char));
+
+        if (NULL != failed_msg)
+        {
+            memcpy(failed_msg, GET_BODY_ADDR(in_data_ptr), body_len);
+            GLOG_ERROR_C("protocol parse function failed, message parsed unsuccessfully: %s\n",
+                (NULL != failed_msg) ? failed_msg : "");
+            free(failed_msg);
+        }
+        else
+            GLOG_ERROR_C("protocol parse function failed\n");
+#endif // #ifndef USE_JSON_MSG
+
         return RET_FAILED;
     }
 
@@ -899,6 +914,8 @@ DECLARE_BUSINESS_FUNC(identity_report_request_handling)
     int name_len = strlen(client_name);
     connection_cache *conn_cache = cal::singleton<resource_manager>::get_instance()->resource()->master_connection_cache;
     net_conn_index *conn_index = conn_cache->return_as_index(client_name, name_len);
+    const config_content_t *conf_contents = cal::singleton<config_manager>::get_instance()->config_content();
+    const std::map<std::string, int> &conf_server_types = conf_contents->fixed_common_configs.server_types;
 
     snprintf(connection->peer_name, sizeof(connection->peer_name), "%s", client_name);
     GLOG_INFO("client name set to %s\n", connection->peer_name);
@@ -915,7 +932,15 @@ DECLARE_BUSINESS_FUNC(identity_report_request_handling)
         }
 
         memset(conn_index->server_type, 0, sizeof(conn_index->server_type));
-        strncpy(conn_index->server_type, "client", sizeof(conn_index->server_type) - 1);
+        //strncpy(conn_index->server_type, "client", sizeof(conn_index->server_type) - 1);
+        for (std::map<std::string, int>::const_iterator iter = conf_server_types.begin(); iter != conf_server_types.end(); ++iter)
+        {
+            if (server_type == iter->second)
+            {
+                iter->first.copy(conn_index->server_type, iter->first.length());
+                break;
+            }
+        }
         conn_index->is_server = false;
         memset(conn_index->conn_alias, 0, sizeof(conn_index->conn_alias));
         strncpy(conn_index->conn_alias, client_name, sizeof(conn_index->conn_alias) - 1);

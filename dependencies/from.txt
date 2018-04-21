@@ -1,0 +1,7 @@
+googletest: https://github.com/google/googletest
+
+protobuf: https://github.com/google/protobuf
+
+jsoncpp: https://github.com/open-source-parsers/jsoncpp
+
+OTL: http://otl.sourceforge.net/

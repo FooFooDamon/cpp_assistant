@@ -39,7 +39,7 @@
 static const cal::command_line::user_option s_kPrivateOptions[]
 /*const cal::command_line::user_option g_kPrivateOptions[]*/ = {
     {
-        /* .name = */"x,extended-option",
+        /* .full_name = */"x,extended-option",
         /* .desc = */"扩展选项。",
         /* .least_value_count = */1,
         /* .value_count_is_fixed = */true,
@@ -55,9 +55,9 @@ const std::vector<std::string> *g_extended_params = NULL;
 
 int check_private_commandline_options(cal::command_line &cmdline, bool &should_exit)
 {
-    const cal::command_line::option_entry *op_val = NULL;
+    const cal::command_line::option_value_t *op_val = NULL;
 
-    op_val = cmdline.get_option_entry("extended-option");
+    op_val = cmdline.get_option_value("extended-option");
     if (op_val->is_specified)
     {
         printf("Value(s) of extended option:");

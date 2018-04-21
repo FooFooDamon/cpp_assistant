@@ -53,7 +53,7 @@
 #define CA_GET_CONST_ERROR_OUTPUT_HOLDER()      CA_LIB_NAMESPACE::debug::get_error_output_holder()
 #define CA_GET_MUTABLE_ERROR_OUTPUT_HOLDER()    const_cast<FILE*>(CA_GET_CONST_ERROR_OUTPUT_HOLDER())
 
-#define CA_OUTPUT_RAW(dev, fmt, ...) fprintf(dev, fmt, ##__VA_ARGS__)
+#define CA_OUTPUT_RAW(dev, fmt, ...)            fprintf(dev, fmt, ##__VA_ARGS__)
 
 #define CA_OUTPUT_BASE(dev, preamble, type_str, class_str, ns_delim, fmt, ...) do{ \
     struct timeval __tv; \
@@ -113,11 +113,38 @@ typedef int (*format_output_func)(const char *fmt, ...);
 namespace debug
 {
 
-extern bool g_debug_enabled;
+/*
+ * It's easy to understand that cpp-assistant library may output debug, warning or error info
+ * when exceptions occur or for some other purposes.
+ *
+ * APIs below can be used to do such settings as:
+ *     enabling or disabling the output prefix displaying,
+ *     enabling or disabling the output,
+ *     setting the output destinations (e.g. to stdout, stderr or to files)
+ * and so on. See comments of each API for more details.
+ */
 
+extern bool g_debug_enabled; // can not be set or unset directly
+
+// Makes the debug or warning/error output display with prefix, like:
+// [2018-01-01 00:00:00.000000][PID:1234] I'm the output with prefix...
+// or something else.
 void enable_output_prefix(void);
 
+// Makes the debug or warning/error output display without prefix.
 void disable_output_prefix(void);
+
+/*
+ * xx_is_enabled(): Checks whether the specified output is enabled.
+ *
+ * redirect_xx_output(): Redirects the specified output to stdout, stderr or a file.
+ *      If @where is NULL, then the specified output will be disabled.
+ *
+ * get_xx_output_holder(): Gets the output file pointer.
+ *
+ * set_xx_lock(): Sets a lock for the specified output, only required in multi-threading environment.
+ *
+ */
 
 inline bool debug_is_enabled(void)
 {

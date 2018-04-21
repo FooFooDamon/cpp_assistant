@@ -63,29 +63,29 @@ int find_nodes(const TiXmlDocument &doc,
     const char *absolute_path,
     std::vector<TiXmlElement*> &result);
 
-typedef struct config_node
+typedef struct config_node_t
 {
     //std::string node_name;
     std::string node_value;
     std::map<std::string, std::string> attributes; // <name, value>
-}config_node;
+}config_node_t;
 
-typedef TiXmlElement config_element;
+typedef TiXmlElement config_element_t;
 
-typedef TiXmlDocument config_file;
+typedef TiXmlDocument config_file_t;
 
-int read_config_nodes(const config_element *parent_element,
+int read_config_nodes(const config_element_t *parent_element,
     const char *relative_xpath,
     size_t expected_node_count,
-    std::vector<config_node> &result,
+    std::vector<config_node_t> &result,
     bool allows_missing_attributes = false,
     const char *first_attr = NULL,
     .../* Must end with NULL!!! */);
 
-int read_config_nodes(const config_file &file,
+int read_config_nodes(const config_file_t &file,
     const char *absolute_xpath,
     size_t expected_node_count,
-    std::vector<config_node> &result,
+    std::vector<config_node_t> &result,
     bool allows_missing_attributes = false,
     const char *first_attr = NULL,
     .../* Must end with NULL!!! */);

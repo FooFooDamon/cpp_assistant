@@ -47,9 +47,12 @@
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  *
  * WARNING: DO NOT change the format of these comments
- *     because commands in Makefiles depend on it to determine some compile info!!!
+ *     because commands in Makefiles depend on them to determine some compile info!!!
  *
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ *
+ * wxc, 2018/04/21, 0.02.01:
+ *      Some new APIs, and code readability improvements.
  *
  * wxc, 2018/04/19, 0.01.02:
  *      Removed: STL adapters.

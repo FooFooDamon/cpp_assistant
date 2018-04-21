@@ -114,10 +114,12 @@ public:
 public:
     // Creates a buffer whose total size is @size or MIN_BUF_SIZE.
     int create(int size);
+
     // Destroys the buffer, all resources and structures within it will be released,
     // and Create() afterwards is allowed.
     // If you just want to clear data and status values within buffer, use Reset().
     void destroy(void);
+
     // Resizes the buffer.
     // Returns new size on success, or 0 if size is unchanged, or a negative number on failure.
     int resize(int new_size);
@@ -146,6 +148,7 @@ public:
     // Moves data to header of buffer in order to make more continuous space for new data.
     // Returns bytes moved.
     int move_data_to_header(void);
+
     // Resets all status values(read pointer, write pointer, etc.),
     // and data will be set 0 if @zero_all_data is true.
     // If you want to release the buffer completely, use Destroy().

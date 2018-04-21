@@ -89,7 +89,7 @@ static const char *S_DESCRIPTIONS[USER_RET_CODE_COUNT] = {
     "Target not ready"
 };
 
-CA_REENTRANT int parse_retcode(const int retcode, const int msg_capacity, char *msg) /* CA_NOTNULL(3) */
+CA_REENTRANT int parse_return_code(const int retcode, const int msg_capacity, char *msg) /* CA_NOTNULL(3) */
 {
     if (NULL == msg || msg_capacity <= 0)
         return -1;
@@ -135,7 +135,7 @@ CA_REENTRANT int parse_retcode(const int retcode, const int msg_capacity, char *
     return (ret > 0) ? 0 : -1;
 }
 
-CA_REENTRANT void print_all_retcode_descriptions(int sys_retcode_end/* = ESTIMATED_SYS_RET_CODE_END*/)
+CA_REENTRANT void print_all_return_code_descriptions(int sys_retcode_end/* = ESTIMATED_SYS_RET_CODE_END*/)
 {
     const int SYS_RET_BEGIN = SYS_RET_CODE_BEGIN;
     const int SYS_RET_END = (sys_retcode_end >= USER_RET_CODE_BEGIN)
@@ -143,21 +143,21 @@ CA_REENTRANT void print_all_retcode_descriptions(int sys_retcode_end/* = ESTIMAT
     char desc[512] = {0};
     int desc_len = sizeof(desc);
 
-    parse_retcode(CA_RET_OK, desc_len, desc);
+    parse_return_code(CA_RET_OK, desc_len, desc);
     fprintf(stdout, "%d:\t%s\n", CA_RET_OK, desc);
 
-    parse_retcode(CA_RET_GENERAL_FAILURE, desc_len, desc);
+    parse_return_code(CA_RET_GENERAL_FAILURE, desc_len, desc);
     fprintf(stdout, "%d:\t%s\n", CA_RET_GENERAL_FAILURE, desc);
 
     for (int i = SYS_RET_BEGIN; i > SYS_RET_END; --i)
     {
-        parse_retcode(i, desc_len, desc);
+        parse_return_code(i, desc_len, desc);
         fprintf(stdout, "%d:\t%s\n", i, desc);
     }
 
     for (int i = USER_RET_CODE_BEGIN; i > USER_RET_CODE_END; --i)
     {
-        parse_retcode(i, desc_len, desc);
+        parse_return_code(i, desc_len, desc);
         fprintf(stdout, "%d:\t%s\n", i, desc);
     }
 }

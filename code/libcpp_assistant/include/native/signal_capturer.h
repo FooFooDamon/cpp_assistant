@@ -65,7 +65,7 @@ enum enum_sigal_status
     SIG_TRIGGERED = 1
 };
 
-// This handler is supposed to return OK on success and return a negative number on failure.
+// This handler is supposed to return CA_RET_OK on success and return a negative number on failure.
 typedef int (*singal_handler)(int sig_num);
 
 typedef struct signal_setting_t

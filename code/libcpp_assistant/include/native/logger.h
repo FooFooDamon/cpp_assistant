@@ -146,7 +146,7 @@ public:
     void flush(void);
 
     /*
-     * Outputs log contents to cache or to destination (that is: a file or the terminal).
+     * Outputs log contents to cache or to a certain destination (that is: a file or the terminal).
      * NOTE: The logger probably caches log contents in memory and flushes them to destination
      *     when it's proper. This is helpful to performance improvement.
      * Different derived classes can have different implementations.

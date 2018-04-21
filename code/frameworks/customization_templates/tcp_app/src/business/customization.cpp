@@ -44,7 +44,7 @@
 static const cal::command_line::user_option s_kPrivateOptions[]
 /*const cal::command_line::user_option g_kPrivateOptions[]*/ = {
     {
-        /* .name = */"l,list",
+        /* .full_name = */"l,list",
         /* .desc = */"列出所支持的命令码或错误码含义。",
         /* .least_value_count = */1,
         /* .value_count_is_fixed = */true,
@@ -52,7 +52,7 @@ static const cal::command_line::user_option s_kPrivateOptions[]
         /* .default_values = */"commandcode"
     },
     {
-        /* .name = */"x,extended-option",
+        /* .full_name = */"x,extended-option",
         /* .desc = */"扩展选项。",
         /* .least_value_count = */1,
         /* .value_count_is_fixed = */true,
@@ -78,9 +78,9 @@ const char *get_return_code_description(int retcode)
 
 int check_private_commandline_options(cal::command_line &cmdline, bool &should_exit)
 {
-    const cal::command_line::option_entry *op_val = NULL;
+    const cal::command_line::option_value_t *op_val = NULL;
 
-    op_val = cmdline.get_option_entry("list");
+    op_val = cmdline.get_option_value("list");
     if (op_val->is_specified)
     {
         const char *list_target = op_val->values[0].c_str();
@@ -95,7 +95,7 @@ int check_private_commandline_options(cal::command_line &cmdline, bool &should_e
         return 0;
     }
 
-    op_val = cmdline.get_option_entry("extended-option");
+    op_val = cmdline.get_option_value("extended-option");
     if (op_val->is_specified)
     {
         printf("Value(s) of extended option:");

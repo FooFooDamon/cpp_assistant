@@ -144,7 +144,7 @@ int main_app::parse_commandLine(int argc, char **argv)
     cal::command_line *cmdline = m_cmdline;
     cal::command_line::user_option builtin_options[] = {
         {
-            /* .name = */"h,help",
+            /* .full_name = */"h,help",
             /* .description = */HELP_DESC,
             /* .least_value_count = */0,
             /* .value_count_is_fixed = */true,
@@ -152,7 +152,7 @@ int main_app::parse_commandLine(int argc, char **argv)
             /* .default_values = */NULL
         },
         {
-            /* .name = */"v,version",
+            /* .full_name = */"v,version",
             /* .description = */VERSION_DESC,
             /* .least_value_count = */0,
             /* .value_count_is_fixed = */true,
@@ -161,7 +161,7 @@ int main_app::parse_commandLine(int argc, char **argv)
         },
 #ifdef HAS_CONFIG_FILES
         {
-            /* .name = */"c,config-file",
+            /* .full_name = */"c,config-file",
             /* .description = */CONFIG_LOADING_DESC,
             /* .least_value_count = */CONFIG_FILE_COUNT,
 #ifdef CONFIG_FILE_COUNT_NOT_FIXED
@@ -174,7 +174,7 @@ int main_app::parse_commandLine(int argc, char **argv)
         },
 #endif
         {
-            /* .name = */"d,daemon",
+            /* .full_name = */"d,daemon",
             /* .description = */DAEMON_DESC,
             /* .least_value_count = */0,
             /* .value_count_is_fixed = */true,
@@ -182,7 +182,7 @@ int main_app::parse_commandLine(int argc, char **argv)
             /* .default_values = */NULL
         },
         {
-            /* .name = */"q,quiet-mode",
+            /* .full_name = */"q,quiet-mode",
             /* .description = */QUIET_MODE_DESC,
             /* .least_value_count = */0,
             /* .value_count_is_fixed = */true,
@@ -203,7 +203,7 @@ int main_app::parse_commandLine(int argc, char **argv)
     {
         int private_option_count = -1;
 
-        while (g_kPrivateOptions[++private_option_count].name);
+        while (g_kPrivateOptions[++private_option_count].full_name);
 
         if ((learn_ret = cmdline->learn_options(g_kPrivateOptions, private_option_count)) < 0)
         {
@@ -234,9 +234,9 @@ int main_app::parse_commandLine(int argc, char **argv)
         return RET_FAILED;
     }
 
-    const cal::command_line::option_entry *opt_entry = NULL;
+    const cal::command_line::option_value_t *opt_entry = NULL;
 
-    opt_entry = cmdline->get_option_entry("help");
+    opt_entry = cmdline->get_option_value("help");
     if (opt_entry->is_specified)
     {
         cmdline->usage(&usage_str);
@@ -244,7 +244,7 @@ int main_app::parse_commandLine(int argc, char **argv)
         exit(EXIT_SUCCESS);
     }
 
-    opt_entry = cmdline->get_option_entry("version");
+    opt_entry = cmdline->get_option_value("version");
     if (opt_entry->is_specified)
     {
         printf("%s version: %s\n", cmdline->program_name(), MODULE_VERSION);
@@ -261,12 +261,12 @@ int main_app::parse_commandLine(int argc, char **argv)
         exit(EXIT_SUCCESS);
     }
 
-    opt_entry = cmdline->get_option_entry("quiet-mode");
+    opt_entry = cmdline->get_option_value("quiet-mode");
     if (opt_entry->is_specified)
         enable_quiet_mode();
 
 #ifdef HAS_CONFIG_FILES
-    opt_entry = cmdline->get_option_entry("config-file");
+    opt_entry = cmdline->get_option_value("config-file");
     if (opt_entry->is_specified && !is_quiet_mode())
     {
         printf("Configuration file(s):");
@@ -290,7 +290,7 @@ int main_app::parse_commandLine(int argc, char **argv)
         exit(EXIT_SUCCESS);
 
     // This option should be the last one to handle.
-    opt_entry = cmdline->get_option_entry("daemon");
+    opt_entry = cmdline->get_option_value("daemon");
     if (opt_entry->is_specified)
     {
         printf("Program is about to run as a daemon ...\n");
@@ -317,7 +317,7 @@ int main_app::parse_commandLine(int argc, char **argv)
 #if defined(HAS_CONFIG_FILES)
 int main_app::load_configurations(void)
 {
-    const char *config_file = m_cmdline->get_option_entry("config-file")->values[0].c_str();
+    const char *config_file = m_cmdline->get_option_value("config-file")->values[0].c_str();
 
     if (m_config_manager->open_file(config_file) < 0)
     {
@@ -627,7 +627,7 @@ int main_app::initialize_business(void)
         g_thread_contexts[i].status = thread_context::STATUS_FULLY_INITIALIZED;
 
         GLOG_INFO_C("new thread: num = %d, tid = 0x%x, type = %d, name = %s\n",
-            i, tid, g_thread_contexts[i].type, g_thread_contexts[i].name.c_str());
+            i, tid, g_thread_contexts[i].type, g_thread_contexts[i].full_name.c_str());
     }
 #endif
 
@@ -763,11 +763,8 @@ void main_app::poll_and_process(cal::tcp_base *tcp_manager, bool &should_exit)
 
             if (recv_ret < 0)
             {
-                char errmsg[256] = {0};
-
-                cal::parse_retcode(recv_ret, sizeof(errmsg), errmsg);
                 GLOG_ERROR_C("failed to received packets and put them into connection[%d],"
-                    " ret = %d, err = %s\n", conn->fd, recv_ret, errmsg);
+                    " ret = %d, err = %s\n", conn->fd, recv_ret, cal::what(recv_ret).c_str());
 
                 if (CA_RET(CONNECTION_BROKEN) == recv_ret)
                 {
@@ -797,10 +794,7 @@ int main_app::accept_new_connection(cal::tcp_server *tcp_server, int send_buf_si
 
     if (accfd < 0)
     {
-        char errmsg[256] = {0};
-
-        cal::parse_retcode(accfd, sizeof(errmsg), errmsg);
-        GLOG_ERROR_C("failed to accept new connection, ret = %d, err = %s\n", accfd, errmsg);
+        GLOG_ERROR_C("failed to accept new connection, ret = %d, err = %s\n", accfd, cal::what(accfd).c_str());
 
         return RET_FAILED;
     }
@@ -887,7 +881,6 @@ void main_app::handle_received_packets(cal::net_connection *input_conn, int max_
 void main_app::send_result_packets(cal::tcp_base *tcp_manager)
 {
     cal::tcp_base::conn_map *all_peers = tcp_manager->peers();
-    char errmsg[256] = {0};
 
     for (cal::tcp_base::conn_map::iterator iter = all_peers->begin(); iter != all_peers->end(); ++iter)
     {
@@ -903,9 +896,8 @@ void main_app::send_result_packets(cal::tcp_base *tcp_manager)
 
         if ((ret = tcp_manager->send_from_connection(conn)) < 0)
         {
-            cal::parse_retcode(ret, sizeof(errmsg), errmsg);
             GLOG_ERROR_C("failed to send contents of connection[%d], ret = %d, err = %s\n",
-                iter->first, ret, errmsg);
+                iter->first, ret, cal::what(ret).c_str());
         }
         else
             GLOG_DEBUG("%d bytes sent\n", ret);

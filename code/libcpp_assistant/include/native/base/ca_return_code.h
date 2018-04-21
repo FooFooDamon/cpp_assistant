@@ -38,6 +38,8 @@
 #ifndef __CPP_ASSISTANT_BASE_CA_RETURN_CODE_H__
 #define __CPP_ASSISTANT_BASE_CA_RETURN_CODE_H__
 
+#include <string>
+
 #include "ca_inner_necessities.h"
 
 enum
@@ -110,9 +112,27 @@ enum
 };
 
 // Translates a return code into a readable text message.
-CA_REENTRANT int parse_retcode(const int retcode, const int msg_capacity, char *msg) CA_NOTNULL(3);
+CA_REENTRANT int parse_return_code(const int retcode, const int msg_capacity, char *msg) CA_NOTNULL(3);
 
-CA_REENTRANT void print_all_retcode_descriptions(int sys_retcode_end = ESTIMATED_SYS_RET_CODE_END);
+// Same as parse_return_code() above, except that this one returns a std::string value directly,
+// which is more convenient to use.
+CA_REENTRANT inline std::string what(const int retcode)
+{
+    char msg[1024] = {0};
+
+    parse_return_code(retcode, sizeof(msg), msg);
+
+    return msg;
+}
+
+//   USER_RET_CODE_END ... USER_RET_CODE_BEGIN ... SYS_RET_CODE_END ... SYS_RET_CODE_BEGIN  -1  0  1  2  3 ...
+//
+// __________________|_...___________________|______  ... ________|______________________|___|__|__|__|__|__...
+//                   | ---- continuous ----- |-- not continuous --| ---- continuous ---- |
+//
+// As the diagram above shows that return codes are not continuous, thus you have to tell the function
+// where the system end point is, to avoid printing unused codes.
+CA_REENTRANT void print_all_return_code_descriptions(int sys_retcode_end = ESTIMATED_SYS_RET_CODE_END);
 
 CA_LIB_NAMESPACE_END
 

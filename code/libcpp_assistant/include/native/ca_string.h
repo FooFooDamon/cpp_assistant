@@ -155,6 +155,16 @@ CA_REENTRANT int to_string(const T &src, std::string &dst)
 }
 
 template<typename T>
+CA_REENTRANT std::string to_string(const T &src)
+{
+    std::string dst;
+
+    to_string(src, dst);
+
+    return dst;
+}
+
+template<typename T>
 CA_REENTRANT int from_string(const char *src, T &dst)
 {
     if (NULL == src)
@@ -219,6 +229,9 @@ CA_REENTRANT T from_string(const std::string &str)
     return dst;
 }
 
+// Splits a long string @src with a length @src_len and divided by @delim
+// into short strings stored in a @result vector.
+// For example: "abc,def,gh" can be split into "abc", "def" and "gh" when @delim is ",".
 CA_REENTRANT int split(const char *src,
     const int src_len,
     const char *delim,

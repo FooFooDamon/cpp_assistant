@@ -72,7 +72,9 @@ public:
  * types:
  * =================================== */
 public:
-    typedef struct option_entry
+    typedef char* option_name_t;
+
+    typedef struct option_value_t
     {
         std::string description;
         std::string assign_expression;
@@ -80,17 +82,17 @@ public:
         bool value_count_is_fixed;
         bool is_specified;
         std::vector<std::string> values;
-    }option_entry;
+    }option_value_t; // generally used after parsing
 
     typedef struct user_option
     {
-        const char *name; // "<short option>,<long option>", e.g: "h,help"
+        const char *full_name; // "<short option>,<long option>", e.g: "h,help"
         const char *description;
         int least_value_count;
         bool value_count_is_fixed;
         const char *assign_expression;
         const char *default_values;
-    }user_option;
+    }user_option; // generally used before learning
 
     enum
     {
@@ -99,10 +101,11 @@ public:
     };
 
 protected:
-    typedef std::map<char*, option_entry, char_lt_op > option_value_map;
-    typedef option_value_map opt_val_map;
-    typedef std::map<char*, char*, char_lt_op > option_option_map;
-    typedef option_option_map opt_opt_map;
+    typedef std::map<option_name_t, option_value_t, char_lt_op > option_name_value_map;
+    typedef option_name_value_map opt_name_val_map;
+    typedef std::map<option_name_t, option_name_t, char_lt_op > option_name_name_map;
+    typedef option_name_name_map option_names_map;
+    typedef option_name_name_map opt_names_map;
 
 /* ===================================
  * abilities:
@@ -117,10 +120,16 @@ public:
     void reset(void);
 
     // Learns a new option to know how it should be like.
-    // @name: Contains the short option name, or the short and long option name
-    //     dividing by a comma. For example: "h" which gives a short option "-h"
-    //     and a long option "--h", or "h,help" which gives a short option "-h"
-    //     and a long option "--help".
+    // @name_combination: Combinations of short option name and long option name.
+    //     It may contains the short option name only, or the long name only, or both together
+    //     dividing by a comma. For example:
+    //     1) "h," which gives a short option "-h" and a long option "--h";
+    //     2) "h,help" which gives a short option "-h" and a long option "--help".
+    //     3) ",help" which gives a short option "--help" and a long option "--help" (TODO: not supported yet),
+    //        but the short one can not be used.
+    //        Think about a program has used all alphabets (lower case ones and upper case ones)
+    //        as short option names, and then it wants a new option. It's pity that the new option
+    //        only gets a long name.
     // @desc: Description of the new option.
     // @least_value_count: The least values needed.
     // @assign_expression: Shows the format and the meaning of the key-value pair.
@@ -131,7 +140,7 @@ public:
     //     For example: "default_file.txt", or "file1.txt file2.txt".
     // @value_count_is_fixed: If it's true, then @least_value_count is definitely the value
     //     count that this option needs, neither greater nor less than it.
-    int learn_option(const char *name,
+    int learn_option(const char *name_combination,
         const char *desc,
         int least_value_count = 0,
         const char *assign_expression = "",
@@ -150,16 +159,20 @@ public:
 public:
     DEFINE_CLASS_NAME_FUNC()
 
+    // Returns the directory where the host program is in.
     inline const char* program_directory(void) const
     {
         return m_program_directory.empty() ? NULL : m_program_directory.c_str();
     }
 
+    // Returns the host program name.
     inline const char* program_name(void) const
     {
         return m_program_name.empty() ? NULL : m_program_name.c_str();
     }
 
+    // Generally sets the info that shows what the host program can do.
+    // For example: ls - list directory contents.
     inline void set_usage_header(const char *header)
     {
         if (NULL == header)
@@ -168,6 +181,8 @@ public:
         m_usage_header = header;
     }
 
+    // Generally sets the info that shows how the host program should be executed.
+    // For example: ls [OPTION]... [FILE]...
     inline void set_usage_format(const char *format)
     {
         if (NULL == format)
@@ -178,11 +193,12 @@ public:
 
     // Displays usage info on terminal (if @holder is null)
     // or saves it to @holder string (if @holder is not null).
+    // NOTE: The usage info includes usage header, usage format and options details.
     void usage(std::string *holder = NULL) const;
 
     // Finds the value(s) of option with name @option_name,
     // and @option_name can be the short name or the long name.
-    const option_entry* get_option_entry(const char *option_name) const;
+    const option_value_t* get_option_value(const char *option_name) const;
 
     /*inline int option_count(void) const
     {
@@ -196,10 +212,23 @@ public:
         return m_single_parameters;
     }
 
+    // Returns map<short name, value>.
+    inline const opt_name_val_map& all_option_entries(void) const
+    {
+        return m_option_entries;
+    }
+
+    // Returns map<long name, short name>.
+    inline const opt_names_map& all_option_name_relations(void) const
+    {
+        return m_option_name_relations;
+    }
+
 /* ===================================
  * status:
  * =================================== */
 public:
+    // Checks if the current command line object has done the parsing job.
     bool has_parsed(void) const
     {
         return m_has_parsed;
@@ -227,8 +256,8 @@ protected:
     std::string m_program_name;
     std::string m_usage_header;
     std::string m_usage_format;
-    option_value_map m_options; // map<short name, value>
-    option_option_map m_option_relations; // map<long name, short name>
+    option_name_value_map m_option_entries; // map<short name, value>
+    option_name_name_map m_option_name_relations; // map<long name, short name>
     std::vector<std::string> m_single_parameters;
     bool m_has_parsed;
 };

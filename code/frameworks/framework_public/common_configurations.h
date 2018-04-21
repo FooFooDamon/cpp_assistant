@@ -242,13 +242,13 @@ int load_unique_config_node_value(
     const bool from_common,
     Value &result)
 {
-    std::vector<cal::xml::config_node> nodes;
+    std::vector<cal::xml::config_node_t> nodes;
     int read_ret = cal::xml::read_config_nodes(*config_file, xpath, 1, nodes);
 
     if (read_ret <= 0)
     {
         if (!from_common)
-            GQ_LOG_WARN_NS("cafw", "Failed to read nodes with XPath[%s], ret = %d\n", xpath, read_ret);
+            GQ_LOG_WARN_NS("cafw", "Failed to read nodes with XPath[%s]: %s\n", xpath, cal::what(read_ret).c_str());
         return RET_FAILED;
     }
 

@@ -264,6 +264,8 @@ void config_manager::__clear(void)
 int config_manager::load_private_config(void)
 {
     LOAD_PRIVATE_CFG_ITEM(__load_log_config, "log");
+    load_extra_server_types((config_file_t *)(m_config_content->config_file_ptr),
+        m_config_content->fixed_common_configs.server_types);
     LOAD_PRIVATE_CFG_ITEM(__load_identity_config, "identity");
     LOAD_PRIVATE_CFG_ITEM(__load_upstream_server_config, "upstream server");
     LOAD_PRIVATE_CFG_ITEM(__load_database_config, "database");
@@ -298,7 +300,7 @@ int config_manager::__load_log_config(void)
         return RET_FAILED;
     }
 
-    std::vector<cal::xml::config_node> file_log_node;
+    std::vector<cal::xml::config_node_t> file_log_node;
     int read_ret = cal::xml::read_config_nodes(*file, XPATH_LOG_CONFIG_ROOT"/file-logger", 1,
         file_log_node, false, "enabled", NULL);
 
@@ -467,7 +469,7 @@ int config_manager::__load_network_nodes(const char *type)
     GQ_LOG_INFO_C("Reading nodes with XPath[%s] ...\n", xpath.c_str());
 
     bool is_self_info = (0 == strcmp(type, "identities"));
-    std::vector<cal::xml::config_node> net_nodes;
+    std::vector<cal::xml::config_node_t> net_nodes;
     int read_ret = cal::xml::read_config_nodes(*file, xpath.c_str(), 100, net_nodes, true,
         "enabled", "type", "name", "alias", "address", "attributes", NULL);
 
@@ -500,7 +502,7 @@ int config_manager::__load_network_nodes(const char *type)
 
     for (size_t i = 0; i < net_nodes.size(); ++i)
     {
-        cal::xml::config_node &node = net_nodes[i];
+        cal::xml::config_node_t &node = net_nodes[i];
 
         attr_it = node.attributes.find("enabled");
 

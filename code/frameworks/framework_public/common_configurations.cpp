@@ -43,25 +43,27 @@ int __load_key_value_attributes(
     const char *key_attr,
     const char *value_attr,
     int node_count_hint,
-    std::map<Key, Value> &result)
+    std::map<Key, Value> &result,
+    bool clear_first = true)
 {
-    result.clear();
+    if (clear_first)
+        result.clear();
 
-    std::vector<cal::xml::config_node> nodes;
+    std::vector<cal::xml::config_node_t> nodes;
     int read_ret = cal::xml::read_config_nodes(*config_file, xpath, node_count_hint,
         nodes, false, key_attr, value_attr, NULL);
 
     if (read_ret <= 0)
     {
         GLOG_WARN_NS("cafw", "Failed to read nodes with XPath[%s], or failed to read"
-            " their attributes with name [%s] or [%s], ret = %d\n",
-            xpath, key_attr, value_attr, read_ret);
+            " their attributes with name [%s] or [%s]: %s\n",
+            xpath, key_attr, value_attr, cal::what(read_ret).c_str());
         return RET_FAILED;
     }
 
     for (size_t i = 0; i < nodes.size(); ++i)
     {
-        cal::xml::config_node &node = nodes[i];
+        cal::xml::config_node_t &node = nodes[i];
         const std::string &key = node.attributes[key_attr];
         const std::string value = node.attributes[value_attr];
 
@@ -86,7 +88,7 @@ int get_common_config_filename(const config_file_t *config_file, std::string &re
 
     const char *xpath_shared_file = "/root/shared";
     const char *file_link_attr = "ref";
-    std::vector<cal::xml::config_node> nodes;
+    std::vector<cal::xml::config_node_t> nodes;
     int read_ret = cal::xml::read_config_nodes(*config_file, xpath_shared_file, 1,
         nodes, false, file_link_attr, NULL);
 
@@ -141,7 +143,7 @@ static int __load_dispatch_policies(
         result);
 }
 
-static int __load_server_types(
+static int __load_built_in_server_types(
     const config_file_t *config_file,
     std::map<std::string, int> &result)
 {
@@ -152,6 +154,18 @@ static int __load_server_types(
         "value",
         100,
         result);
+}
+
+int load_extra_server_types(const config_file_t *config_file, std::map<std::string, int> &result)
+{
+    return __load_key_value_attributes(
+        config_file,
+        XPATH_PRIVATE_CONFIG_ROOT"/server-types/item",
+        "name",
+        "value",
+        100,
+        result,
+        false);
 }
 
 int load_fixed_common_configs(
@@ -175,7 +189,7 @@ int load_fixed_common_configs(
         { "log level predefinitions", result->log_levels, __load_log_levels },
         { "node type predefinitions", result->node_types, __load_node_types },
         { "dispatch policy predefinitions", result->dispatch_policies, __load_dispatch_policies },
-        { "server type predefinitions", result->server_types, __load_server_types }
+        { "server type predefinitions", result->server_types, __load_built_in_server_types }
     };
 
     for (size_t i = 0; i < sizeof(config_items) / sizeof(struct config_item); ++i)
@@ -229,7 +243,7 @@ static int __load_timed_task_unit(
 
     xpath.append("/"XNODE_TIMED_TASK_SETTING);
 
-    std::vector<cal::xml::config_node> nodes;
+    std::vector<cal::xml::config_node_t> nodes;
     int read_ret = cal::xml::read_config_nodes(*config_file, xpath.c_str(), 1,
         nodes, false, unit_attr, NULL);
 
@@ -422,7 +436,7 @@ static int __load_dispatch_settings(
         .append("/")
         .append(XNODE_DISPATCH_POLICY);
 
-    std::vector<cal::xml::config_node> nodes;
+    std::vector<cal::xml::config_node_t> nodes;
     int read_ret = cal::xml::read_config_nodes(*config_file, xpath.c_str(), 1, nodes);
 
     if (read_ret <= 0)

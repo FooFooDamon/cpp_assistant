@@ -52,8 +52,8 @@ command_line::command_line(const char *usage_header, const char *usage_format)
 
 command_line::~command_line()
 {
-    for (option_option_map::iterator option_iter = m_option_relations.begin();
-        option_iter != m_option_relations.end();
+    for (option_name_name_map::iterator option_iter = m_option_name_relations.begin();
+        option_iter != m_option_name_relations.end();
         ++option_iter)
     {
         free(option_iter->first);
@@ -64,7 +64,7 @@ command_line::~command_line()
 #define IS_LETTER(c)    (( ((c) >= 'a') && ((c) <= 'z') ) || ( ((c) >= 'A') && ((c) <= 'Z') ))
 
 #define SET_IS_SPECIFIED(_option_)  do{\
-    option_entry* op_val = const_cast<option_entry*>(get_option_entry(_option_)); \
+    option_value_t* op_val = const_cast<option_value_t*>(get_option_value(_option_)); \
     if (NULL == op_val) \
     {\
         cerror("unknown short option: -%s\n", _option_); \
@@ -223,9 +223,9 @@ int command_line::parse(int argc, const char **argv)
                 long_option = (char*)long_option_tmp.c_str();
             }
 
-            option_option_map::iterator option_iter = m_option_relations.find(long_option);
+            option_name_name_map::iterator option_iter = m_option_name_relations.find(long_option);
 
-            if (m_option_relations.end() == option_iter)
+            if (m_option_name_relations.end() == option_iter)
             {
                 cerror("unknown long option: --%s\n", long_option);
                 return CA_RET(UNKNOWN_CMD_LINE_OPTION);
@@ -249,11 +249,11 @@ int command_line::parse(int argc, const char **argv)
         } // else (arg_len > 2)
     } // for ( i in [1, argc) )
 
-    for (option_value_map::iterator op_val_iter = m_options.begin();
-        op_val_iter != m_options.end();
+    for (option_name_value_map::iterator op_val_iter = m_option_entries.begin();
+        op_val_iter != m_option_entries.end();
         ++op_val_iter)
     {
-        option_entry &op_val = op_val_iter->second;
+        option_value_t &op_val = op_val_iter->second;
 
         if (op_val.is_specified
             && op_val.values.size() < (size_t)op_val.least_value_count)
@@ -268,8 +268,8 @@ int command_line::parse(int argc, const char **argv)
 
 void command_line::reset(void)
 {
-    for (option_value_map::iterator op_val_iter = m_options.begin();
-        op_val_iter != m_options.end();
+    for (option_name_value_map::iterator op_val_iter = m_option_entries.begin();
+        op_val_iter != m_option_entries.end();
         ++op_val_iter)
     {
         op_val_iter->second.values.clear();
@@ -279,21 +279,21 @@ void command_line::reset(void)
     m_has_parsed = false;
 }
 
-int command_line::learn_option(const char *name,
+int command_line::learn_option(const char *name_combination,
     const char *desc,
     int least_value_count/* = 0*/,
     const char *assign_expression/* = ""*/,
     const char *default_values/* = NULL*/,
     bool value_count_is_fixed/* = true*/)
 {
-    if (NULL == name || NULL == desc)
+    if (NULL == name_combination || NULL == desc)
         return CA_RET(NULL_PARAM);
 
     if (least_value_count < 0)
         return CA_RET(VALUE_OUT_OF_RANGE);
 
     std::vector<std::string> option_names;
-    int ret = str::split(name, strlen(name), ",", option_names);
+    int ret = str::split(name_combination, strlen(name_combination), ",", option_names);
 
     if (0 != ret)
     {
@@ -306,7 +306,7 @@ int command_line::learn_option(const char *name,
     char *short_name = const_cast<char*>(option_names[0].c_str());
     int short_name_len = option_names[0].length();
 
-    if (m_options.end() != m_options.find(short_name))
+    if (m_option_entries.end() != m_option_entries.find(short_name))
     {
         cerror("short option \"%s\" already exists\n", short_name);
         return CA_RET(OBJECT_ALREADY_EXISTS);
@@ -326,7 +326,7 @@ int command_line::learn_option(const char *name,
     int long_name_len = (option_names.size() > 1) ? option_names[1].length()
         : option_names[0].length();
 
-    if (m_option_relations.end() != m_option_relations.find(long_name))
+    if (m_option_name_relations.end() != m_option_name_relations.find(long_name))
     {
         cerror("long option \"%s\" already exists\n", long_name);
         free(short_name);
@@ -343,7 +343,7 @@ int command_line::learn_option(const char *name,
     }
     strncpy(long_name, option_names[long_name_index].c_str(), long_name_len + 1);
 
-    if (!m_option_relations.insert(std::make_pair(long_name, short_name)).second)
+    if (!m_option_name_relations.insert(std::make_pair(long_name, short_name)).second)
     {
         free(short_name);
         free(long_name);
@@ -352,7 +352,7 @@ int command_line::learn_option(const char *name,
         return CA_RET(STL_ERROR);
     }
 
-    option_entry value = {
+    option_value_t value = {
         /*.description = */desc,
         /*.assign_expression = */(NULL != assign_expression) ? assign_expression : "",
         /*.least_value_count = */least_value_count,
@@ -364,16 +364,16 @@ int command_line::learn_option(const char *name,
     if (NULL != default_values)
         str::split(default_values, strlen(default_values), " ", value.values);
 
-    if (!m_options.insert(std::make_pair(short_name, value)).second)
+    if (!m_option_entries.insert(std::make_pair(short_name, value)).second)
     {
-        m_option_relations.erase(long_name);
+        m_option_name_relations.erase(long_name);
         free(short_name);
         free(long_name);
         cerror("failed to create a new map item for short option[%s]\n", short_name);
         return CA_RET(STL_ERROR);
     }
 
-    /*option_entry &value_ref = m_options[short_name];
+    /*option_value_t &value_ref = m_options[short_name];
 
     value_ref.description = desc;
     if (NULL != assign_expression)
@@ -395,7 +395,7 @@ int command_line::learn_options(const user_option *option_array, int option_coun
     {
         const user_option &option_info = option_array[i];
 
-        int learn_ret = learn_option(option_info.name,
+        int learn_ret = learn_option(option_info.full_name,
             option_info.description,
             option_info.least_value_count,
             option_info.assign_expression,
@@ -404,7 +404,7 @@ int command_line::learn_options(const user_option *option_array, int option_coun
         if (learn_ret < 0)
         {
             cerror("Failed to learn option[%s], ret = %d\n",
-                option_info.name, learn_ret);
+                option_info.full_name, learn_ret);
             return learn_ret;
         }
     }
@@ -438,11 +438,11 @@ void command_line::get_parsing_result(std::string *holder/* = NULL*/) const
     int single_param_count = 0;
 
     result_ptr->append(">>> values of each option:\n");
-    for (option_value_map::const_iterator op_val_iter = m_options.begin();
-        op_val_iter != m_options.end();
+    for (option_name_value_map::const_iterator op_val_iter = m_option_entries.begin();
+        op_val_iter != m_option_entries.end();
         ++op_val_iter)
     {
-        const option_entry &value = op_val_iter->second;
+        const option_value_t &value = op_val_iter->second;
 
         if (!value.is_specified)
             continue;
@@ -522,11 +522,11 @@ void command_line::usage(std::string *holder/* = NULL*/) const
     else
         printf("Format: %s %s\n", program_name, usage_format);
 
-    for (option_option_map::const_iterator option_iter = m_option_relations.begin();
-        option_iter != m_option_relations.end();
+    for (option_name_name_map::const_iterator option_iter = m_option_name_relations.begin();
+        option_iter != m_option_name_relations.end();
         ++option_iter)
     {
-        option_value_map::const_iterator op_val_iter = m_options.find(option_iter->second);
+        option_name_value_map::const_iterator op_val_iter = m_option_entries.find(option_iter->second);
 
         if (NULL != holder)
         {
@@ -548,20 +548,20 @@ void command_line::usage(std::string *holder/* = NULL*/) const
     }
 }
 
-const command_line::option_entry* command_line::get_option_entry(const char *option_name) const
+const command_line::option_value_t* command_line::get_option_value(const char *option_name) const
 {
     if (NULL == option_name)
         return NULL;
 
-    option_value_map::const_iterator op_val_iter = m_options.end();
-    option_option_map::const_iterator option_iter = m_option_relations.find((char*)option_name);
+    option_name_value_map::const_iterator op_val_iter = m_option_entries.end();
+    option_name_name_map::const_iterator option_iter = m_option_name_relations.find((option_name_t)option_name);
 
-    if (m_option_relations.end() == option_iter)
-        op_val_iter = m_options.find((char*)option_name); // @option_name may be a short name.
+    if (m_option_name_relations.end() == option_iter)
+        op_val_iter = m_option_entries.find((option_name_t)option_name); // @option_name may be a short name.
     else
-        op_val_iter = m_options.find(option_iter->second); // @option_name is a long name.
+        op_val_iter = m_option_entries.find(option_iter->second); // @option_name is a long name.
 
-    if (m_options.end() == op_val_iter)
+    if (m_option_entries.end() == op_val_iter)
         return NULL;
 
     return &(op_val_iter->second);
@@ -576,15 +576,15 @@ int command_line::add_value(const char *option, const std::string &value)
         return CA_RET_OK;
     }
 
-    option_value_map::iterator op_val_iter = m_options.find((char*)option);
+    option_name_value_map::iterator op_val_iter = m_option_entries.find((char*)option);
 
-    if (m_options.end() == op_val_iter)
+    if (m_option_entries.end() == op_val_iter)
     {
         cwarn("unknown short option: -%s\n", option);
         return CA_RET(UNKNOWN_CMD_LINE_OPTION);
     }
 
-    option_entry &op_val = op_val_iter->second;
+    option_value_t &op_val = op_val_iter->second;
 
     if (op_val.value_count_is_fixed
         && op_val.values.size() >= (size_t)op_val.least_value_count)

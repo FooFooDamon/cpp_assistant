@@ -70,6 +70,7 @@ public:
  * =================================== */
 public:
     static CA_REENTRANT bool can_be_listened(const char *ip, const uint16_t port);
+
     // Starts listening on the address of @ip:@port.
     // Returns a socket fd for listening on success, or a negative number on failure.
     int start(const char *ip, uint16_t port);

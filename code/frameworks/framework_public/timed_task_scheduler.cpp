@@ -365,13 +365,11 @@ DISCONNECT:
     const int kSendBufSize = CFG_GET_BUF_SIZE(XNODE_TCP_SEND_BUF);
     const int kRecvBufSize = CFG_GET_BUF_SIZE(XNODE_TCP_RECV_BUF);
     int ret = client->connect_server(peer_index->peer_ip, peer_index->peer_port, kSendBufSize, kRecvBufSize, true);
+
     if (ret < 0)
     {
-        char err_msg[256] = {0};
-
-        cal::parse_retcode(ret, sizeof(err_msg), err_msg);
         GLOG_ERROR("! ! ! ! ! connection to [%s][%s:%u] failed, ret = %d, msg = %s\n",
-            peer_index->conn_alias, peer_index->peer_ip, peer_index->peer_port, ret, err_msg);
+            peer_index->conn_alias, peer_index->peer_ip, peer_index->peer_port, ret, cal::what(ret).c_str());
         peer_index->fd = cal::INVALID_SOCK_FD;
         peer_index->conn_detail = NULL;
         return;
