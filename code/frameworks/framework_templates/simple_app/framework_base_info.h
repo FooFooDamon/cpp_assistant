@@ -51,6 +51,9 @@
  *
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  *
+ * wxc, 2018/04/22, 0.0.03:
+ *      Removed: the requirement of make_session_id() implementation.
+ *
  * wxc, 2016/11/17, 0.0.02:
  *      Added: command line parsing.
  *

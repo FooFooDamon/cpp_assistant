@@ -77,10 +77,6 @@ int check_private_commandline_options(cal::command_line &cmdline, bool &should_e
     return 0;
 }
 
-// TODO: If you want to define your own customized signal handlers,
-//     delete this line and write your handlers.
-SET_ALL_CUSTOMIZED_SIG_HANDLERS_TO_DEFAULT();
-
 int init_extra_config(struct extra_config_t **extra_items)
 {
     if (NULL == extra_items)
@@ -147,6 +143,10 @@ void release_extra_resource(struct extra_resource_t **target)
     ; // TODO: Release your own resources here, or do nothing if there is none.
 }
 
+// TODO: If you want to define your own customized signal handlers,
+//     delete this line and write your handlers.
+SET_ALL_CUSTOMIZED_SIG_HANDLERS_TO_DEFAULT();
+
 cafw::timed_task_info_t g_customized_timed_tasks[] = {
     /*
      * {
@@ -169,7 +169,10 @@ int init_business(void)
     return RET_OK;
 }
 
-int run_private_business(bool &should_exit)
+// This function will be run in a loop periodically if @exit_after_this_round is set to false,
+// otherwise will be run only once if @exit_after_this_round if set to true.
+// Modify this function to meet your needs.
+int run_private_business(bool &exit_after_this_round)
 {
     /*GLOG_INFO_NS("", "========== Begin of SIGSEGV test ==========\n");
     strcpy(NULL, "foo");
@@ -187,10 +190,4 @@ int run_private_business(bool &should_exit)
 void finalize_business(void)
 {
     ; // TODO: Add your own stuff, or do nothing if there is none.
-}
-
-int make_session_id(const void *condition, const int sid_holder_size, char *sid_result)
-{
-    ; // TODO: Implement it!
-    return RET_OK;
 }

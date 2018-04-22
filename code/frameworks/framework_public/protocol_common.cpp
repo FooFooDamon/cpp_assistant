@@ -415,6 +415,8 @@ int send_lite_packet(const char *node_type,
     return ret;
 }
 
+#if defined(HAS_TCP)
+
 int send_heartbeat_request(const int fd)
 {
     if (fd < 0)
@@ -468,6 +470,8 @@ int send_identity_report_request(const int fd)
 
     return send_lite_packet(fd, cmd, PROTO_RET_SUCCESS, &msg);
 }
+
+#endif // #if defined(HAS_TCP)
 
 const char *desc_of_end_flag(int src_value)
 {

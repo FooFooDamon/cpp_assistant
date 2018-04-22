@@ -111,10 +111,6 @@ int check_private_commandline_options(cal::command_line &cmdline, bool &should_e
     return 0;
 }
 
-// TODO: If you want to define your own customized signal handlers,
-//     delete this line and write your handlers.
-SET_ALL_CUSTOMIZED_SIG_HANDLERS_TO_DEFAULT();
-
 int init_extra_config(struct extra_config_t **extra_items)
 {
     if (NULL == extra_items)
@@ -180,6 +176,10 @@ void release_extra_resource(struct extra_resource_t **target)
 {
     ; // TODO: Release your own resources here, or do nothing if there is none.
 }
+
+// TODO: If you want to define your own customized signal handlers,
+//     delete this line and write your handlers.
+SET_ALL_CUSTOMIZED_SIG_HANDLERS_TO_DEFAULT();
 
 // NOTE: Contents below are just for test, feel free to delete them in your project.
 /********************************** Simple tests begin **********************************/
@@ -275,7 +275,10 @@ int init_business(void)
     return RET_OK;
 }
 
-int run_private_business(bool &should_exit)
+// This function will be run in a loop periodically if @exit_after_this_round is set to false,
+// otherwise will be run only once if @exit_after_this_round if set to true.
+// Modify this function to meet your needs.
+int run_private_business(bool &exit_after_this_round)
 {
     // TODO: Add your own business here
 
@@ -286,7 +289,7 @@ int run_private_business(bool &should_exit)
     gettimeofday(&tv, NULL);
     localtime_r((time_t *)&(tv.tv_sec), &now);
     if (0 == now.tm_hour && now.tm_min >= 1)
-        should_exit = true;
+        exit_after_this_round = true;
 #endif
 
     return RET_OK;

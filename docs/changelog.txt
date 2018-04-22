@@ -1,4 +1,7 @@
 wxc, 2018/04/21, v0.0.10:
+	1、simple_app移除需要实现make_session_id()的要求。
+
+wxc, 2018/04/21, v0.0.10:
 	1、libcpp_assistant增加若干API，以及修改若干函数名称或增加注释说明以提高代码可读性。
 	2、tcp_app框架增加配置项/root/private/server-types/item。
 
