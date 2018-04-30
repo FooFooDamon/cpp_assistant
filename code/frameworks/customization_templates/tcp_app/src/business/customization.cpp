@@ -166,6 +166,12 @@ int load_extra_config(struct extra_config_t *extra_items)
     return RET_OK;
 }
 
+int reload_partial_extra_config(struct extra_config_t *extra_items)
+{
+    // TODO: Reload partial values of your own configuration items here, or do nothing if there is none.
+    return RET_OK;
+}
+
 int prepare_extra_resource(const void *condition, struct extra_resource_t *target)
 {
     // TODO: Prepare your own resources here, or do nothing if there is none.
@@ -307,6 +313,18 @@ bool proto_uses_general_prefix(const int32_t cmd)
     // TODO: Add some command codes for protocols that do not use a general body prefix,
     //     if there're any.
     return true;
+}
+
+int parse_proto_header_extension(const char *raw_extension, char *parsed_extension)/*  CA_NOTNULL(1,2) */
+{
+    // TODO: Define the method of parsing the extension field of the protocol header here, or do nothing if not needed.
+    return RET_OK;
+}
+
+int assemble_proto_header_extension(const char *parsed_extension, char *serialized_extension)/*  CA_NOTNULL(1,2) */
+{
+    // TODO: Define the method of assembling the extension field of the protocol header here, or do nothing if not needed.
+    return RET_OK;
 }
 
 int make_session_id(const void *condition, const int sid_holder_size, char *sid_result)

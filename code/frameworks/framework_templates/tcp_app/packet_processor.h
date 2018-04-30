@@ -140,8 +140,7 @@ protected:
     DECLARE_CLASS_NAME_VAR();
     message_cache *m_message_cache;
     component_map *m_component_map;
-    std::map<std::string, int64_t> *m_error_timestamps;
-    std::map<std::string, int> *m_error_counts;
+    std::map<std::string, int64_t> *m_timestamps_when_pkts_incomplete;
     static int m_max_packet_length;
 };
 

@@ -184,6 +184,7 @@ int config_manager::reload_partial(void)
     }
 
     LOAD_PRIVATE_CFG_ITEM(__load_log_config, "log");
+    reload_partial_extra_config(m_config_content->private_configs.extra_items);
 
     return RET_OK;
 }

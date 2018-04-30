@@ -196,15 +196,16 @@ CA_REENTRANT int tcp_base::send_from_connection(net_connection *conn)
     if (data_len <= 0)
         return 0;
 
-    conn->last_op_time = time_util::get_utc_microseconds();
-
     int ret = send_fragment(conn->fd, data, data_len);
 
     if (CA_RET(CONNECTION_BROKEN) == ret)
         conn->conn_status = CONN_STATUS_BROKEN;
 
     if (ret > 0)
+    {
         buf->move_read_pointer(ret);
+        conn->last_op_time = time_util::get_utc_microseconds();
+    }
 
     return ret;
 }
@@ -237,15 +238,16 @@ CA_REENTRANT int tcp_base::recv_to_connection(net_connection *conn)
     if (available_len <= 0)
         return CA_RET(SPACE_NOT_ENOUGH);
 
-    conn->last_op_time = time_util::get_utc_microseconds();
-
     int ret = recv_fragment(conn->fd, write_ptr, available_len);
 
     if (CA_RET(CONNECTION_BROKEN) == ret)
         conn->conn_status = CONN_STATUS_BROKEN;
 
     if (ret > 0)
+    {
         buf->move_write_pointer(ret);
+        conn->last_op_time = time_util::get_utc_microseconds();
+    }
 
     return ret;
 }

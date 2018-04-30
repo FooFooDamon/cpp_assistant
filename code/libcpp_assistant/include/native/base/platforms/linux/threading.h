@@ -37,6 +37,7 @@
 #ifndef __CPP_ASSISTANT_PLATFORMS_LINUX_THREADING_H__
 #define __CPP_ASSISTANT_PLATFORMS_LINUX_THREADING_H__
 
+#include <sys/types.h>
 #include <pthread.h>
 
 typedef pthread_mutex_t mutex_t;
@@ -59,6 +60,7 @@ inline int mutex_unlock(mutex_t *lock)
 inline pid_t gettid(void)
 {
     return pthread_self();
+    //return ::gettid(); // TODO: may cause exceptions when being called within a signal handling function.
 }
 
 #endif /* __CPP_ASSISTANT_PLATFORMS_LINUX_THREADING_H__ */

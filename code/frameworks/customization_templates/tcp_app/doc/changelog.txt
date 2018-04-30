@@ -1,2 +1,5 @@
-2016-11-14:
+wxc, xxxx-xx-xx:
+	1、见$CPP_ASSISTANT_ROOT/docs/changelog.txt，此处不再详述。
+
+wxc, 2016-11-14:
 	1、新建

@@ -40,6 +40,23 @@
 #ifndef __MUTABLE_CUSTOMIZATION_H__
 #define __MUTABLE_CUSTOMIZATION_H__
 
+/*
+ * TODO: Customized command line setting macros and other macros below,
+ *     or just leave what they are like currently if these default values are fine to you.
+ */
+
+#define USAGE_TITLE                         "TCP测试程序"
+#define USAGE_FORMAT                        "[选项 ...] [目标 ...]\n其中命令行选项说明如下："
+#define HELP_DESC                           "显示此帮助内容。"
+#define VERSION_DESC                        "显示版本信息。"
+#define CONFIG_LOADING_DESC                 "指定启动时加载的配置文件。"
+#define CONFIG_FILE_COUNT                   1
+#define CONFIG_ASSIGN_EXPRESSION            "=<配置文件名称>"
+#define DAEMON_DESC                         "程序以守护进程形式来运行。"
+#define QUIET_MODE_DESC                     "程序以静默模式运行，（启动时）尽量少输出信息。"
+
+#define PROTO_HEADER_EXTENSIONS_SIZE        0
+
 typedef struct extra_config_t
 {
     ; // TODO: Add your own configuration items here, or leave it empty if there is none.

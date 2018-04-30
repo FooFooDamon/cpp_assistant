@@ -44,11 +44,11 @@
 #endif
 
 #ifndef CASDK_NEWEST_MOD_DATE
-#define CASDK_NEWEST_MOD_DATE               "20161114"
+#define CASDK_NEWEST_MOD_DATE               "20180430"
 #endif
 
 #ifndef CASDK_NEWEST_MAIN_VER
-#define CASDK_NEWEST_MAIN_VER               "0.0.01"
+#define CASDK_NEWEST_MAIN_VER               "0.0.12"
 #endif
 
 #ifdef CASDK_SVN_VER
@@ -60,22 +60,6 @@
 #ifndef CASDK_FRAMEWORK_NAME
 #define CASDK_FRAMEWORK_NAME                "casdk"
 #endif
-
-#define DEFAULT_HELP_DESC                   "Shows this [h]elp."
-
-#define DEFAULT_VERSION_DESC                "Shows [v]ersion info."
-
-#define DEFAULT_CONFIG_LOADING_DESC         "Loads a [c]onfiguration file on startup."
-#define DEFAULT_CONFIG_FILE_COUNT           1
-#define DEFAULT_CONFIG_ASSIGN_EXPRESSION    "=<configuration file>"
-#define DEFAULT_CONFIG_FILES                "config.xml"
-
-#define DEFAULT_DAEMON_DESC                 "Program will run as a [d]aemon."
-
-#define DEFAULT_QUIET_MODE_DESC             "Program will run in [q]uiet mode and output as little messages as possible(on startup)."
-
-#define DEFAULT_USAGE_NAME                  "Usage"
-#define DEFAULT_USAGE_FORMAT                "[options ...] [targets ...]"
 
 #ifndef THREAD_TERMINATION_TIMEOUT_SECS
 #define THREAD_TERMINATION_TIMEOUT_SECS     60

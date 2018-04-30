@@ -180,10 +180,12 @@ void timed_task_scheduler::check_and_execute(void)
 
         if (cur_time >= trigger_time)
         {
+            int64_t start_time = cal::time_util::get_utc_microseconds();
+
             if (timed_task_config::TRIGGERED_PERIODICALLY == task_info.trigger_type)
             {
                 task_info.operation();
-                memcpy((void*)&(task_info.last_op_time), &cur_time, sizeof(task_info.last_op_time));
+                task_info.last_op_time = cur_time;
             }
             else
             {
@@ -193,7 +195,11 @@ void timed_task_scheduler::check_and_execute(void)
                 task_info.operation(); // event_time and has_triggered may be updated within this function or somewhere
                 task_info.has_triggered = true;
             }
+
+            GLOG_INFO_C("one round of [%s] done, time spent: %ld us\n",
+                it->first.c_str(), cal::time_util::get_utc_microseconds() - start_time);
         }
+        cur_time = cal::time_util::get_utc_microseconds();
     }
 }
 

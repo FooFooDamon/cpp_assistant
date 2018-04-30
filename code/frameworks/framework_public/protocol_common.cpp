@@ -68,11 +68,12 @@ namespace cafw
     return RET_OK;
 }*/
 
-int parse_header(const void *inbuf, proto_header_t *result)
+int parse_header(const void *inbuf, proto_header_t *result)/*  CA_NOTNULL(1,2) */
 {
+#if 0
     if (NULL == inbuf || NULL == result)
         return RET_FAILED;
-
+#endif
     uint16_t value_int16 = 0;
     uint32_t value_int32 = 0;
     uint64_t value_int64 = 0;
@@ -95,16 +96,19 @@ int parse_header(const void *inbuf, proto_header_t *result)
     memcpy(&value_int32, (char *)inbuf + HEADER_OFFSET_ERR_CODE, sizeof(uint32_t));
     result->error_code = ntohl(value_int32);
 
-    // TODO: how to fill extensions?
+#if PROTO_HEADER_EXTENSIONS_SIZE > 0
+    parse_proto_header_extension((char *)inbuf + HEADER_OFFSET_EXTENSIONS, result->extension_padding);
+#endif
 
     return RET_OK;
 }
 
-int assemble_header(const proto_header_t *src, void *outbuf)
+int assemble_header(const proto_header_t *src, void *outbuf)/*  CA_NOTNULL(1,2) */
 {
+#if 0
     if (NULL == src || NULL == outbuf)
         return RET_FAILED;
-
+#endif
     uint16_t value_int16 = 0;
     uint32_t value_int32 = 0;
     uint64_t value_int64 = 0;
@@ -127,7 +131,9 @@ int assemble_header(const proto_header_t *src, void *outbuf)
     value_int32 = htonl(src->error_code);
     memcpy((char *)outbuf + HEADER_OFFSET_ERR_CODE, &value_int32, sizeof(uint32_t));
 
-    // TODO: how to fill extensions?
+#if PROTO_HEADER_EXTENSIONS_SIZE > 0
+    assemble_proto_header_extension(src->extension_padding, (char *)outbuf + HEADER_OFFSET_ERR_CODE);
+#endif
 
     return RET_OK;
 }
@@ -303,10 +309,12 @@ int serialize_to_buffer(const int32_t out_cmd,
     if (NULL != out_body && (body_len = serialize_message(*out_body, GET_BODY_ADDR(out_buf))) < 0)
         return CA_RET(UNDERLYING_ERROR);
 
+    out_len = PROTO_HEADER_SIZE + body_len;
+#if 1
     proto_header_t header;
 
     parse_header(in_header_buf, &header);
-    header.length = PROTO_HEADER_SIZE + ((NULL == out_body) ? 0 : body_len);
+    header.length = PROTO_HEADER_SIZE + body_len;
     header.command = out_cmd;
     if (is_final_fragment)
         header.flag_bits |= PROTO_FLAG_BIT_PACKET_END;
@@ -315,9 +323,19 @@ int serialize_to_buffer(const int32_t out_cmd,
     header.packet_number = packet_num;
     header.error_code = errcode;
     assemble_header(&header, out_buf);
-
-    out_len = header.length;
-
+#else
+    copy_serialized_header(in_header_buf, out_buf);
+    set_proto_length(out_len, out_buf);
+    set_proto_command(out_cmd, out_buf);
+    int16_t flag_bits = get_proto_flag_bits(in_header_buf);
+    if (is_final_fragment)
+        flag_bits |= PROTO_FLAG_BIT_PACKET_END;
+    else
+        flag_bits &= (~PROTO_FLAG_BIT_PACKET_END);
+    set_proto_flag_bits(flag_bits, out_buf);
+    set_proto_packet_number(packet_num, out_buf);
+    set_proto_error_code(errcode, out_buf);
+#endif
     return RET_OK;
 }
 

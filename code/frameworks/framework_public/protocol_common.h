@@ -275,7 +275,9 @@ inline void fill_proto_header(proto_header_t &header,
     header.flag_bits = flag_bits;
     header.packet_number = packet_num;
     header.error_code = errcode;
-    // TODO: how to fill extensions?
+
+    if (NULL != extensions)
+        memcpy(header.extension_padding, extensions, PROTO_HEADER_EXTENSIONS_SIZE);
 }
 
 #define CALC_BODY_LEN(total_len)                ((total_len) - PROTO_HEADER_SIZE)
@@ -317,26 +319,76 @@ static Int get_proto_header_field(const void *raw_buf,
         return (Int)cal::sys::ntohl64(value);
 }
 
+template <typename Int>
+static void set_proto_header_field(const int field_offset,
+    const Int field_value,
+    void *raw_buf)
+{
+    if (NULL == raw_buf)
+        return;
+
+    size_t value_size = sizeof(Int);
+    Int *serialized_value_ptr = (Int*) ((char *)raw_buf + field_offset);
+
+    if (sizeof(int8_t) == value_size)
+        *serialized_value_ptr = field_value;
+    else if (sizeof(int16_t) == value_size)
+        *serialized_value_ptr = htons(field_value);
+    else if (sizeof(int32_t) == value_size)
+        *serialized_value_ptr = htonl(field_value);
+    else
+        *serialized_value_ptr = cal::sys::htonl64(field_value);
+}
+
+int32_t get_proto_length(const void *raw_buf) CA_NOTNULL(1);
 inline int32_t get_proto_length(const void *raw_buf)
 {
     return get_proto_header_field(raw_buf, HEADER_OFFSET_LENGTH, (int32_t)INVALID_PACKET_LENGTH);
 }
 
+void set_proto_length(int32_t value, void *raw_buf) CA_NOTNULL(2);
+inline void set_proto_length(int32_t value, void *raw_buf)
+{
+    set_proto_header_field(HEADER_OFFSET_LENGTH, value, raw_buf);
+}
+
+int64_t get_proto_route_id(const void *raw_buf) CA_NOTNULL(1);
 inline int64_t get_proto_route_id(const void *raw_buf)
 {
     return get_proto_header_field(raw_buf, HEADER_OFFSET_ROUTE_ID, (int64_t)0);
 }
 
+void set_proto_route_id(int64_t value, void *raw_buf) CA_NOTNULL(2);
+inline void set_proto_route_id(int64_t value, void *raw_buf)
+{
+    set_proto_header_field(HEADER_OFFSET_ROUTE_ID, value, raw_buf);
+}
+
+int32_t get_proto_command(const void *raw_buf) CA_NOTNULL(1);
 inline int32_t get_proto_command(const void *raw_buf)
 {
     return get_proto_header_field(raw_buf, HEADER_OFFSET_COMMAND, (int32_t)INVALID_COMMAND);
 }
 
+void set_proto_command(int32_t value, void *raw_buf) CA_NOTNULL(2);
+inline void set_proto_command(int32_t value, void *raw_buf)
+{
+    set_proto_header_field(HEADER_OFFSET_COMMAND, value, raw_buf);
+}
+
+int16_t get_proto_flag_bits(const void *raw_buf) CA_NOTNULL(1);
 inline int16_t get_proto_flag_bits(const void *raw_buf)
 {
     return get_proto_header_field(raw_buf, HEADER_OFFSET_FLAG_BITS, (int16_t)PROTO_FLAG_BIT_PACKET_END);
 }
 
+void set_proto_flag_bits(int16_t value, void *raw_buf) CA_NOTNULL(2);
+inline void set_proto_flag_bits(int16_t value, void *raw_buf)
+{
+    set_proto_header_field(HEADER_OFFSET_FLAG_BITS, value, raw_buf);
+}
+
+bool is_final_packet(const void *raw_proto_buf) CA_NOTNULL(1);
 inline bool is_final_packet(const void *raw_proto_buf)
 {
     int16_t flag_bits = get_proto_flag_bits(raw_proto_buf);
@@ -344,22 +396,47 @@ inline bool is_final_packet(const void *raw_proto_buf)
     return (flag_bits & ((int16_t)PROTO_FLAG_BIT_PACKET_END));
 }
 
+int16_t get_proto_packet_number(const void *raw_buf) CA_NOTNULL(1);
 inline int16_t get_proto_packet_number(const void *raw_buf)
 {
     return get_proto_header_field(raw_buf, HEADER_OFFSET_PACKET_NUM, (int16_t)1);
 }
 
+void set_proto_packet_number(int16_t value, void *raw_buf) CA_NOTNULL(2);
+inline void set_proto_packet_number(int16_t value, void *raw_buf)
+{
+    set_proto_header_field(HEADER_OFFSET_PACKET_NUM, value, raw_buf);
+}
+
+int32_t get_proto_error_code(const void *raw_buf) CA_NOTNULL(1);
 inline int32_t get_proto_error_code(const void *raw_buf)
 {
     return get_proto_header_field(raw_buf, HEADER_OFFSET_ERR_CODE, (int32_t)0);
+}
+
+void set_proto_error_code(int32_t value, void *raw_buf) CA_NOTNULL(2);
+inline void set_proto_error_code(int32_t value, void *raw_buf)
+{
+    set_proto_header_field(HEADER_OFFSET_ERR_CODE, value, raw_buf);
 }
 
 //int proto_precheck(const int inlen, const void* inbuf, int &outlen, void* outbuf, int &retcode);
 
 //int validate_protocol_header(void *buf, int len, uint32_t cmd);
 
-int parse_header(const void *inbuf, proto_header_t *result);
-int assemble_header(const proto_header_t *src, void *outbuf);
+int parse_header(const void *inbuf, proto_header_t *result) CA_NOTNULL(1,2);
+int assemble_header(const proto_header_t *src, void *outbuf) CA_NOTNULL(1,2);
+
+inline void copy_parsed_header(const proto_header_t &in_header, proto_header_t &out_header)
+{
+    memcpy(&out_header, &in_header, sizeof(proto_header_t));
+}
+
+void copy_serialized_header(const void *inbuf, void *outbuf) CA_NOTNULL(1,2);
+inline void copy_serialized_header(const void *inbuf, void *outbuf)
+{
+    memcpy(outbuf, inbuf, PROTO_HEADER_SIZE);
+}
 
 inline bool proto_is_request(const int32_t cmd)
 {
@@ -468,6 +545,8 @@ const char *desc_of_effect_status(int src_value);*/
 } // namespace cafw
 
 extern bool proto_uses_general_prefix(const int32_t cmd);
+extern int parse_proto_header_extension(const char *raw_extension, char *parsed_extension) CA_NOTNULL(1,2);
+extern int assemble_proto_header_extension(const char *parsed_extension, char *serialized_extension) CA_NOTNULL(1,2);
 
 extern int make_session_id(const void *condition, const int sid_holder_size, char *sid_result);
 

@@ -98,7 +98,7 @@ int tcp_client::connect_server(const char *ip,
     if (connect(fd, (struct sockaddr *)&server, sizeof(struct sockaddr)) < 0)
     {
         ret = -errno;
-        cdebug("connect() failed temporarily, errno = %d\n", -ret);
+        cdebug("connect() failed temporarily, errno = %d, reason: %s\n", -ret, what(ret).c_str());
         if (EINPROGRESS != -ret)
         {
             cerror("connect() failed\n");

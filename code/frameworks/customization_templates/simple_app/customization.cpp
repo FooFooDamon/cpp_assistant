@@ -132,6 +132,12 @@ int load_extra_config(struct extra_config_t *extra_items)
     return RET_OK;
 }
 
+int reload_partial_extra_config(struct extra_config_t *extra_items)
+{
+    // TODO: Reload partial values of your own configuration items here, or do nothing if there is none.
+    return RET_OK;
+}
+
 int prepare_extra_resource(const void *condition, struct extra_resource_t *target)
 {
     // TODO: Prepare your own resources here, or do nothing if there is none.

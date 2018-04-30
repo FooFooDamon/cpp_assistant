@@ -151,7 +151,7 @@ int resource_manager::__prepare_loggers(const void *condition)
     const char *log_dir = private_configs.log_directory.c_str();
     const char *log_name = private_configs.basic_log_name.c_str();
 
-    if (enables_file_logger)
+    if (cal::daemon::is_daemonized() || enables_file_logger)
     {
         std::string &file_level_str = private_configs.file_log_level;
 

@@ -55,38 +55,6 @@
 #error "A complex application requires the HAS_CONFIG_FILES macro and operations for configuration file(s)!"
 #endif
 
-#ifndef HELP_DESC
-#define HELP_DESC                       DEFAULT_HELP_DESC
-#endif
-
-#ifndef VERSION_DESC
-#define VERSION_DESC                    DEFAULT_VERSION_DESC
-#endif
-
-#ifndef CONFIG_LOADING_DESC
-#define CONFIG_LOADING_DESC             DEFAULT_CONFIG_LOADING_DESC
-#endif
-
-#ifndef CONFIG_FILE_COUNT
-#define CONFIG_FILE_COUNT               DEFAULT_CONFIG_FILE_COUNT
-#endif
-
-#ifndef CONFIG_ASSIGN_EXPRESSION
-#define CONFIG_ASSIGN_EXPRESSION        DEFAULT_CONFIG_ASSIGN_EXPRESSION
-#endif
-
-#ifndef DAEMON_DESC
-#define DAEMON_DESC                     DEFAULT_DAEMON_DESC
-#endif
-
-#ifndef QUIET_MODE_DESC
-#define QUIET_MODE_DESC                 DEFAULT_QUIET_MODE_DESC
-#endif
-
-#ifndef USAGE_FORMAT
-#define USAGE_FORMAT                    DEFAULT_USAGE_FORMAT
-#endif
-
 extern const cal::command_line::user_option *g_kPrivateOptions;
 
 EXTERN_DECLARE_ALL_CUSTOMIZED_SIG_HANDLER_VARS();
@@ -134,10 +102,6 @@ int main_app::prepare_prerequisites(void)
 
     return RET_OK;
 }
-
-#ifndef USAGE_TITLE
-#define USAGE_TITLE ""
-#endif
 
 int main_app::parse_commandLine(int argc, char **argv)
 {
@@ -850,13 +814,23 @@ void main_app::handle_received_packets(cal::net_connection *input_conn, int max_
         int bytes_handled = 0;
         int bytes_output = 0;
         cal::net_connection **mutable_output_conn = &(input_conn);
+        int ret = m_packet_processor->process(input_conn, bytes_handled, mutable_output_conn, bytes_output);
 
-        m_packet_processor->process(input_conn, bytes_handled, mutable_output_conn, bytes_output);
+        if (CA_RET(RESOURCE_NOT_AVAILABLE) == ret
+            || CA_RET(OPERATION_TIMED_OUT) == ret
+            || CA_RET(LENGTH_TOO_BIG) == ret)
+        {
+            GLOG_WARN_C("packet processing aborted due to abnormal data\n");
+            break;
+        }
 
         ++handle_count;
 
         if (bytes_handled > 0)
+        {
             in_buf->move_read_pointer(bytes_handled);
+            input_conn->last_op_time = cal::time_util::get_utc_microseconds();
+        }
 
         GLOG_DEBUG("%d bytes input handled, %d bytes output generated\n", bytes_handled, bytes_output);
 
@@ -867,6 +841,7 @@ void main_app::handle_received_packets(cal::net_connection *input_conn, int max_
         cal::buffer *out_buf = actual_output_conn->send_buf;
 
         out_buf->move_write_pointer(bytes_output);
+        actual_output_conn->last_op_time = cal::time_util::get_utc_microseconds();
 
         GLOG_DEBUG("loading packets into output connection{ fd[%d] | name[%s] }.send_buf: %d bytes free,"
             " current read position = %d, write position = %d\n",

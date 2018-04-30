@@ -1,3 +1,11 @@
+wxc, 2018/04/30, v0.0.12:
+	1、tcp_app框架改进未完整数据包的处理逻辑，采用若干特殊码进行标识
+	2、定时任务和网络请求处理操作加入耗时统计
+	3、整理内置命令行选项值
+	4、令重读部分配置项的操作可定制化
+	5、增加set_proto_xxx()接口，以及两个报文头扩展字段操作的定制化接口
+		parse_proto_header_extension() & assemble_proto_header_extension()
+
 wxc, 2018/04/22, v0.0.11:
 	1、simple_app移除需要实现make_session_id()的要求。
 

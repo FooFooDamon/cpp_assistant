@@ -97,8 +97,7 @@ int packet_processor::m_max_packet_length = PROTO_HEADER_SIZE;
 packet_processor::packet_processor()
     : m_message_cache(NULL)
       ,m_component_map(NULL)
-      ,m_error_timestamps(NULL)
-      ,m_error_counts(NULL)
+      ,m_timestamps_when_pkts_incomplete(NULL)
 {
     __inner_init();
 }
@@ -187,36 +186,47 @@ int packet_processor::process(const struct cal::net_connection *input_conn,
 
     int32_t length = get_proto_length(in_data);
     int32_t command = get_proto_command(in_data);
-    const int kMaxErrorSeconds = 5;
+    const int kMaxErrorSeconds = 5; // TODO: How about take it from the configuration file?
     const int64_t kCurUtcSecs = cal::time_util::get_utc_seconds();
-    const int kMaxErrorCount = 20;
     const char *kConnName = input_conn->peer_name;
-
-    // TODO: Use NetConnection::last_op_time instead !
-    if (m_error_timestamps->end() == m_error_timestamps->find(kConnName))
-        m_error_timestamps->insert(std::map<std::string, int64_t>::value_type(kConnName, kCurUtcSecs));
-
-    if (m_error_counts->end() == m_error_counts->find(kConnName))
-        m_error_counts->insert(std::map<std::string, int>::value_type(kConnName, 0));
 
     if (in_len < length || in_len < (int)PROTO_HEADER_SIZE)
     {
-        ++((*m_error_counts)[kConnName]);
         GLOG_WARN_C("incomplete packet in recv_buf of connection[fd:%d, name:%s]: expected length = %d, actual length = %d,"
-            " minimum length = %d, command code = 0x%08X, fd = %d, error count = %d\n",
+            " minimum length = %d, command code = 0x%08X, fd = %d, may need more bytes and handle them later\n",
             in_fd, kConnName, length, in_len,
-            (int)PROTO_HEADER_SIZE, command, in_fd, (*m_error_counts)[kConnName]);
-        if ((kCurUtcSecs - (*m_error_timestamps)[kConnName] >= kMaxErrorSeconds) ||
-            ((*m_error_counts)[kConnName] >= kMaxErrorCount))
+            (int)PROTO_HEADER_SIZE, command, in_fd);
+
+        std::map<std::string, int64_t>::iterator time_iter = m_timestamps_when_pkts_incomplete->find(kConnName);
+
+        // Initialization, DO NOT miss it!
+        if (m_timestamps_when_pkts_incomplete->end() == time_iter)
+            time_iter = m_timestamps_when_pkts_incomplete->insert(std::map<std::string, int64_t>::value_type(kConnName, 0)).first;
+
+        int64_t *time_ptr = &(time_iter->second);
+
+        // records the start time of error
+        if (0 == *time_ptr)
+            *time_ptr = kCurUtcSecs;
+
+        bool packet_too_big = (length > in_buf->total_size());
+        bool is_timed_out = (kCurUtcSecs - *time_ptr >= kMaxErrorSeconds);
+
+        if (is_timed_out || packet_too_big)
         {
-            GLOG_WARN_C("too many retries, recv_buf of connection[fd:%d, name:%s]"
-                " may contains bad data, reset it now\n", in_fd, kConnName);
+            GLOG_WARN_C("too many retries or packet too big, recv_buf of connection[fd:%d, name:%s, size: %d]"
+                " may contains bad data, reset it now\n", in_fd, kConnName, in_buf->total_size());
             in_buf->reset();
+            *time_ptr = 0; // DO NOT forget clearing it after error was handled!
         }
-        return RET_FAILED;
+
+        if (is_timed_out)
+            return CA_RET(OPERATION_TIMED_OUT);
+        else if (packet_too_big)
+            return CA_RET(LENGTH_TOO_BIG);
+        else
+            return CA_RET(RESOURCE_NOT_AVAILABLE);
     }
-    (*m_error_timestamps)[kConnName] = kCurUtcSecs; // TODO: is it proper?
-    (*m_error_counts)[kConnName] = 0;
 
     handled_len = (length > 0) ? length : in_len;
 
@@ -349,7 +359,9 @@ int packet_processor::single_operator_general_flow(const struct cal::net_connect
     const char *sid = "see_sid_in_other_places";
     const int sid_len = SID_LEN;
     int16_t packet_num = 1;
-    int64_t cur_time = cal::time_util::get_utc_microseconds();
+    int64_t start_time = cal::time_util::get_utc_microseconds();
+    int64_t last_step_time = start_time;
+    int64_t cur_step_time = start_time;
     bool all_parsed_ok = false;
 #ifndef USE_JSON_MSG
     bool prefix_parsed_ok = false;
@@ -358,6 +370,10 @@ int packet_processor::single_operator_general_flow(const struct cal::net_connect
     MinimalBody body_prefix;
 #endif
     bool has_done_business = false;
+
+#define STAT_TIME_CONSUMPTION(op_literal) cur_step_time = cal::time_util::get_utc_microseconds(); \
+    GLOG_INFO("[cmd:0x%08X] ["op_literal"] done, time spent: %ld us\n", command, cur_step_time - last_step_time); \
+    last_step_time = cur_step_time
 
     if (NULL != out_body)
         clear_message_holder(*out_body);
@@ -371,6 +387,7 @@ int packet_processor::single_operator_general_flow(const struct cal::net_connect
     all_parsed_ok = (body_len_after_parsing > 0);
     //body_base = dynamic_cast<UnifiedBodyBase *>(actual_body_for_parsing); // failed
     //body_base = reinterpret_cast<UnifiedBodyBase *>(actual_body_for_parsing); // static_cast works too
+    STAT_TIME_CONSUMPTION("input packet parsing");
 
     if (!all_parsed_ok)
     {
@@ -398,6 +415,7 @@ int packet_processor::single_operator_general_flow(const struct cal::net_connect
         strncpy(body_container_type, typeid(*whole_in_body).name(), sizeof(body_container_type));
         component.do_business(input_conn, whole_in_body, mutable_output_conn, out_body, retcode);
         has_done_business = true;
+        STAT_TIME_CONSUMPTION("business operation");
         goto OUTPUT;
     }
 
@@ -460,7 +478,8 @@ int packet_processor::single_operator_general_flow(const struct cal::net_connect
         }
         GLOG_INFO("fragment[%d] grouped into cached packet\n", packet_num);
 
-        msg_cache_item->last_op_time = cur_time;
+        msg_cache_item->last_op_time = cal::time_util::get_utc_microseconds();
+        STAT_TIME_CONSUMPTION("fragment grouping");
 
         bool is_end = is_final_packet(in_data_ptr);
 
@@ -494,7 +513,7 @@ int packet_processor::single_operator_general_flow(const struct cal::net_connect
         GLOG_ERROR_C("input packet validation failed\n");
         goto OUTPUT;
     }
-    GLOG_INFO("input packet validation ok\n");
+    STAT_TIME_CONSUMPTION("input packet validation");
 
     /*
      * Step 3: Execute business operation. This is an required step for all business types.
@@ -506,7 +525,7 @@ int packet_processor::single_operator_general_flow(const struct cal::net_connect
         GLOG_ERROR_C("core business operation failed\n");
         goto OUTPUT;
     }
-    GLOG_INFO("core business operation ok\n");
+    STAT_TIME_CONSUMPTION("business operation");
 
 OUTPUT:
 
@@ -536,13 +555,17 @@ OUTPUT:
                 GLOG_WARN("business is not ok, roll back database modifications now\n");
             }
         }
+        STAT_TIME_CONSUMPTION("database commit or roll-back");
     } while (0);
 
     /*
      * Step 4: Assemble output packet if required.
      */
     if (NULL != out_body && NULL != component.assemble_out_packet)
+    {
         component.assemble_out_packet(in_data_ptr, retcode, whole_in_body, out_body);
+        STAT_TIME_CONSUMPTION("output packet assembling");
+    }
 
     /*
      * Step 5: Serialize output data(if existed) to send buffer.
@@ -579,6 +602,7 @@ OUTPUT:
             GLOG_ERROR_C("serialize_to_buffer() failed\n");
             return RET_FAILED;
         }
+        STAT_TIME_CONSUMPTION("output data serialization");
         update_max_packet_length(output_len);
 
         GLOG_INFO("%d bytes output packet generated and loaded into send buffer"
@@ -592,13 +616,13 @@ OUTPUT:
         m_message_cache->del(sid, sid_len);
 #endif
     if (PROTO_RET_SUCCESS == retcode)
-        GLOG_INFO("~ ~ ~ ~ ~ ~ ~ ~ ~ ~ %s::%s() for [ 0x%08X | %s | %s ] successful\n",
-            class_name(), __FUNC__, command, component.description, sid);
+        GLOG_INFO("~ ~ ~ ~ ~ ~ ~ ~ ~ ~ %s::%s() for [ 0x%08X | %s | %s ] successful, total time spent: %ld us\n",
+            class_name(), __FUNC__, command, component.description, sid, cal::time_util::get_utc_microseconds() - start_time);
     else
         GLOG_ERROR("! ! ! ! ! ! ! ! ! ! %s::%s() for [ 0x%08X | %s | %s ] failed,"
-            " ret = %d, desc = %s\n",
+            " ret = %d, desc = %s, total time spent: %ld us\n",
             class_name(), __FUNC__, command, component.description, sid,
-            retcode, get_return_code_description(retcode));
+            retcode, get_return_code_description(retcode), cal::time_util::get_utc_microseconds() - start_time);
 
     return RET_OK;
 }
@@ -1143,8 +1167,7 @@ bool packet_processor::is_available(void)
 {
     return (NULL != m_message_cache &&
         NULL != m_component_map &&
-        NULL != m_error_timestamps &&
-        NULL != m_error_counts);
+        NULL != m_timestamps_when_pkts_incomplete);
 }
 
 bool packet_processor::is_ready(void)
@@ -1169,17 +1192,10 @@ int packet_processor::__inner_init(void)
         return RET_FAILED;
     }
 
-    if ((NULL == m_error_timestamps) &&
-        (NULL == (m_error_timestamps = new std::map<std::string, int64_t>)))
+    if ((NULL == m_timestamps_when_pkts_incomplete) &&
+        (NULL == (m_timestamps_when_pkts_incomplete = new std::map<std::string, int64_t>)))
     {
         GLOG_ERROR_C("m_error_timestamps structure initialization failed\n");
-        return RET_FAILED;
-    }
-
-    if ((NULL == m_error_counts) &&
-        (NULL == (m_error_counts = new std::map<std::string, int>)))
-    {
-        GLOG_ERROR_C("m_error_counts structure initialization failed\n");
         return RET_FAILED;
     }
 
@@ -1209,16 +1225,10 @@ void packet_processor::__clear(void)
         m_component_map = NULL;
     }
 
-    if (NULL != m_error_timestamps)
+    if (NULL != m_timestamps_when_pkts_incomplete)
     {
-        delete m_error_timestamps;
-        m_error_timestamps = NULL;
-    }
-
-    if (NULL != m_error_counts)
-    {
-        delete m_error_counts;
-        m_error_counts = NULL;
+        delete m_timestamps_when_pkts_incomplete;
+        m_timestamps_when_pkts_incomplete = NULL;
     }
 
     /*if (NULL != m_dispatcher_by_loginid)
