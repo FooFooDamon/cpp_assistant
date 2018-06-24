@@ -78,7 +78,7 @@ static void __formatted_output(int level, FILE *where, mutex_t *lock, const char
         gettimeofday(&tv, NULL);
         localtime_r((time_t *)&(tv.tv_sec), &now);
 
-        fprintf(where, "[%04d-%02d-%02d %02d:%02d:%02d.%06ld]%s [PID:%d, TID:0x%x] ["CPP_ASSISTANT_NAME"]: ",
+        fprintf(where, "[%04d-%02d-%02d %02d:%02d:%02d.%06ld]%s [PID:%d, TID:0x%x] [" CPP_ASSISTANT_NAME "]: ",
             now.tm_year + 1900, now.tm_mon + 1, now.tm_mday,
             now.tm_hour, now.tm_min, now.tm_sec, tv.tv_usec, G_LOG_LEVEL_STRINGS[level],
             getpid(), gettid());

@@ -49,9 +49,9 @@ CA_LIB_NAMESPACE_BEGIN
 #endif
 
 #ifdef CA_SVN_VER
-#define CPP_ASSISTANT_VERSION       "v"CA_NEWEST_MAIN_VER".r"CA_SVN_VER"."CA_NEWEST_MOD_DATE
+#define CPP_ASSISTANT_VERSION       "v" CA_NEWEST_MAIN_VER ".r" CA_SVN_VER "." CA_NEWEST_MOD_DATE
 #else
-#define CPP_ASSISTANT_VERSION       "v"CA_NEWEST_MAIN_VER".r012345."CA_NEWEST_MOD_DATE".[Approximative]"
+#define CPP_ASSISTANT_VERSION       "v" CA_NEWEST_MAIN_VER ".r012345." CA_NEWEST_MOD_DATE ".[Approximative]"
 #endif
 
 CA_REENTRANT const char *get_library_name(void)

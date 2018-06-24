@@ -91,7 +91,7 @@ static const char *S_DESCRIPTIONS[USER_RET_CODE_COUNT] = {
 
 CA_REENTRANT int parse_return_code(const int retcode, const int msg_capacity, char *msg) /* CA_NOTNULL(3) */
 {
-    if (NULL == msg || msg_capacity <= 0)
+    if (/* will cause compiler [-Wnonnull-compare] warning: NULL == msg || */msg_capacity <= 0)
         return -1;
 
     memset(msg, 0, msg_capacity);

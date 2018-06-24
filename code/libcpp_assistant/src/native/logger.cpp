@@ -173,8 +173,10 @@ int logger::output(bool has_prefix,
     const char *fmt,
     va_list args) /* CA_NOTNULL(4) */
 {
-    if (NULL == fmt)
+    /* will cause compiler [-Wnonnull-compare] warning:
+	 * if (NULL == fmt)
         return CA_RET(NULL_PARAM);
+	*/
 
     if (!is_open())
         return CA_RET(FILE_OR_STREAM_NOT_OPEN);

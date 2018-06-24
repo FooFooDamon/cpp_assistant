@@ -194,8 +194,11 @@ file_logger::~file_logger()
 
 /*virtual */int file_logger::set_log_directory(const char *dir) /*  CA_NOTNULL(2) */
 {
-    if (NULL == dir)
+    /*
+	 * will cause compiler [-Wnonnull-compare] warning:
+	 * if (NULL == dir)
         return CA_RET(NULL_PARAM);
+	*/
 
     if (is_open())
         return CA_RET(DEVICE_BUSY);
@@ -255,8 +258,10 @@ file_logger::~file_logger()
 
 /*virtual */int file_logger::set_log_name(const char *base_name)/*  CA_NOTNULL(2)  = 0 */
 {
-    if (NULL == base_name)
+    /* will cause compiler [-Wnonnull-compare] warning:
+	 * if (NULL == base_name)
         return CA_RET(NULL_PARAM);
+	*/
 
     if (is_open())
         return CA_RET(DEVICE_BUSY);
