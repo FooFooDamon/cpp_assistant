@@ -58,7 +58,7 @@
 #define CA_OUTPUT_BASE(dev, preamble, type_str, class_str, ns_delim, fmt, ...) do{ \
     struct timeval __tv; \
     gettimeofday(&__tv, NULL); \
-    ::fprintf(dev, "[PID:%d, TID:0x%lx][Time:%ld.%ld] "preamble" "type_str" %s, %s%s%s(): Line %d: "fmt, \
+    ::fprintf(dev, "[PID:%d, TID:0x%lx][Time:%ld.%ld] " preamble " " type_str " %s, %s%s%s(): Line %d: " fmt, \
         getpid(), pthread_self(), __tv.tv_sec, __tv.tv_usec, __FILE__, class_str, ns_delim, __FUNCTION__, __LINE__, ##__VA_ARGS__); \
 }while(0)
 

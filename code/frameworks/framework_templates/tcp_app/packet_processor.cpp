@@ -372,7 +372,7 @@ int packet_processor::single_operator_general_flow(const struct cal::net_connect
     bool has_done_business = false;
 
 #define STAT_TIME_CONSUMPTION(op_literal) cur_step_time = cal::time_util::get_utc_microseconds(); \
-    GLOG_INFO("[cmd:0x%08X] ["op_literal"] done, time spent: %ld us\n", command, cur_step_time - last_step_time); \
+    GLOG_INFO("[cmd:0x%08X] [" op_literal "] done, time spent: %ld us\n", command, cur_step_time - last_step_time); \
     last_step_time = cur_step_time
 
     if (NULL != out_body)

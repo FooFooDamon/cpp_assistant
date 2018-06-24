@@ -213,7 +213,7 @@ static int __load_timezone(
     std::string xpath(xpath_prefix);
     std::vector<TiXmlElement> timezones;
 
-    xpath.append("/"XNODE_TIMEZONE);
+    xpath.append("/" XNODE_TIMEZONE);
 
     int load_ret = load_unique_config_node_value(config_file, xpath.c_str(), from_common, timezone);
 
@@ -241,7 +241,7 @@ static int __load_timed_task_unit(
     std::string xpath(xpath_prefix);
     const char *unit_attr = "unit";
 
-    xpath.append("/"XNODE_TIMED_TASK_SETTING);
+    xpath.append("/" XNODE_TIMED_TASK_SETTING);
 
     std::vector<cal::xml::config_node_t> nodes;
     int read_ret = cal::xml::read_config_nodes(*config_file, xpath.c_str(), 1,

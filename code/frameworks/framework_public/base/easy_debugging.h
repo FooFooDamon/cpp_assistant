@@ -50,14 +50,14 @@
 // NOTE: ctx is a pointer to ThreadContext structure.
 #ifdef LOG_HAS_PID
 #define TLOG_BASE(log_level, fmt, ...)              do{\
-    ctx->screen_logger.output(cal::HAS_LOG_PREFIX, log_level, "[PID:%d][%s:%02d]"fmt, \
+    ctx->screen_logger.output(cal::HAS_LOG_PREFIX, log_level, "[PID:%d][%s:%02d]" fmt, \
         getpid(), ctx->name.c_str(), ctx->num, ##__VA_ARGS__); \
     if (ctx->file_logger.is_open()) \
         ctx->file_logger.output(cal::HAS_LOG_PREFIX, log_level, fmt, ##__VA_ARGS__); \
 }while(0)
 #else
 #define TLOG_BASE(log_level, fmt, ...)              do{\
-    ctx->screen_logger.output(cal::HAS_LOG_PREFIX, log_level, "[%s:%02d]"fmt, \
+    ctx->screen_logger.output(cal::HAS_LOG_PREFIX, log_level, "[%s:%02d]" fmt, \
         ctx->name.c_str(), ctx->num, ##__VA_ARGS__); \
     if (ctx->file_logger.is_open()) \
         ctx->file_logger.output(cal::HAS_LOG_PREFIX, log_level, fmt, ##__VA_ARGS__); \
@@ -70,7 +70,7 @@
     TLOG_BASE(log_level, fmt, ##__VA_ARGS__); \
 }while(0)
 
-#define TLOG_BASE_V(log_level, class_str, ns_delim, fmt, ...)   TLOG_BASE(log_level, "%s, %s%s%s(): Line %d: "fmt, \
+#define TLOG_BASE_V(log_level, class_str, ns_delim, fmt, ...)   TLOG_BASE(log_level, "%s, %s%s%s(): Line %d: " fmt, \
     __FILE__, class_str, ns_delim, __FUNC__, __LINE__, ##__VA_ARGS__)
 
 #define TQ_LOG_BASE_V(log_level, fmt, ...)          do{\
@@ -137,10 +137,10 @@
 }while(0)
 
 #ifdef LOG_HAS_PID
-#define GLOG_BASE_V(log_level, class_str, ns_delim, fmt, ...)   GLOG_BASE(log_level, "[PID:%d, TID:0x%lx] %s, %s%s%s(): Line %d: "fmt, \
+#define GLOG_BASE_V(log_level, class_str, ns_delim, fmt, ...)   GLOG_BASE(log_level, "[PID:%d, TID:0x%lx] %s, %s%s%s(): Line %d: " fmt, \
     getpid(), pthread_self(), __FILE__, class_str, ns_delim, __FUNC__, __LINE__, ##__VA_ARGS__)
 #else
-#define GLOG_BASE_V(log_level, class_str, ns_delim, fmt, ...)   GLOG_BASE(log_level, "%s, %s%s%s(): Line %d: "fmt, \
+#define GLOG_BASE_V(log_level, class_str, ns_delim, fmt, ...)   GLOG_BASE(log_level, "%s, %s%s%s(): Line %d: " fmt, \
     __FILE__, class_str, ns_delim, __FUNC__, __LINE__, ##__VA_ARGS__)
 #endif
 
