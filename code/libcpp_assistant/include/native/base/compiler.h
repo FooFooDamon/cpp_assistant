@@ -73,4 +73,9 @@
 #define CA_PRINTF_CHECK(fmt_str_index, first_arg_index) \
     CA_FORMAT_CHECK(__printf__, fmt_str_index, first_arg_index)
 
+#if __cplusplus < 201103L
+#define override
+#define nullptr										NULL
+#endif // if __cplusplus < 201103L
+
 #endif /* __CPP_ASSISTANT_COMPILER_H__ */
