@@ -35,9 +35,6 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
-namespace xml
-{
-
 /*
  * This function requires:
  *     @depth_recorder = -1,
@@ -50,10 +47,10 @@ namespace xml
  *
  * TODO: Replace it with non-recursive version in future!
  */
-static int __recursively_find_nodes(const TiXmlElement *cur_node,
+static int __recursively_find_nodes(const xml::element_t *cur_node,
     const std::vector<std::string> &node_names,
     int &depth_recorder,
-    std::vector<TiXmlElement*> &result)
+    std::vector<xml::element_t*> &result)
 {
     ++depth_recorder;
 
@@ -99,7 +96,7 @@ static int __recursively_find_nodes(const TiXmlElement *cur_node,
         {
             try
             {
-                result.push_back(const_cast<TiXmlElement*>(cur_node));
+                result.push_back(const_cast<xml::element_t*>(cur_node));
             }
             catch (std::exception& e)
             {
@@ -125,9 +122,9 @@ static int __recursively_find_nodes(const TiXmlElement *cur_node,
      * keeps searching its recursive children for more info.
      */
 
-    TiXmlElement *child_node = NULL;
+    xml::element_t *child_node = NULL;
 
-    for (child_node = const_cast<TiXmlElement*>(cur_node->FirstChildElement()); NULL != child_node; child_node = child_node->NextSiblingElement())
+    for (child_node = const_cast<xml::element_t*>(cur_node->FirstChildElement()); NULL != child_node; child_node = child_node->NextSiblingElement())
     {
         int find_ret = __recursively_find_nodes(child_node, node_names, depth_recorder, result);
 
@@ -143,10 +140,10 @@ static int __recursively_find_nodes(const TiXmlElement *cur_node,
     return CA_RET_OK;
 }
 
-static int __generally_find_nodes(const TiXmlElement *cur_node,
+static int __generally_find_nodes(const xml::element_t *cur_node,
     const char *path, /* relative or absolute */
     bool path_contains_cur_node,
-    std::vector<TiXmlElement*> &result)
+    std::vector<xml::element_t*> &result)
 {
     int path_len = strlen(path);
     std::vector<std::string> node_names;
@@ -172,9 +169,9 @@ static int __generally_find_nodes(const TiXmlElement *cur_node,
     }
     else
     {
-        TiXmlElement *child_node = NULL;
+    	xml::element_t *child_node = NULL;
 
-        for (child_node = const_cast<TiXmlElement*>(cur_node->FirstChildElement()); NULL != child_node; child_node = child_node->NextSiblingElement())
+        for (child_node = const_cast<xml::element_t*>(cur_node->FirstChildElement()); NULL != child_node; child_node = child_node->NextSiblingElement())
         {
             int depth_recorder = -1; // Initial depth MUST be -1. Re-declare it on every call to __recursively_find_nodes() for safety!
 
@@ -187,9 +184,9 @@ static int __generally_find_nodes(const TiXmlElement *cur_node,
     return result.empty() ? CA_RET(OBJECT_DOES_NOT_EXIST) : CA_RET_OK;
 }
 
-int find_nodes(const TiXmlElement *parent_node,
+/* static */int xml::find_nodes(const element_t *parent_node,
     const char *relative_path,
-    std::vector<TiXmlElement*> &result)
+    std::vector<element_t*> &result)
 {
     if (!result.empty())
         result.clear();
@@ -210,9 +207,9 @@ int find_nodes(const TiXmlElement *parent_node,
     return __generally_find_nodes(parent_node, relative_path, false, result);
 }
 
-int find_nodes(const TiXmlDocument &doc,
+/* static */int xml::find_nodes(const file_t &doc,
     const char *absolute_path,
-    std::vector<TiXmlElement*> &result)
+    std::vector<element_t*> &result)
 {
     if (!result.empty())
         result.clear();
@@ -230,7 +227,7 @@ int find_nodes(const TiXmlDocument &doc,
         return CA_RET(INVALID_PATH);
     }
 
-    const TiXmlElement *root = doc.RootElement();
+    const element_t *root = doc.RootElement();
 
     if (NULL == root)
     {
@@ -241,12 +238,12 @@ int find_nodes(const TiXmlDocument &doc,
     return __generally_find_nodes(root, absolute_path, true, result);
 }
 
-static int extract_config_nodes(const std::vector<TiXmlElement*> &nodes,
+static int extract_xml_nodes(const std::vector<xml::element_t*> &nodes,
     size_t expected_node_count,
     bool allows_missing_attributes,
     const char *first_attr,
     va_list &other_attr,
-    std::vector<config_node_t> &result)
+    std::vector<xml::node_t> &result)
 {
     int node_count = nodes.size();
 
@@ -258,11 +255,11 @@ static int extract_config_nodes(const std::vector<TiXmlElement*> &nodes,
 
     //nsdebug(CA_LIB_NAMESPACE_STR, "node size: %ld, expected node count: %d\n", nodes.size(), node_count);
 
-    config_node_t node;
+    xml::node_t node;
 
     for (int i = 0; i < node_count; ++i)
     {
-        TiXmlElement *element = nodes[i];
+    	xml::element_t *element = nodes[i];
         const char *element_text = element->GetText();
 
         node.node_value.clear();
@@ -310,10 +307,10 @@ static int extract_config_nodes(const std::vector<TiXmlElement*> &nodes,
     return node_count;
 }
 
-int read_config_nodes(const config_element_t *parent_element,
+/* static */int xml::find_and_parse_nodes(const element_t *parent_element,
     const char *relative_xpath,
     size_t expected_node_count,
-    std::vector<config_node_t> &result,
+    std::vector<node_t> &result,
     bool allows_missing_attributes/* = false*/,
     const char *first_attr/* = NULL*/,
     .../* Must end with NULL!!! */)
@@ -323,7 +320,7 @@ int read_config_nodes(const config_element_t *parent_element,
     if (0 == expected_node_count)
         return CA_RET(INVALID_PARAM_VALUE);
 
-    std::vector<TiXmlElement*> elements;
+    std::vector<element_t*> elements;
     int find_ret = find_nodes(parent_element, relative_xpath, elements);
 
     if (find_ret < 0)
@@ -333,7 +330,7 @@ int read_config_nodes(const config_element_t *parent_element,
 
     va_start(argp, first_attr);
 
-    int extract_ret = extract_config_nodes(elements,
+    int extract_ret = extract_xml_nodes(elements,
         expected_node_count,
         allows_missing_attributes,
         first_attr,
@@ -345,10 +342,10 @@ int read_config_nodes(const config_element_t *parent_element,
     return extract_ret;
 }
 
-int read_config_nodes(const config_file_t &file,
+/* static */int xml::find_and_parse_nodes(const file_t &file,
     const char *absolute_xpath,
     size_t expected_node_count,
-    std::vector<config_node_t> &result,
+    std::vector<node_t> &result,
     bool allows_missing_attributes/* = false*/,
     const char *first_attr/* = NULL*/,
     .../* Must end with NULL!!! */)
@@ -358,7 +355,7 @@ int read_config_nodes(const config_file_t &file,
     if (0 == expected_node_count)
         return CA_RET(INVALID_PARAM_VALUE);
 
-    std::vector<TiXmlElement*> elements;
+    std::vector<element_t*> elements;
     int find_ret = find_nodes(file, absolute_xpath, elements);
 
     if (find_ret < 0)
@@ -368,7 +365,7 @@ int read_config_nodes(const config_file_t &file,
 
     va_start(argp, first_attr);
 
-    int extract_ret = extract_config_nodes(elements,
+    int extract_ret = extract_xml_nodes(elements,
         expected_node_count,
         allows_missing_attributes,
         first_attr,
@@ -379,7 +376,5 @@ int read_config_nodes(const config_file_t &file,
 
     return extract_ret;
 }
-
-} // namespace xml
 
 CA_LIB_NAMESPACE_END

@@ -242,8 +242,8 @@ int load_unique_config_node_value(
     const bool from_common,
     Value &result)
 {
-    std::vector<cal::xml::config_node_t> nodes;
-    int read_ret = cal::xml::read_config_nodes(*config_file, xpath, 1, nodes);
+    std::vector<cal::xml::node_t> nodes;
+    int read_ret = cal::xml::find_and_parse_nodes(*config_file, xpath, 1, nodes);
 
     if (read_ret <= 0)
     {

@@ -39,56 +39,51 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
-namespace debug
-{
+bool debug::m_debug_enabled = true;
 
-bool g_debug_enabled = true;
-
-void enable_output_prefix(void)
+/* static */void debug::enable_output_prefix(void)
 {
     __enable_output_prefix();
 }
 
-void disable_output_prefix(void)
+/* static */void debug::disable_output_prefix(void)
 {
     __disable_output_prefix();
 }
 
-void redirect_debug_output(const FILE *where)
+/* static */void debug::redirect_debug_output(const FILE *where)
 {
     __set_debug_output(where);
 }
 
-const FILE* get_debug_output_holder(void)
+/* static */const FILE* debug::get_debug_output_holder(void)
 {
     return __get_debug_output_holder();
 }
 
-void set_debug_lock(const mutex *lock)
+/* static */void debug::set_debug_lock(const mutex *lock)
 {
     __set_debug_lock(lock);
 }
 
-bool error_report_is_enabled(void)
+/* static */bool debug::error_report_is_enabled(void)
 {
     return __error_report_is_enabled();
 }
 
-void redirect_error_output(const FILE *where)
+/* static */void debug::redirect_error_output(const FILE *where)
 {
     __set_error_output(where);
 }
 
-const FILE* get_error_output_holder(void)
+/* static */const FILE* debug::get_error_output_holder(void)
 {
     return __get_error_output_holder();
 }
 
-void set_error_lock(const mutex *lock)
+/* static */void debug::set_error_lock(const mutex *lock)
 {
     __set_error_lock(lock);
 }
-
-} // namespace debug
 
 CA_LIB_NAMESPACE_END

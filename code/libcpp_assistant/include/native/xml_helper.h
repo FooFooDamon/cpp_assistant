@@ -46,51 +46,51 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
-namespace xml
+class xml : no_instance
 {
+public:
 
-// Finds nodes with a relative path specified by @relative_path, starting from a node
-// specified by @parent_node, and saves them to a holder specified by @result.
-// NOTE: Pointers within @result are valid only if @parent_node is valid.
-int find_nodes(const TiXmlElement *parent_node,
-    const char *relative_path,
-    std::vector<TiXmlElement*> &result);
+	typedef TiXmlElement element_t; // XML node as a whole
 
-// Finds nodes with an absolute path specified by @relative_path from a document handle
-// specified by @doc, and saves them to a holder specified by @result.
-// NOTE: Pointers within @result are valid only if @doc is valid.
-int find_nodes(const TiXmlDocument &doc,
-    const char *absolute_path,
-    std::vector<TiXmlElement*> &result);
+	typedef struct node_t
+	{
+		//std::string node_name;
+		std::string node_value;
+		std::map<std::string, std::string> attributes; // <name, value>
+	}node_t; // XML node which has been parsed
 
-typedef struct config_node_t
-{
-    //std::string node_name;
-    std::string node_value;
-    std::map<std::string, std::string> attributes; // <name, value>
-}config_node_t;
+	typedef TiXmlDocument file_t;
 
-typedef TiXmlElement config_element_t;
+	// Finds nodes with a relative path specified by @relative_path, starting from a node
+	// specified by @parent_node, and saves them to a holder specified by @result.
+	// NOTE: Pointers within @result are valid only if @parent_node is valid.
+	static int find_nodes(const element_t *parent_node,
+		const char *relative_path,
+		std::vector<element_t*> &result);
 
-typedef TiXmlDocument config_file_t;
+	// Finds nodes with an absolute path specified by @relative_path from a document handle
+	// specified by @doc, and saves them to a holder specified by @result.
+	// NOTE: Pointers within @result are valid only if @doc is valid.
+	static int find_nodes(const file_t &doc,
+		const char *absolute_path,
+		std::vector<element_t*> &result);
 
-int read_config_nodes(const config_element_t *parent_element,
-    const char *relative_xpath,
-    size_t expected_node_count,
-    std::vector<config_node_t> &result,
-    bool allows_missing_attributes = false,
-    const char *first_attr = NULL,
-    .../* Must end with NULL!!! */);
+	static int find_and_parse_nodes(const element_t *parent_element,
+		const char *relative_xpath,
+		size_t expected_node_count,
+		std::vector<node_t> &result,
+		bool allows_missing_attributes = false,
+		const char *first_attr = NULL,
+		.../* Must end with NULL!!! */);
 
-int read_config_nodes(const config_file_t &file,
-    const char *absolute_xpath,
-    size_t expected_node_count,
-    std::vector<config_node_t> &result,
-    bool allows_missing_attributes = false,
-    const char *first_attr = NULL,
-    .../* Must end with NULL!!! */);
-
-} // namespace xml
+	static int find_and_parse_nodes(const file_t &file,
+		const char *absolute_xpath,
+		size_t expected_node_count,
+		std::vector<node_t> &result,
+		bool allows_missing_attributes = false,
+		const char *first_attr = NULL,
+		.../* Must end with NULL!!! */);
+}; // class xml
 
 CA_LIB_NAMESPACE_END
 

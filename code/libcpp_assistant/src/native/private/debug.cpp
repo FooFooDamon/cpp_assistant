@@ -41,6 +41,7 @@
 
 #include "base/platforms/os_specific.h"
 #include "base/platforms/threading.h"
+#include "base/debug.h"
 #include "logger.h"
 
 CA_LIB_NAMESPACE_BEGIN
@@ -110,9 +111,9 @@ void __set_debug_output(const FILE *where)
     s_debug_output = const_cast<FILE *>(where);
 
     if (NULL == s_debug_output)
-        debug::g_debug_enabled = false;
+        debug::m_debug_enabled = false;
     else
-        debug::g_debug_enabled = true;
+        debug::m_debug_enabled = true;
 }
 
 const FILE* __get_debug_output_holder(void)

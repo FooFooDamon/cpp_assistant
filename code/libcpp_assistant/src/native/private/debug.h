@@ -44,6 +44,7 @@
 
 #include "base/ca_inner_necessities.h"
 #include "base/platforms/threading.h"
+#include "base/debug.h"
 
 CA_LIB_NAMESPACE_BEGIN
 
@@ -72,16 +73,9 @@ void __set_debug_output(const FILE *where);
 
 const FILE* __get_debug_output_holder(void);
 
-namespace debug
-{
-
-extern bool g_debug_enabled;
-
-}
-
 inline bool __debug_is_enabled(void)
 {
-    return debug::g_debug_enabled;
+    return debug::m_debug_enabled;
 }
 
 bool __debug_macro_is_defined(void);

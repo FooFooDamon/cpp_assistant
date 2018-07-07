@@ -49,8 +49,8 @@ int __load_key_value_attributes(
     if (clear_first)
         result.clear();
 
-    std::vector<cal::xml::config_node_t> nodes;
-    int read_ret = cal::xml::read_config_nodes(*config_file, xpath, node_count_hint,
+    std::vector<cal::xml::node_t> nodes;
+    int read_ret = cal::xml::find_and_parse_nodes(*config_file, xpath, node_count_hint,
         nodes, false, key_attr, value_attr, NULL);
 
     if (read_ret <= 0)
@@ -63,7 +63,7 @@ int __load_key_value_attributes(
 
     for (size_t i = 0; i < nodes.size(); ++i)
     {
-        cal::xml::config_node_t &node = nodes[i];
+        cal::xml::node_t &node = nodes[i];
         const std::string &key = node.attributes[key_attr];
         const std::string value = node.attributes[value_attr];
 
@@ -88,8 +88,8 @@ int get_common_config_filename(const config_file_t *config_file, std::string &re
 
     const char *xpath_shared_file = "/root/shared";
     const char *file_link_attr = "ref";
-    std::vector<cal::xml::config_node_t> nodes;
-    int read_ret = cal::xml::read_config_nodes(*config_file, xpath_shared_file, 1,
+    std::vector<cal::xml::node_t> nodes;
+    int read_ret = cal::xml::find_and_parse_nodes(*config_file, xpath_shared_file, 1,
         nodes, false, file_link_attr, NULL);
 
     if (read_ret <= 0)
@@ -243,8 +243,8 @@ static int __load_timed_task_unit(
 
     xpath.append("/" XNODE_TIMED_TASK_SETTING);
 
-    std::vector<cal::xml::config_node_t> nodes;
-    int read_ret = cal::xml::read_config_nodes(*config_file, xpath.c_str(), 1,
+    std::vector<cal::xml::node_t> nodes;
+    int read_ret = cal::xml::find_and_parse_nodes(*config_file, xpath.c_str(), 1,
         nodes, false, unit_attr, NULL);
 
     if (read_ret <= 0)
@@ -436,8 +436,8 @@ static int __load_dispatch_settings(
         .append("/")
         .append(XNODE_DISPATCH_POLICY);
 
-    std::vector<cal::xml::config_node_t> nodes;
-    int read_ret = cal::xml::read_config_nodes(*config_file, xpath.c_str(), 1, nodes);
+    std::vector<cal::xml::node_t> nodes;
+    int read_ret = cal::xml::find_and_parse_nodes(*config_file, xpath.c_str(), 1, nodes);
 
     if (read_ret <= 0)
     {

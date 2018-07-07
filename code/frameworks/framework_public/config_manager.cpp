@@ -301,8 +301,8 @@ int config_manager::__load_log_config(void)
         return RET_FAILED;
     }
 
-    std::vector<cal::xml::config_node_t> file_log_node;
-    int read_ret = cal::xml::read_config_nodes(*file, XPATH_LOG_CONFIG_ROOT"/file-logger", 1,
+    std::vector<cal::xml::node_t> file_log_node;
+    int read_ret = cal::xml::find_and_parse_nodes(*file, XPATH_LOG_CONFIG_ROOT"/file-logger", 1,
         file_log_node, false, "enabled", NULL);
 
     if (read_ret <= 0)
@@ -470,8 +470,8 @@ int config_manager::__load_network_nodes(const char *type)
     GQ_LOG_INFO_C("Reading nodes with XPath[%s] ...\n", xpath.c_str());
 
     bool is_self_info = (0 == strcmp(type, "identities"));
-    std::vector<cal::xml::config_node_t> net_nodes;
-    int read_ret = cal::xml::read_config_nodes(*file, xpath.c_str(), 100, net_nodes, true,
+    std::vector<cal::xml::node_t> net_nodes;
+    int read_ret = cal::xml::find_and_parse_nodes(*file, xpath.c_str(), 100, net_nodes, true,
         "enabled", "type", "name", "alias", "address", "attributes", NULL);
 
     if (read_ret <= 0)
@@ -503,7 +503,7 @@ int config_manager::__load_network_nodes(const char *type)
 
     for (size_t i = 0; i < net_nodes.size(); ++i)
     {
-        cal::xml::config_node_t &node = net_nodes[i];
+        cal::xml::node_t &node = net_nodes[i];
 
         attr_it = node.attributes.find("enabled");
 
