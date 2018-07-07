@@ -39,6 +39,6 @@
 
 #include "basic_info.h"
 #include "compiler.h"
-#include "no_instance.h"//
+#include "no_instance.h"
 
 #endif /* __CPP_ASSISTANT_INNER_NECESSITIES_H__ */
