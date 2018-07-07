@@ -36,6 +36,7 @@
 #ifndef __CA_NATIVE_H__
 #define __CA_NATIVE_H__
 
+#include "native/noncopyable.h"
 #include "native/ca_string.h"
 #include "native/floating_point.h"
 #include "native/time_util.h"
