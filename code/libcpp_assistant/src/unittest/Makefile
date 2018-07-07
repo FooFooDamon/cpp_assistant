@@ -2,12 +2,12 @@ CA_LIB_ROOT = ../..
 
 include $(CA_LIB_ROOT)/basic_rules.mk
 
-CXXFLAGS += -g -I../native -I$(CA_LIB_ROOT)/include -I$(CA_LIB_ROOT)/include/native
+CXXFLAGS += -g -I../native -I$(CA_LIB_ROOT)/include -I$(CA_LIB_ROOT)/include/native -I$(HOME)/include
 CXXFLAGS += -Wno-nonnull
 ifneq ("$(GOOGLE_INC_ROOT)","")
 	CXXFLAGS += -I$(GOOGLE_INC_ROOT)
 endif
-LDFLAGS += -L$(CA_LIB_ROOT) -lcpp_assistant -lgtest -lpthread
+LDFLAGS += -L$(CA_LIB_ROOT) -L$(HOME)/lib -lcpp_assistant -lgtest -lpthread
 ifneq ("$(GOOGLE_LIB_DIR)","")
 	LDFLAGS += -L$(GOOGLE_LIB_DIR)
 endif
