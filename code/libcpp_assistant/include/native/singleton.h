@@ -101,26 +101,15 @@ public:
     {
         if (NULL == m_instance)
         {
-            lock();
+            lock_guard<mutex> lock(m_lock);
             if (NULL == m_instance)
             {
                 static T ins; // Constructor of a common class or a derived class has to be accessible to singleton<T>.
                 m_instance = &ins;
             }
-            unlock();
         }
 
         return m_instance;
-    }
-
-    static inline int lock(void)
-    {
-        return mutex_lock(&m_lock);
-    }
-
-    static inline int unlock(void)
-    {
-        return mutex_unlock(&m_lock);
     }
 
 /* ===================================
@@ -152,11 +141,11 @@ protected:
  * =================================== */
 private:
     static T* m_instance;
-    static mutex_t m_lock;
+    static mutex m_lock;
 };
 
 template<typename T> T* singleton<T>::m_instance = NULL;
-template<typename T> mutex_t singleton<T>::m_lock;
+template<typename T> mutex singleton<T>::m_lock;
 
 CA_LIB_NAMESPACE_END
 

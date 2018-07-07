@@ -155,7 +155,7 @@ void redirect_debug_output(const FILE *where);
 
 const FILE* get_debug_output_holder(void);
 
-void set_debug_lock(const mutex_t *lock);
+void set_debug_lock(const mutex *lock);
 
 bool error_report_is_enabled(void);
 
@@ -163,7 +163,7 @@ void redirect_error_output(const FILE *where);
 
 const FILE* get_error_output_holder(void);
 
-void set_error_lock(const mutex_t *lock);
+void set_error_lock(const mutex *lock);
 
 } // namespace debug
 

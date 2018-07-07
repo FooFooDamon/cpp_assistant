@@ -43,7 +43,7 @@ CA_LIB_NAMESPACE_BEGIN
 
 DEFINE_CLASS_NAME(time_util);
 
-static mutex_t s_lock;
+static mutex s_lock;
 bool time_util::m_timezone_is_initialized = false;
 const uint32_t time_util::SECS_FROM_1900_TO_1970 = 2208988800;
 
@@ -71,14 +71,13 @@ const time_util& time_util::operator=(const time_util& src)
 {
     if (!m_timezone_is_initialized)
     {
-        mutex_lock(&s_lock);
+        lock_guard<mutex> lock(s_lock);
         if (!m_timezone_is_initialized)
         {
             csdebug(time_util, "Initializing time zone ...\n");
             tzset(); // Lets system select the best approximate time zone
             m_timezone_is_initialized = true;
         }
-        mutex_unlock(&s_lock);
     }
 
     return -timezone / 3600; //m_timezone_is_initialized;
@@ -98,17 +97,12 @@ const time_util& time_util::operator=(const time_util& src)
     else
         snprintf(tz_value, sizeof(tz_value), "GMT+%d", abs(zone_num));
 
-    mutex_lock(&s_lock);
+    lock_guard<mutex> lock(s_lock);
 
     if (0 != setenv(tz_name, tz_value, overwrite_flag))
-    {
-        mutex_unlock(&s_lock);
         return -errno;
-    }
 
     tzset(); // Makes system read TZ environment value and change time zone depending on it
-
-    mutex_unlock(&s_lock);
 
     return CA_RET_OK;
 }

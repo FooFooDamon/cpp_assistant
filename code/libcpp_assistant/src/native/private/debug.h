@@ -86,7 +86,7 @@ inline bool __debug_is_enabled(void)
 
 bool __debug_macro_is_defined(void);
 
-void __set_debug_lock(const mutex_t *lock);
+void __set_debug_lock(const mutex *lock);
 
 void __debug(const char *format, ...) CA_NOTNULL(1) CA_PRINTF_CHECK(1, 2);
 
@@ -96,7 +96,7 @@ const FILE* __get_error_output_holder(void);
 
 bool __error_report_is_enabled(void);
 
-void __set_error_lock(const mutex_t *lock);
+void __set_error_lock(const mutex *lock);
 
 void __warn(const char *format, ...) CA_NOTNULL(1) CA_PRINTF_CHECK(1, 2);
 

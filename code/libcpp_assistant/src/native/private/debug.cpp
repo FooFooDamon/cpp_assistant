@@ -57,7 +57,7 @@ void __disable_output_prefix(void)
     s_has_output_prefix = false;
 }
 
-static void __formatted_output(int level, FILE *where, mutex_t *lock, const char *format, va_list args)
+static void __formatted_output(int level, FILE *where, mutex *lock, const char *format, va_list args)
 {
     if (NULL == where)
         return;
@@ -67,7 +67,7 @@ static void __formatted_output(int level, FILE *where, mutex_t *lock, const char
     bool needs_color = (!output_to_file && level >= LOG_LEVEL_WARNING);
 
     if (needs_lock)
-        mutex_lock(lock);
+    	lock->lock();
 
     if (s_has_output_prefix)
     {
@@ -93,7 +93,7 @@ static void __formatted_output(int level, FILE *where, mutex_t *lock, const char
         fprintf(where, NO_PRINT_ATTRIBUTES);
 
     if (needs_lock)
-        mutex_unlock(lock);
+        lock->unlock();
 }
 
 #define CALL_FORMATED_OUTPUT(level, to_where, lock, contents)   \
@@ -134,11 +134,11 @@ bool __debug_macro_is_defined(void)
 #endif
 }
 
-static mutex_t *s_debug_lock = NULL;
+static mutex *s_debug_lock = NULL;
 
-void __set_debug_lock(const mutex_t *lock)
+void __set_debug_lock(const mutex *lock)
 {
-    s_debug_lock = const_cast<mutex_t *>(lock);
+    s_debug_lock = const_cast<mutex *>(lock);
 }
 
 void __debug(const char *format, ...)/* CA_NOTNULL(1) CA_PRINTF_CHECK(1, 2) */
@@ -163,11 +163,11 @@ bool __error_report_is_enabled(void)
     return (NULL != s_error_output);
 }
 
-static mutex_t *s_error_lock = NULL;
+static mutex *s_error_lock = NULL;
 
-void __set_error_lock(const mutex_t *lock)
+void __set_error_lock(const mutex *lock)
 {
-    s_error_lock = const_cast<mutex_t *>(lock);
+    s_error_lock = const_cast<mutex *>(lock);
 }
 
 void __warn(const char *format, ...)/* CA_NOTNULL(1) CA_PRINTF_CHECK(1, 2) */

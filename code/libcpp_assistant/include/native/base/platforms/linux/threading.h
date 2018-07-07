@@ -39,28 +39,92 @@
 
 #include <sys/types.h>
 #include <pthread.h>
+#if CA_SINCE_CPP_11
+#include <mutex>
+#endif
 
-typedef pthread_mutex_t mutex_t;
+#include "base/ca_inner_necessities.h"
 
-inline int mutex_lock(mutex_t *lock)
-{
-    return pthread_mutex_lock(lock);
-}
-
-inline int mutex_trylock(mutex_t *lock)
-{
-    return pthread_mutex_trylock(lock);
-}
-
-inline int mutex_unlock(mutex_t *lock)
-{
-    return pthread_mutex_unlock(lock);
-}
+CA_LIB_NAMESPACE_BEGIN
 
 inline pid_t gettid(void)
 {
     return pthread_self();
     //return ::gettid(); // TODO: may cause exceptions when being called within a signal handling function.
 }
+
+#if CA_SINCE_CPP_11
+
+using std::mutex;
+using std::lock_guard;
+
+#else
+
+class mutex : public noncopyable
+{
+public:
+	mutex()
+	{
+		;
+	}
+
+	~mutex()
+	{
+		pthread_mutex_destroy(&m_native_mutex);
+	}
+
+	typedef pthread_mutex_t* 			native_handle_type;
+
+	inline void lock(void)
+	{
+		pthread_mutex_lock(&m_native_mutex); // TODO: throw exception if failed.
+	}
+
+	inline bool try_lock(void)
+	{
+		return (0 == pthread_mutex_trylock(&m_native_mutex));
+	}
+
+	inline void unlock(void)
+	{
+		pthread_mutex_unlock(&m_native_mutex);
+	}
+
+	inline native_handle_type native_handle(void)
+	{
+		return &m_native_mutex;
+	}
+
+private:
+	pthread_mutex_t m_native_mutex = PTHREAD_MUTEX_INITIALIZER;
+};
+
+template<typename T>
+class lock_guard : public noncopyable
+{
+public:
+	explicit lock_guard(T& target_mutex)
+		: m_mutex(target_mutex)
+	{
+		m_mutex.lock();
+	}
+
+	// TODO: lock_guard(T& target_mutext, adopt_lock_t)
+
+	~lock_guard()
+	{
+		m_mutex.unlock();
+	}
+
+private:
+	lock_guard();
+
+private:
+	T& m_mutex;
+};
+
+#endif // if CA_SINCE_CPP_11
+
+CA_LIB_NAMESPACE_END
 
 #endif /* __CPP_ASSISTANT_PLATFORMS_LINUX_THREADING_H__ */

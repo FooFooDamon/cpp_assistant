@@ -64,7 +64,7 @@ const FILE* get_debug_output_holder(void)
     return __get_debug_output_holder();
 }
 
-void set_debug_lock(const mutex_t *lock)
+void set_debug_lock(const mutex *lock)
 {
     __set_debug_lock(lock);
 }
@@ -84,7 +84,7 @@ const FILE* get_error_output_holder(void)
     return __get_error_output_holder();
 }
 
-void set_error_lock(const mutex_t *lock)
+void set_error_lock(const mutex *lock)
 {
     __set_error_lock(lock);
 }
