@@ -27,19 +27,31 @@
 //       wenxiongchang, wxc, Damon Wen, udc577
 
 /*
- * ca_inner_necessities.h
+ * noncopyable.h
  *
- *  Created on: 2017/09/20
+ *  Created on: 2018-07-07
  *      Author: wenxiongchang
- * Description: Necessary headers for other modules of cpp-assistant library.
+ * Description: Base class of classes which can not be copied.
  */
 
-#ifndef __CPP_ASSISTANT_INNER_NECESSITIES_H__
-#define __CPP_ASSISTANT_INNER_NECESSITIES_H__
+#ifndef __CPP_ASSISTANT_NONCOPYABLE_H__
+#define __CPP_ASSISTANT_NONCOPYABLE_H__
 
 #include "basic_info.h"
-#include "compiler.h"
-#include "no_instance.h"
-#include "noncopyable.h"
 
-#endif /* __CPP_ASSISTANT_INNER_NECESSITIES_H__ */
+CA_LIB_NAMESPACE_BEGIN
+
+class noncopyable
+{
+protected:
+	noncopyable() {}
+	~noncopyable() {}
+
+private:
+	noncopyable(const noncopyable &src);
+	noncopyable& operator=(const noncopyable &src);
+};
+
+CA_LIB_NAMESPACE_END
+
+#endif /* __CPP_ASSISTANT_NONCOPYABLE_H__ */
