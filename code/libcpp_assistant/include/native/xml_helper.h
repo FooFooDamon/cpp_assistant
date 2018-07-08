@@ -57,9 +57,9 @@ public:
 		//std::string node_name;
 		std::string node_value;
 		std::map<std::string, std::string> attributes; // <name, value>
-	}node_t; // XML node which has been parsed
+	}node_t; // XML node which has been parsed into several parts
 
-	typedef TiXmlDocument file_t;
+	typedef TiXmlDocument document_t;
 
 	// Finds nodes with a relative path specified by @relative_path, starting from a node
 	// specified by @parent_node, and saves them to a holder specified by @result.
@@ -71,7 +71,7 @@ public:
 	// Finds nodes with an absolute path specified by @relative_path from a document handle
 	// specified by @doc, and saves them to a holder specified by @result.
 	// NOTE: Pointers within @result are valid only if @doc is valid.
-	static int find_nodes(const file_t &doc,
+	static int find_nodes(const document_t &doc,
 		const char *absolute_path,
 		std::vector<element_t*> &result);
 
@@ -83,7 +83,7 @@ public:
 		const char *first_attr = NULL,
 		.../* Must end with NULL!!! */);
 
-	static int find_and_parse_nodes(const file_t &file,
+	static int find_and_parse_nodes(const document_t &file,
 		const char *absolute_xpath,
 		size_t expected_node_count,
 		std::vector<node_t> &result,

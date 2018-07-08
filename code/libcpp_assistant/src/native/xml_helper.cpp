@@ -207,7 +207,7 @@ static int __generally_find_nodes(const xml::element_t *cur_node,
     return __generally_find_nodes(parent_node, relative_path, false, result);
 }
 
-/* static */int xml::find_nodes(const file_t &doc,
+/* static */int xml::find_nodes(const document_t &doc,
     const char *absolute_path,
     std::vector<element_t*> &result)
 {
@@ -342,7 +342,7 @@ static int extract_xml_nodes(const std::vector<xml::element_t*> &nodes,
     return extract_ret;
 }
 
-/* static */int xml::find_and_parse_nodes(const file_t &file,
+/* static */int xml::find_and_parse_nodes(const document_t &file,
     const char *absolute_xpath,
     size_t expected_node_count,
     std::vector<node_t> &result,
