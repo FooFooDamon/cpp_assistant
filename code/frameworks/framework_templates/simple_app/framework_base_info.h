@@ -62,7 +62,7 @@
  */
 
 #ifndef CASDK_FRAMEWORK_NAME
-#define CASDK_FRAMEWORK_NAME                "CASDK-simple_app"
+#define CASDK_FRAMEWORK_NAME                "cafw-simple_app"
 #endif
 
 #endif /* __CASDK_FRAMEWORK_BASE_INFO_H__ */

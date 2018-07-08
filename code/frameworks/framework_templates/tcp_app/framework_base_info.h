@@ -74,7 +74,7 @@
  */
 
 #ifndef CASDK_FRAMEWORK_NAME
-#define CASDK_FRAMEWORK_NAME                "CASDK-tcp_server_mt"
+#define CASDK_FRAMEWORK_NAME                "cafw-tcp_app"
 #endif
 
 #endif /* __CASDK_FRAMEWORK_BASE_INFO_H__ */
