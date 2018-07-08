@@ -73,7 +73,7 @@
  *      Created.
  */
 
-#ifndef CASDK_FRAMEWORK_NAME
+#ifndef CASDK_FRAMEWORK_NAME//
 #define CASDK_FRAMEWORK_NAME                "cafw-tcp_app"
 #endif
 
