@@ -13,16 +13,22 @@ FRAMEWORK_CHANGE_LOG = $(FRAMEWORK_DIR)/framework_base_info.h
 FRAMEWORK_CHANGE_LOG_ITEM = $(shell grep "[0-9][0-9]/[0-9][0-9], [0-9]." $(FRAMEWORK_CHANGE_LOG) | head -1)
 CASDK_NEWEST_MOD_DATE = $(shell echo "$(FRAMEWORK_CHANGE_LOG_ITEM)" | awk -F ", " '{ print $$2 }' | sed 's/\///g')
 CASDK_NEWEST_MAIN_VER = $(shell echo "$(FRAMEWORK_CHANGE_LOG_ITEM)" | awk -F ", " '{ print $$3 }' | awk -F ":" '{ print $$1 }')
-CASDK_SVN_VER = $(shell svn info $(FRAMEWORK_DIR) | grep -e 'Last Changed Rev' -e '最后修改的版本' | sed 's/.* \([0-9]\)/\1/')
+CASDK_SVN_VER = $(shell LANG=en_US.UTF-8; svn info $(FRAMEWORK_DIR) | grep -e 'Last Changed Rev' -e '最后修改的版本' | sed 's/.* \([0-9]\)/\1/')
+ifeq ($(CASDK_SVN_VER),)
+	CASDK_SVN_VER := $(shell cd $(FRAMEWORK_DIR) && git log --abbrev-commit --pretty=oneline | head -1 | awk '{ print $$1 }')
+endif
 # ******** End *************************************************
 REQUIRED_DEFINES = -DCASDK_NEWEST_MOD_DATE=\"$(CASDK_NEWEST_MOD_DATE)\" \
     -DCASDK_NEWEST_MAIN_VER=\"$(CASDK_NEWEST_MAIN_VER)\"
 ifneq ($(CASDK_SVN_VER),)
 	REQUIRED_DEFINES += -DCASDK_SVN_VER=\"$(CASDK_SVN_VER)\"
 endif
-MODULE_SVN_VER = $(shell LANG=en_US.UTF-8;svn info|grep 'Last Changed Rev'|sed 's/.* \([0-9]\)/\1/')
+MODULE_SVN_VER = $(shell LANG=en_US.UTF-8; svn info | grep 'Last Changed Rev' | sed 's/.* \([0-9]\)/\1/')
+ifeq ($(MODULE_SVN_VER),)
+	MODULE_SVN_VER := $(shell git log --abbrev-commit --pretty=oneline | head -1 | awk '{ print $$1 }')
+endif
 ifneq ($(MODULE_SVN_VER),)
-	REQUIRED_DEFINES += -DMODULE_VERSION=\"r$(MODULE_SVN_VER)\"
+	REQUIRED_DEFINES += -DMODULE_VERSION=\"$(MODULE_SVN_VER)\"
 endif
 ifeq ("$(findstring HAS_DATABASE, $(MODULE_DEFINES))","HAS_DATABASE")
 ifeq ("$(findstring DB_ORACLE, $(MODULE_DEFINES))","DB_ORACLE")

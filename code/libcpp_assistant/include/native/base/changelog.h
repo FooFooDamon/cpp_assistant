@@ -56,6 +56,7 @@
  *      	nullptr, mutex and lock_guard.
  *      2. Added no_instance and noncopyable class.
  *      3. Turned some namespaces into classes.
+ *      4. Tried Git hash code while SVN version number was not available.
  *
  * wxc, 2018/04/21, 0.02.00:
  *      Some new APIs, and code readability improvements.

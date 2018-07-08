@@ -40,7 +40,7 @@
 #include <framework_base_info.h>
 
 #ifndef MODULE_VERSION
-#define MODULE_VERSION                      "r012345.[Approximative]"
+#define MODULE_VERSION                      "012345.[Approximative]"
 #endif
 
 #ifndef CASDK_NEWEST_MOD_DATE
@@ -52,13 +52,13 @@
 #endif
 
 #ifdef CASDK_SVN_VER
-#define CASDK_FRAMEWORK_VERSION             "v" CASDK_NEWEST_MAIN_VER ".r" CASDK_SVN_VER "." CASDK_NEWEST_MOD_DATE
+#define CASDK_FRAMEWORK_VERSION             "v" CASDK_NEWEST_MAIN_VER "." CASDK_SVN_VER "." CASDK_NEWEST_MOD_DATE
 #else
-#define CASDK_FRAMEWORK_VERSION             "v" CASDK_NEWEST_MAIN_VER ".r012345." CASDK_NEWEST_MOD_DATE ".[Approximative]"
+#define CASDK_FRAMEWORK_VERSION             "v" CASDK_NEWEST_MAIN_VER ".012345." CASDK_NEWEST_MOD_DATE ".[Approximative]"
 #endif
 
 #ifndef CASDK_FRAMEWORK_NAME
-#define CASDK_FRAMEWORK_NAME                "casdk"
+#define CASDK_FRAMEWORK_NAME                "cafw"
 #endif
 
 #ifndef THREAD_TERMINATION_TIMEOUT_SECS
