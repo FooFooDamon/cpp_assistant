@@ -104,6 +104,11 @@ CA_REENTRANT int to_string(const T &src, int str_capacity, char *dst)
         || NULL == dst)
         return CA_RET(INVALID_PARAM_VALUE);
 
+    memset(dst, 0, str_capacity);
+
+    if (typeid(bool) == typeid(T))
+    	return snprintf(dst, str_capacity, "%s", src ? "true" : "false");
+
     const char *fmt = NULL;
 
     if (typeid(float) == typeid(T))
@@ -169,6 +174,17 @@ CA_REENTRANT int from_string(const char *src, T &dst)
 {
     if (NULL == src)
         return CA_RET(INVALID_PARAM_VALUE);
+
+    if (typeid(bool) == typeid(T))
+    {
+    	if (0 == strcasecmp(src, "true")
+    		|| 0 == strcmp(src, "1"))
+    		dst = true;
+    	else
+    		dst = false;
+
+        return CA_RET_OK;
+    }
 
     if (typeid(float) == typeid(T))
         dst = (T)strtof(src, NULL);
