@@ -13,6 +13,7 @@ $(TARGET): $(OBJS)
 	echo "MAKEFLAGS[$(MAKEFLAGS)] | MAKEFILES[$(MAKEFILES)] | MAKEFILE[$(MAKEFILE)]"
 	$(CXX) -o $@ -fPIE -Wl,--start-group $^ $(LDFLAGS) -Wl,--end-group
 	@#$(CXX) -o $@ -fPIE -Xlinker "-(" $^ $(LDFLAGS) -Xlinker "-)"
+	-ln -snf `pwd`/$(TARGET) $(USER_PROGRAM_ROOT)/$(TARGET)
 
 install:
 	mkdir -p $(USER_PROGRAM_ROOT)/bin
@@ -26,4 +27,4 @@ check:
 	clang --analyze $(SRCS) $(INCLUDES) $(DEFINES)
 
 clean:
-	rm -f $(TARGET) $(OBJS)
+	rm -f $(TARGET) $(USER_PROGRAM_ROOT)/$(TARGET) $(OBJS)
