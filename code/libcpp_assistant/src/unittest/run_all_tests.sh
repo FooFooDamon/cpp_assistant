@@ -6,7 +6,7 @@ rm -f failed_cases.txt
 for i in `file $TEST_DIR/* | grep -v "\.o\|\.cpp" | grep -i "executable\|ELF.*LSB" | awk -F : '{ print $1 }'`
 do
     echo "Running test case: $i ..."
-    $i
+    time $i
     if [ $? -ne 0 ]
     then
         echo $i >> failed_cases.txt
