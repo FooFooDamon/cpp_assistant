@@ -56,19 +56,16 @@ else
 endif
 endif
 
-ifeq ("$(CXX)","g++")
+ifeq ("$(CC)","gcc")
     CFLAGS += -g -Wall -fstack-protector -fstack-protector-all
+endif
+ifeq ("$(CXX)","g++")
     CXXFLAGS += -g -Wall -fstack-protector -fstack-protector-all
 endif
 ifdef GPROF
     CFLAGS += -pg
     CXXFLAGS += -pg
 endif
-# put this in tcp_framework*
-#ifdef VALIDATES_CONNECTION
-#    CFLAGS += -DVALIDATES_CONNECTION
-#    CXXFLAGS += -DVALIDATES_CONNECTION
-#endif
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $^

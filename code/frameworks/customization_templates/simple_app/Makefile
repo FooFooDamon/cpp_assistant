@@ -38,6 +38,7 @@ IS_SINGLE_TARGET = 1
 MAKEFILE_DIR = $(CPP_ASSISTANT_ROOT)/makefiles
 DEFINES += $(MODULE_DEFINES) $(REQUIRED_DEFINES) -DHAS_PROTOBUF -DENABLES_CHINESE
 INCLUDES += $(REQUIRED_INCLUDES) $(addprefix -I$(USER_PROGRAM_ROOT)/, $(addsuffix /framework_core, $(SRC_CODE_DIRS)))
+CFLAGS += -O2 $(DEFINES) $(INCLUDES)
 CXXFLAGS += -O2 $(DEFINES) $(INCLUDES)
 LDFLAGS += $(REQUIRED_LDFLAGS)
 SRCS_PUBLIC = $(shell find $(CPP_ASSISTANT_ROOT)/code/frameworks/framework_public/ -iname "*.c*" | grep -v "\.svn\|public_protocols")

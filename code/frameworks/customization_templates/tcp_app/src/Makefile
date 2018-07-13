@@ -13,6 +13,7 @@ ifdef IS_DISPATCHER
 endif
 INCLUDES += $(REQUIRED_INCLUDES) -I./business -I./framework_public \
 	$(addprefix -I$(USER_PROGRAM_ROOT)/, $(addsuffix /framework_core, $(SRC_CODE_DIRS)))
+CFLAGS += -O2 $(DEFINES) $(INCLUDES)
 CXXFLAGS += -O2 $(DEFINES) $(INCLUDES)
 LDFLAGS += $(REQUIRED_LDFLAGS)
 SRCS_PUBLIC = $(shell find $(CPP_ASSISTANT_ROOT)/code/frameworks/framework_public/ -iname "*.c*" | grep -v "\.svn\|public_protocols")

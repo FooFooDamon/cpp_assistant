@@ -34,6 +34,7 @@ MAKEFILE_DIR = $(CPP_ASSISTANT_ROOT)/makefiles
 DEFINES += $(MODULE_DEFINES) $(REQUIRED_DEFINES) [Your macros, or none]
 INCLUDES += $(REQUIRED_INCLUDES) $(addprefix -I$(USER_PROGRAM_ROOT)/, $(addsuffix /framework_core, $(SRC_CODE_DIRS))) \
 	-I[Path to your mutable_customization.h] -I[Your other private directories to be included, or none]
+CFLAGS += [Your flags, or none] $(DEFINES) $(INCLUDES)
 CXXFLAGS += [Your flags, or none] $(DEFINES) $(INCLUDES)
 LDFLAGS += [Your flags, or none] $(REQUIRED_LDFLAGS)
 SRCS_PUBLIC = $(shell find $(CPP_ASSISTANT_ROOT)/code/frameworks/framework_public/ -iname "*.c*" | grep -v "\.svn\|public_protocols")
