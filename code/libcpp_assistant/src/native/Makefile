@@ -5,8 +5,8 @@ include $(CA_LIB_ROOT)/ca_lib.mk
 
 DIR_LIB_INSTALL = $(CA_LIB_ROOT)/lib
 
-INCLUDES += -I. -I$(CA_LIB_ROOT)/include -I$(CA_LIB_ROOT)/include/native
-INCLUDES += -I$(CA_LIB_ROOT)/include/3rdparty/tinyxml # for base/stl_adapters/string.cpp
+INCLUDES += -I. -I$(CA_LIB_ROOT)/include -I$(CA_LIB_ROOT)/include/cpp_assistant/native
+INCLUDES += -I$(CA_LIB_ROOT)/include/cpp_assistant/3rdparty/tinyxml
 
 SRCS += $(shell find . -name "*.cpp" | grep -v "\.svn")
 OBJS += $(addsuffix .o, $(basename $(SRCS)))

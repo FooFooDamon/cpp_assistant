@@ -41,7 +41,7 @@
 
 #include <map>
 
-#include "ca_full.h"
+#include "cpp_assistant/ca_full.h"
 #include "protocol_common.h"
 
 namespace cafw

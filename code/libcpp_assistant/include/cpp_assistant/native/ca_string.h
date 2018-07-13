@@ -37,6 +37,7 @@
 #ifndef __CPP_ASSISTANT_STRING_OPERATIONS_H__
 #define __CPP_ASSISTANT_STRING_OPERATIONS_H__
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 

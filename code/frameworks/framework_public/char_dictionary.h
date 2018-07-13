@@ -40,7 +40,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "ca_full.h"
+#include "cpp_assistant/ca_full.h"
 
 #if 0
 enum

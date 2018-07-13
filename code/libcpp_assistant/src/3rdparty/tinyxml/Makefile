@@ -35,7 +35,7 @@ PROFILE        := NO
 
 #****************************************************************************
 
-TIXML_H_DIR := ../../../include/3rdparty/tinyxml
+TIXML_H_DIR := ../../../include/cpp_assistant/3rdparty/tinyxml
 
 include ../../../basic_rules.mk
 

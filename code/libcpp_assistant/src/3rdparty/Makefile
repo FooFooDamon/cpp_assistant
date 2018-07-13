@@ -7,7 +7,7 @@ DIR_TINY_XML = ./tinyxml
 
 DIR_LIB_INSTALL = $(CA_LIB_ROOT)/lib
 
-INCLUDES += -I$(CA_LIB_ROOT)/include/3rdparty
+INCLUDES += -I$(CA_LIB_ROOT)/include/cpp_assistant/3rdparty
 
 ifeq ($(NO_TINYXML),1)
 	ALL_SRCS += $(shell find . -path ./tinyxml -prune -o -type f -iname "*.c*" -print | grep -v "\.svn")

@@ -2,7 +2,7 @@ CA_LIB_ROOT = ../..
 
 include $(CA_LIB_ROOT)/basic_rules.mk
 
-CXXFLAGS += -g -I../native -I$(CA_LIB_ROOT)/include -I$(CA_LIB_ROOT)/include/native -I$(HOME)/include
+CXXFLAGS += -g -I../native -I$(CA_LIB_ROOT)/include -I$(CA_LIB_ROOT)/include/cpp_assistant/native -I$(HOME)/include
 CXXFLAGS += -Wno-nonnull
 ifneq ("$(GOOGLE_INC_ROOT)","")
 	CXXFLAGS += -I$(GOOGLE_INC_ROOT)

@@ -83,15 +83,7 @@ install:
 	make install -C $(DIR_NATIVE)
 	mkdir -p $(HOME)/include/cpp_assistant
 	rm -rf $(HOME)/include/cpp_assistant/*
-	cp -a -r include/* $(HOME)/include/cpp_assistant/
-	#for i in `find $(DIR_3RD_PARTY)/ -type d`; \
-	#do \
-	#	mkdir -p $(HOME)/include/cpp_assistant/$$i; \
-	#done
-	#for i in `find $(DIR_3RD_PARTY)/ -type f -a -name "*.h"`; \
-	#do \
-	#	cp $$i $(HOME)/include/cpp_assistant/$$i; \
-	#done
+	cp -a -r include/cpp_assistant/* $(HOME)/include/cpp_assistant/
 	for i in $(TARGETS); \
 	do \
 		cp -a $$i* $(DIR_LIB_INSTALL)/ ;\

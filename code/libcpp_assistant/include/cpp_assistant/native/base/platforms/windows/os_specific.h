@@ -29,25 +29,23 @@
 /*
  * os_specific.h
  *
- *  Created on: 2017/09/17
+ *  Created on: 2018/07/07
  *      Author: wenxiongchang
- * Description: Linux version of os_specific.h.
+ * Description: Windows version of os_specific.h.
  */
 
-#ifndef __CPP_ASSISTANT_PLATFORMS_LINUX_OS_SPECIFIC_H__
-#define __CPP_ASSISTANT_PLATFORMS_LINUX_OS_SPECIFIC_H__
+#ifndef __CPP_ASSISTANT_PLATFORMS_WINDOWS_OS_SPECIFIC_H__
+#define __CPP_ASSISTANT_PLATFORMS_WINDOWS_OS_SPECIFIC_H__
 
-#include <unistd.h>
-
-#include "native/base/ca_inner_necessities.h"
+#include "cpp_assistant/native/base/ca_inner_necessities.h"
 
 CA_LIB_NAMESPACE_BEGIN
 
 inline char get_directory_delimiter(void)
 {
-    return '/';
+    return '\\';
 }
 
 CA_LIB_NAMESPACE_END
 
-#endif /* __CPP_ASSISTANT_PLATFORMS_LINUX_OS_SPECIFIC_H__ */
+#endif /* __CPP_ASSISTANT_PLATFORMS_WINDOWS_OS_SPECIFIC_H__ */
