@@ -38,8 +38,6 @@ endif
 REQUIRED_INCLUDES = -I. -I.. -I$(HOME)/include
 ifneq ($(CPP_ASSISTANT_ROOT),)
 	REQUIRED_INCLUDES += -I$(CPP_ASSISTANT_ROOT)/code/libcpp_assistant/include
-else
-	REQUIRED_INCLUDES += -I$(HOME)/include/cpp_assistant
 endif
 ifeq ("$(findstring HAS_DATABASE, $(MODULE_DEFINES))","HAS_DATABASE")
 ifeq ("$(findstring DB_ORACLE, $(MODULE_DEFINES))","DB_ORACLE")

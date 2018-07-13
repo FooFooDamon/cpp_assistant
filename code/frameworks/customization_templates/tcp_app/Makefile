@@ -9,6 +9,19 @@ USER_PROGRAM_ROOT = $(shell pwd)
 # CPP_ASSISTANT_ROOT is recommended to set as an environment variable,
 # or you can specify it manually(using absolute path).
 CPP_ASSISTANT_ROOT = $(shell echo $$CPP_ASSISTANT_ROOT)
+ifneq ($(CPP_ASSISTANT_ROOT)/makefiles, $(wildcard $(CPP_ASSISTANT_ROOT)/makefiles))
+
+    $(warning CPP_ASSISTANT_ROOT environment variable not found, keep searching in $(HOME)/src directory ...)
+
+    CPP_ASSISTANT_ROOT=$(HOME)/src/cpp_assistant
+
+    ifneq ($(HOME)/src/cpp_assistant/makefiles, $(wildcard $(HOME)/src/cpp_assistant/makefiles))
+        $(error Directory $(HOME)/src/cpp_assistant not found, no idea where the cpp_assistant is ...)
+    else
+        $(info Found: $(HOME)/src/cpp_assistant)
+    endif
+
+endif
 
 # For main.mk/module_compilation_manager.mk
 SUBDIRS = src
