@@ -66,6 +66,10 @@ ifdef GPROF
     CFLAGS += -pg
     CXXFLAGS += -pg
 endif
+ifeq ($(USE_PURE_FILE_NAME),1)
+    CFLAGS += -U__FILE__ -D__FILE__='"$(subst $(dir $^),,$^)"' -Wno-builtin-macro-redefined
+    CXXFLAGS += -U__FILE__ -D__FILE__='"$(subst $(dir $^),,$^)"' -Wno-builtin-macro-redefined
+endif
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $^

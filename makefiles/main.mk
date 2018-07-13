@@ -20,6 +20,7 @@ export CONFIG_DIRS
 export SRC_CODE_DIRS
 export PROTO_DIRS
 export FRAMEWORK
+export USE_PURE_FILE_NAME
 ifeq ($(IS_SINGLE_TARGET),1)
 	export TARGET
 	export SRCS

@@ -27,6 +27,10 @@ ifneq ($(CPP_ASSISTANT_ROOT)/makefiles, $(wildcard $(CPP_ASSISTANT_ROOT)/makefil
 
 endif
 
+# USE_PURE_FILE_NAME controls whether __FILE__ contains directory prefix or not.
+# 0: has prefix; 1: no prefix
+USE_PURE_FILE_NAME = 0
+
 # For main.mk/prerequisites.mk
 CONFIG_DIRS = unused_stuff
 SRC_CODE_DIRS = .
