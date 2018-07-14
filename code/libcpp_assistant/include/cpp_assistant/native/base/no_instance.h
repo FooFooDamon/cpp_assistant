@@ -45,10 +45,10 @@ CA_LIB_NAMESPACE_BEGIN
 class no_instance
 {
 private:
-	no_instance();
-	no_instance(const no_instance &src);
-	no_instance& operator=(const no_instance &src);
-	~no_instance();
+    no_instance();
+    no_instance(const no_instance &src);
+    no_instance& operator=(const no_instance &src);
+    ~no_instance();
 };
 
 CA_LIB_NAMESPACE_END

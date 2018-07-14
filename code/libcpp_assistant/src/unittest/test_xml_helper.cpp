@@ -155,12 +155,12 @@ TEST(Xml, InvalidConditions)
     const char *ABSOLUTE_PATH = "/root/level1";
     const char *RELATIVE_PATH = "root/level1";
 
-    ASSERT_EQ(NULL, root);
+    ASSERT_EQ(nullptr, root);
 
     /*
      * For find_nodes() with absolute path.
      */
-    ASSERT_EQ(CA_RET(NULL_PARAM), calib::xml::find_nodes(unused_doc, NULL, result));
+    ASSERT_EQ(CA_RET(NULL_PARAM), calib::xml::find_nodes(unused_doc, nullptr, result));
     ASSERT_EQ(0, result.size());
     ASSERT_EQ(CA_RET(INVALID_PATH), calib::xml::find_nodes(unused_doc, EMPTY_PATH, result));
     ASSERT_EQ(0, result.size());
@@ -172,9 +172,9 @@ TEST(Xml, InvalidConditions)
     /*
      * For find_nodes() with relative path.
      */
-    ASSERT_EQ(CA_RET(NULL_PARAM), calib::xml::find_nodes(NULL, NULL, result));
+    ASSERT_EQ(CA_RET(NULL_PARAM), calib::xml::find_nodes(nullptr, nullptr, result));
     ASSERT_EQ(0, result.size());
-    ASSERT_EQ(CA_RET(NULL_PARAM), calib::xml::find_nodes(INVALID_NODE, NULL, result));
+    ASSERT_EQ(CA_RET(NULL_PARAM), calib::xml::find_nodes(INVALID_NODE, nullptr, result));
     ASSERT_EQ(0, result.size());
     ASSERT_EQ(CA_RET(INVALID_PATH), calib::xml::find_nodes(INVALID_NODE, EMPTY_PATH, result));
     ASSERT_EQ(0, result.size());
@@ -220,7 +220,7 @@ TEST(Xml, ReadingAndWriting)
         find_ret, EXPECTED_PRETEST_COUNT, actual_pretest_count);
     ASSERT_EQ(CA_RET_OK, find_ret);
     ASSERT_EQ(EXPECTED_PRETEST_COUNT, actual_pretest_count);
-    ASSERT_TRUE(NULL != outer_nodes[0]);
+    ASSERT_TRUE(nullptr != outer_nodes[0]);
     printf("contents of [%s]: %s\n", PRETEST_PATH, outer_nodes[0]->GetText());
     ASSERT_STREQ(PRETEST_CONTENTS, outer_nodes[0]->GetText());
 
@@ -250,7 +250,7 @@ TEST(Xml, ReadingAndWriting)
             snprintf(node_contents, sizeof(node_contents), "this is level %d.", i);
             for (int j = 0; j < kExpectedAbsoluteNodeCount; ++j)
             {
-                ASSERT_TRUE(NULL != outer_nodes[j]);
+                ASSERT_TRUE(nullptr != outer_nodes[j]);
                 ASSERT_STREQ(node_contents, outer_nodes[j]->GetText());
 
                 if (i >= MAX_NODE_LEVEL)
@@ -276,7 +276,7 @@ TEST(Xml, ReadingAndWriting)
                     snprintf(inner_node_contents, sizeof(inner_node_contents), "this is level %d.", k);
                     for (int l = 0; l < kExpectedRelativeNodeCount; ++l)
                     {
-                        ASSERT_TRUE(NULL != inner_nodes[l]);
+                        ASSERT_TRUE(nullptr != inner_nodes[l]);
                         ASSERT_STREQ(inner_node_contents, inner_nodes[l]->GetText());
                     }
                 }

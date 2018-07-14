@@ -44,12 +44,12 @@ CA_LIB_NAMESPACE_BEGIN
 class noncopyable
 {
 protected:
-	noncopyable() {}
-	~noncopyable() {}
+    noncopyable() {}
+    ~noncopyable() {}
 
 private:
-	noncopyable(const noncopyable &src);
-	noncopyable& operator=(const noncopyable &src);
+    noncopyable(const noncopyable &src);
+    noncopyable& operator=(const noncopyable &src);
 };
 
 CA_LIB_NAMESPACE_END

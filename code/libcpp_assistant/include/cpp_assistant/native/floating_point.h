@@ -135,21 +135,21 @@ public:
     floating_point()
         : m_value(0)
         , m_decimal_place_count(DEFAULT_DECIMAL_PLACE_COUNT)
-        , m_string(NULL)
+        , m_string(nullptr)
     {
         THROW_EXCEPTION_IF_NOT_FLOATING_POINT(FT);
-        change_precision(this->m_decimal_place_count, this->m_value, NULL, NULL);
+        change_precision(this->m_decimal_place_count, this->m_value, nullptr, nullptr);
     }
 
     floating_point(const FT src, const int n_decimal_places = DEFAULT_DECIMAL_PLACE_COUNT)
         : m_decimal_place_count(n_decimal_places)
-        , m_string(NULL)
+        , m_string(nullptr)
     {
         THROW_EXCEPTION_IF_NOT_FLOATING_POINT(FT);
         this->m_value = src;
         if (this->m_decimal_place_count < 0)
             this->m_decimal_place_count = 0;
-        change_precision(this->m_decimal_place_count, this->m_value, NULL, NULL);
+        change_precision(this->m_decimal_place_count, this->m_value, nullptr, nullptr);
     }
 
 /* ===================================
@@ -157,13 +157,13 @@ public:
  * =================================== */
 public:
     explicit floating_point(const floating_point& src)
-        : m_string(NULL)
+        : m_string(nullptr)
     {
         THROW_EXCEPTION_IF_NOT_FLOATING_POINT(FT);
         //THROW_EXCEPTION_IF_NOT_FLOATING_POINT(src.m_value);
         this->m_value = src.m_value;
         this->m_decimal_place_count = src.m_decimal_place_count;
-        if (NULL != src.m_string)
+        if (nullptr != src.m_string)
             this->m_string = new std::string(*(src.m_string));
     }
 
@@ -174,7 +174,7 @@ public:
             this->m_value = src.m_value;
             this->m_decimal_place_count = src.m_decimal_place_count;
 
-            if (NULL != this->m_string)
+            if (nullptr != this->m_string)
                 to_string(src.m_value, src.m_decimal_place_count, *(this->m_string));
 
         }
@@ -187,7 +187,7 @@ public:
         this->m_value = src;
         this->m_decimal_place_count = DEFAULT_DECIMAL_PLACE_COUNT;
 
-        if (NULL != this->m_string)
+        if (nullptr != this->m_string)
             to_string(this->m_value, this->m_decimal_place_count, *(this->m_string));
 
         return *this;
@@ -199,10 +199,10 @@ public:
 public:
     ~floating_point()
     {
-        if (NULL != m_string)
+        if (nullptr != m_string)
         {
             delete m_string;
-            m_string = NULL;
+            m_string = nullptr;
         }
     }
 
@@ -231,7 +231,7 @@ public:
     {
         THROW_EXCEPTION_IF_NOT_FLOATING_POINT(FT);
 
-        if (NULL == str)
+        if (nullptr == str)
             return CA_RET(NULL_PARAM);
 
         if (n_decimal_places > MAX_DECIMAL_PLACE_COUNT)
@@ -240,15 +240,15 @@ public:
         FT original_value = result;
 
         if (typeid(float) == typeid(FT))
-            result = strtof(str, NULL);
+            result = strtof(str, nullptr);
         else if (typeid(double) == typeid(FT))
-            result = strtod(str, NULL);
+            result = strtod(str, nullptr);
         else
-            result = strtold(str, NULL);
+            result = strtold(str, nullptr);
 
         if (n_decimal_places >= 0)
         {
-            int ret = change_precision(n_decimal_places, result, NULL, NULL);
+            int ret = change_precision(n_decimal_places, result, nullptr, nullptr);
 
             if (ret < 0)
             {
@@ -287,7 +287,7 @@ public:
         THROW_EXCEPTION_IF_NOT_FLOATING_POINT(FT);
 
         if (size <= 0
-            || NULL == output)
+            || nullptr == output)
             return CA_RET(NULL_PARAM);
 
         memset(output, 0, size);
@@ -314,7 +314,7 @@ public:
 
     const std::string *to_string() const
     {
-        if (NULL == m_string)
+        if (nullptr == m_string)
         {
             m_string = new std::string;
             to_string(m_value, m_decimal_place_count, *m_string);
@@ -326,12 +326,12 @@ public:
     static CA_REENTRANT int change_precision(
         const int n_decimal_places,
         FT &target, /* in: original value, out: value that has been handled */
-        char *result_in_str = NULL,
-        int *str_size = NULL /* in: max buffer size, out: actual string size*/)
+        char *result_in_str = nullptr,
+        int *str_size = nullptr /* in: max buffer size, out: actual string size*/)
     {
         THROW_EXCEPTION_IF_NOT_FLOATING_POINT(FT);
 
-        bool str_holder_available = ((NULL != result_in_str) && (NULL != str_size) && (*str_size > 0));
+        bool str_holder_available = ((nullptr != result_in_str) && (nullptr != str_size) && (*str_size > 0));
         char str_result[CHAR_COUNT_OF_MAX_VALUE + 1] = {0};
         int result_size = sizeof(str_result);
         int ret = CA_RET_GENERAL_FAILURE;
@@ -343,11 +343,11 @@ public:
             return ret;
 
         if (typeid(float) == typeid(FT))
-            target = strtof(str_result, NULL);
+            target = strtof(str_result, nullptr);
         else if (typeid(double) == typeid(FT))
-            target = strtod(str_result, NULL);
+            target = strtod(str_result, nullptr);
         else
-            target = strtold(str_result, NULL);
+            target = strtold(str_result, nullptr);
 
         if (str_holder_available)
         {
@@ -361,13 +361,13 @@ public:
     static CA_REENTRANT int change_precision(
         const int n_decimal_places,
         FT &target, /* in: original value, out: value that has been handled */
-        std::string *result_in_str = NULL)
+        std::string *result_in_str = nullptr)
     {
         THROW_EXCEPTION_IF_NOT_FLOATING_POINT(FT);
 
         int ret = CA_RET_GENERAL_FAILURE;
 
-        if (NULL != result_in_str)
+        if (nullptr != result_in_str)
         {
             char str_result[CHAR_COUNT_OF_MAX_VALUE + 1] = {0};
             int result_size = sizeof(str_result);
@@ -381,7 +381,7 @@ public:
             }
         }
         else
-            ret = change_precision(n_decimal_places, target, NULL, NULL);
+            ret = change_precision(n_decimal_places, target, nullptr, nullptr);
 
         return ret;
     }
@@ -389,12 +389,12 @@ public:
     int change_precision(const int n_decimal_places)
     {
         FT tmp_value = m_value;
-        std::string tmp_str((NULL != m_string) ? (*m_string) : NULL);
+        std::string tmp_str((nullptr != m_string) ? (*m_string) : nullptr);
         int ret = change_precision(n_decimal_places, tmp_value, m_string);
 
         if (ret < 0)
         {
-            if (NULL != m_string)
+            if (nullptr != m_string)
                 *m_string = tmp_str;
 
             return ret;
@@ -469,11 +469,11 @@ public:
         }
 
         if (typeid(float) == typeid(FT))
-            deviation_value = strtof(deviation_str, NULL);
+            deviation_value = strtof(deviation_str, nullptr);
         else if (typeid(double) == typeid(FT))
-            deviation_value = strtod(deviation_str, NULL);
+            deviation_value = strtod(deviation_str, nullptr);
         else
-            deviation_value = strtold(deviation_str, NULL);
+            deviation_value = strtold(deviation_str, nullptr);
 
         return is_left_approximation(compared, base, deviation_value);
     }

@@ -60,7 +60,7 @@ net_poller::~net_poller()
 
 int net_poller::create(int max_conn_count, int timeout)
 {
-    if (NULL != m_epoll_events_holder)
+    if (nullptr != m_epoll_events_holder)
         return CA_RET(OBJECT_ALREADY_EXISTS);
 
     int ret = CA_RET_OK;
@@ -76,7 +76,7 @@ int net_poller::create(int max_conn_count, int timeout)
         goto CREATE_FAILED;
     }
 
-    if (NULL == (m_epoll_events_holder = (poll_event_t *)malloc(sizeof(poll_event_t) * m_max_connection_count)))
+    if (nullptr == (m_epoll_events_holder = (poll_event_t *)malloc(sizeof(poll_event_t) * m_max_connection_count)))
     {
         ret = CA_RET(MEMORY_ALLOC_FAILED);
         cerror("malloc() for m_epoll_events_holder failed\n");
@@ -147,7 +147,7 @@ void net_poller::init(void)
     m_total_connections.clear();
 #endif
     memset(&m_active_connections, 0, sizeof(conn_info_array));
-    m_epoll_events_holder = NULL;
+    m_epoll_events_holder = nullptr;
     m_timeout = 0;
 }
 
@@ -168,10 +168,10 @@ void net_poller::clear(void)
     }
 #endif
     memset(&m_active_connections, 0, sizeof(conn_info_array));
-    if (NULL != m_epoll_events_holder)
+    if (nullptr != m_epoll_events_holder)
     {
         free(m_epoll_events_holder);
-        m_epoll_events_holder = NULL;
+        m_epoll_events_holder = nullptr;
         //DEBUG_PRINT_C("m_epoll_events_holder released\n");
     }
     m_timeout = 0;
@@ -213,7 +213,7 @@ bool net_poller::test_single_event(int fd, int event)
 
 int net_poller::handle_monitored_connection(const struct net_connection *conn, int events, int op_type)
 {
-    if (NULL == conn)
+    if (nullptr == conn)
         return CA_RET(NULL_PARAM);
 
     if (EVENT_HANDLE_TYPE_ADD == op_type

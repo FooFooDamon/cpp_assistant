@@ -109,7 +109,7 @@ const time_util& time_util::operator=(const time_util& src)
 
 /*static */int64_t time_util::get_utc_seconds(void)
 {
-    return (int64_t)(time(NULL)) + get_seconds_from_1900_to_1970();
+    return (int64_t)(time(nullptr)) + get_seconds_from_1900_to_1970();
 }
 
 /*static */int64_t time_util::get_utc_microseconds(void)
@@ -117,7 +117,7 @@ const time_util& time_util::operator=(const time_util& src)
     struct timeval tv;
     int64_t sum = 0;
 
-    gettimeofday(&tv, NULL);
+    gettimeofday(&tv, nullptr);
 
     sum = (int64_t)(tv.tv_sec) + get_seconds_from_1900_to_1970();
     sum *= ONE_SEC_USECS;
@@ -129,7 +129,7 @@ const time_util& time_util::operator=(const time_util& src)
 /*static */int64_t time_util::get_local_seconds(void)
 {
     return get_utc_seconds() + (int64_t)get_time_zone() * ONE_HOUR_SECS;
-    // TODO: Or try this: mktime(localtime(&(time(NULL))). Of course, use their *_r() versions.
+    // TODO: Or try this: mktime(localtime(&(time(nullptr))). Of course, use their *_r() versions.
 }
 
 /*static */int64_t time_util::get_local_microseconds(void)

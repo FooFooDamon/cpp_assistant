@@ -53,12 +53,12 @@ DEFINE_CLASS_NAME(logger);
 
 logger::logger()
     : m_log_level(LOG_LEVEL_ALL)
-	, m_instant_level(LOG_LEVEL_ALL)
+    , m_instant_level(LOG_LEVEL_ALL)
     , m_is_open(false)
     , m_output_holder(nullptr)
     , m_cur_line(0)
     , m_log_num(0)
-	, m_to_screen(false) // has to be initialized again in the constructor of a specified derived class
+    , m_to_screen(false) // has to be initialized again in the constructor of a specified derived class
 {
     memset(&m_date, 0, sizeof(struct tm));
 }
@@ -163,9 +163,9 @@ int logger::output(bool has_prefix,
     va_list args) /* CA_NOTNULL(4) */
 {
     /* will cause compiler [-Wnonnull-compare] warning:
-	 * if (NULL == fmt)
+     * if (nullptr == fmt)
         return CA_RET(NULL_PARAM);
-	*/
+    */
 
     if (!is_open())
         return CA_RET(FILE_OR_STREAM_NOT_OPEN);
@@ -178,7 +178,7 @@ int logger::output(bool has_prefix,
     struct timeval tv;
     struct tm now;
 
-    gettimeofday(&tv, NULL);
+    gettimeofday(&tv, nullptr);
     localtime_r((time_t *)&(tv.tv_sec), &now);
 
     /*

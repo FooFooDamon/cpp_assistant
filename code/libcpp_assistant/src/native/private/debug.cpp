@@ -60,15 +60,15 @@ void __disable_output_prefix(void)
 
 static void __formatted_output(int level, FILE *where, mutex *lock, const char *format, va_list args)
 {
-    if (NULL == where)
+    if (nullptr == where)
         return;
 
     bool output_to_file = (stdout != where && stderr != where);
-    bool needs_lock = (NULL != lock && output_to_file);
+    bool needs_lock = (nullptr != lock && output_to_file);
     bool needs_color = (!output_to_file && level >= LOG_LEVEL_WARNING);
 
     if (needs_lock)
-    	lock->lock();
+        lock->lock();
 
     if (s_has_output_prefix)
     {
@@ -76,7 +76,7 @@ static void __formatted_output(int level, FILE *where, mutex *lock, const char *
         struct timeval tv;
         struct tm now;
 
-        gettimeofday(&tv, NULL);
+        gettimeofday(&tv, nullptr);
         localtime_r((time_t *)&(tv.tv_sec), &now);
 
         fprintf(where, "[%04d-%02d-%02d %02d:%02d:%02d.%06ld]%s [PID:%d, TID:0x%x] [" CPP_ASSISTANT_NAME "]: ",
@@ -110,7 +110,7 @@ void __set_debug_output(const FILE *where)
 {
     s_debug_output = const_cast<FILE *>(where);
 
-    if (NULL == s_debug_output)
+    if (nullptr == s_debug_output)
         debug::m_debug_enabled = false;
     else
         debug::m_debug_enabled = true;
@@ -135,7 +135,7 @@ bool __debug_macro_is_defined(void)
 #endif
 }
 
-static mutex *s_debug_lock = NULL;
+static mutex *s_debug_lock = nullptr;
 
 void __set_debug_lock(const mutex *lock)
 {
@@ -161,10 +161,10 @@ const FILE* __get_error_output_holder(void)
 
 bool __error_report_is_enabled(void)
 {
-    return (NULL != s_error_output);
+    return (nullptr != s_error_output);
 }
 
-static mutex *s_error_lock = NULL;
+static mutex *s_error_lock = nullptr;
 
 void __set_error_lock(const mutex *lock)
 {

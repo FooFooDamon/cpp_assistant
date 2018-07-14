@@ -102,15 +102,15 @@ template<typename T>
 CA_REENTRANT int to_string(const T &src, int str_capacity, char *dst)
 {
     if (str_capacity <= 0
-        || NULL == dst)
+        || nullptr == dst)
         return CA_RET(INVALID_PARAM_VALUE);
 
     memset(dst, 0, str_capacity);
 
     if (typeid(bool) == typeid(T))
-    	return snprintf(dst, str_capacity, "%s", src ? "true" : "false");
+        return snprintf(dst, str_capacity, "%s", src ? "true" : "false");
 
-    const char *fmt = NULL;
+    const char *fmt = nullptr;
 
     if (typeid(float) == typeid(T))
         fmt = "%f";
@@ -173,26 +173,26 @@ CA_REENTRANT std::string to_string(const T &src)
 template<typename T>
 CA_REENTRANT int from_string(const char *src, T &dst)
 {
-    if (NULL == src)
+    if (nullptr == src)
         return CA_RET(INVALID_PARAM_VALUE);
 
     if (typeid(bool) == typeid(T))
     {
-    	if (0 == strcasecmp(src, "true")
-    		|| 0 == strcmp(src, "1"))
-    		dst = true;
-    	else
-    		dst = false;
+        if (0 == strcasecmp(src, "true")
+            || 0 == strcmp(src, "1"))
+            dst = true;
+        else
+            dst = false;
 
         return CA_RET_OK;
     }
 
     if (typeid(float) == typeid(T))
-        dst = (T)strtof(src, NULL);
+        dst = (T)strtof(src, nullptr);
     else if (typeid(double) == typeid(T))
-        dst = (T)strtod(src, NULL);
+        dst = (T)strtod(src, nullptr);
     else if (typeid(long double) == typeid(T))
-        dst = (T)strtold(src, NULL);
+        dst = (T)strtold(src, nullptr);
     else if (typeid(char) == typeid(T))
         dst = (T)atoi(src); // TODO: correct?
     else if (typeid(unsigned char) == typeid(T))
@@ -208,11 +208,11 @@ CA_REENTRANT int from_string(const char *src, T &dst)
     else if (typeid(long int) == typeid(T))
         dst = (T)atol(src);
     else if (typeid(unsigned long int) == typeid(T))
-        dst = (T)strtoul(src, NULL, 10);
+        dst = (T)strtoul(src, nullptr, 10);
     else if (typeid(long long int) == typeid(T))
         dst = (T)atoll(src);
     else if (typeid(unsigned long long int) == typeid(T))
-        dst = (T)strtoull(src, NULL, 10);
+        dst = (T)strtoull(src, nullptr, 10);
     else
         return CA_RET(INVALID_PARAM_TYPE);
 

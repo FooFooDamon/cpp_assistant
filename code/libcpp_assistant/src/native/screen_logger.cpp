@@ -37,7 +37,7 @@ DEFINE_CLASS_NAME(screen_logger);
 screen_logger::screen_logger()
 {
     m_to_screen = true;
-    set_log_name(NULL);
+    set_log_name(nullptr);
     open();
 }
 
@@ -60,7 +60,7 @@ screen_logger::~screen_logger()
 
 /*virtual */int screen_logger::close(bool release_buffer/* = true*/)/*  = 0 */
 {
-    m_output_holder = NULL; // Waring: Never fclose(m_output_holder) or fclose(stdout) !
+    m_output_holder = nullptr; // Waring: Never fclose(m_output_holder) or fclose(stdout) !
     m_is_open = false;
 
     return CA_RET_OK;

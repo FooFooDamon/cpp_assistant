@@ -119,7 +119,7 @@ public:
     // By default, these contents will be copied into @result_holder if it's not null, otherwise,
     // they'll be printed or logged by logger or by system print function, depending on how
     // @logger is like.
-    virtual void has_what(std::string *result_holder = NULL, format_output_func logger = NULL);
+    virtual void has_what(std::string *result_holder = nullptr, format_output_func logger = nullptr);
 
     net_connection *find_peer(int fd);
 
@@ -143,7 +143,7 @@ public:
 
     inline void set_self_name(const char *name)
     {
-        if (NULL == name)
+        if (nullptr == name)
             return;
 
         strncpy(m_self_name, name, sizeof(m_self_name));
@@ -172,7 +172,7 @@ public:
         else
             m_timeout = timeout;
 
-        if (NULL != m_poller)
+        if (nullptr != m_poller)
             m_poller->set_timeout(timeout);
     }
 
@@ -224,7 +224,7 @@ public:
  * private methods:
  * =================================== */
 protected:
-    virtual int init(const char *self_name = NULL,
+    virtual int init(const char *self_name = nullptr,
         int max_peer_count = net_poller::DEFAULT_CONNECTION_COUNT,
         int timeout = net_poller::DEFAULT_POLL_TIMEOUT);
     virtual void clear(void);

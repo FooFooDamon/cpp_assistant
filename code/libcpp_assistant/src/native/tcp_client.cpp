@@ -71,7 +71,7 @@ int tcp_client::connect_server(const char *ip,
     struct sockaddr_in server = {0};
     struct sockaddr_in self = {0};
     socklen_t self_len = sizeof(self);
-    net_connection *conn = NULL;
+    net_connection *conn = nullptr;
     int ret = CA_RET_GENERAL_FAILURE;
     bool ip_ok = is_valid_ipv4(ip);
 
@@ -121,7 +121,7 @@ int tcp_client::connect_server(const char *ip,
     }
 
     conn = create_net_connection(send_buf_size, recv_buf_size);
-    if (NULL == conn)
+    if (nullptr == conn)
     {
         cerror("create_net_connection() failed\n");
         ret = CA_RET(MEMORY_ALLOC_FAILED);

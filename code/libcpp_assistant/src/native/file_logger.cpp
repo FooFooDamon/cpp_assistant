@@ -49,9 +49,9 @@ file_logger::file_logger()
     : m_name_len_limit(LOG_NAME_LEN_LIMIT_DEFAULT)
     , m_dir_len_limit(LOG_DIR_LEN_LIMIT_DEFAULT)
     , m_line_limit(LOG_LINE_LIMIT_DEFAULT)
-    , m_log_name(NULL)
-    , m_log_directory(NULL)
-    , m_buffer(NULL)
+    , m_log_name(nullptr)
+    , m_log_directory(nullptr)
+    , m_buffer(nullptr)
     //, m_to_screen(false) // error??
 {
     m_to_screen = false;
@@ -61,16 +61,16 @@ file_logger::~file_logger()
 {
     close();
 
-    if (NULL != m_log_name)
+    if (nullptr != m_log_name)
     {
         free(m_log_name);
-        m_log_name = NULL;
+        m_log_name = nullptr;
     }
 
-    if (NULL != m_log_directory)
+    if (nullptr != m_log_directory)
     {
         free(m_log_directory);
-        m_log_directory = NULL;
+        m_log_directory = nullptr;
     }
 }
 
@@ -79,7 +79,7 @@ file_logger::~file_logger()
     if (is_open())
         return CA_RET_OK;
 
-    if (NULL == m_log_name || NULL == m_log_directory)
+    if (nullptr == m_log_name || nullptr == m_log_directory)
     {
         cerror("m_log_name or m_log_directory not set\n");
         return CA_RET(TARGET_NOT_READY);
@@ -96,8 +96,8 @@ file_logger::~file_logger()
     cdebug("opening %s ...\n", file);
     m_output_holder = fopen(file, "w");
     free(file);
-    file = NULL;
-    if (NULL == m_output_holder)
+    file = nullptr;
+    if (nullptr == m_output_holder)
     {
         cerror("fopen() failed\n");
         err = errno;
@@ -115,7 +115,7 @@ file_logger::~file_logger()
      *   and assign it to setvbuf().
      */
 #if 1
-    if (NULL == m_buffer && NULL == (m_buffer = (char *)malloc(cache_buf_size)))
+    if (nullptr == m_buffer && nullptr == (m_buffer = (char *)malloc(cache_buf_size)))
     {
         cerror("malloc() for cache buffer failed\n");
         fclose(m_output_holder);
@@ -125,14 +125,14 @@ file_logger::~file_logger()
 
     if (0 != setvbuf(m_output_holder, m_buffer, _IOFBF, cache_buf_size))
 #else
-    if (0 != setvbuf(m_output_holder, NULL, _IOFBF, cache_buf_size))
+    if (0 != setvbuf(m_output_holder, nullptr, _IOFBF, cache_buf_size))
 #endif
     {
         err = errno;
         cerror("setvbuf() failed\n");
         fclose(m_output_holder);
         free(m_buffer);
-        m_buffer = NULL;
+        m_buffer = nullptr;
         return (0 != err) ? (-err) : CA_RET_GENERAL_FAILURE;
     }
 
@@ -149,7 +149,7 @@ file_logger::~file_logger()
 
     fflush(m_output_holder);
     fclose(m_output_holder);
-    m_output_holder = NULL;
+    m_output_holder = nullptr;
 
     if (m_output_holder == __get_debug_output_holder())
         __set_debug_output(stdout);
@@ -157,10 +157,10 @@ file_logger::~file_logger()
     if (m_output_holder == __get_error_output_holder())
         __set_error_output(stderr);
 
-    if (release_buffer && NULL != m_buffer)
+    if (release_buffer && nullptr != m_buffer)
     {
         free(m_buffer);
-        m_buffer = NULL;
+        m_buffer = nullptr;
     }
 
     m_is_open = false;
@@ -195,10 +195,10 @@ file_logger::~file_logger()
 /*virtual */int file_logger::set_log_directory(const char *dir) /*  CA_NOTNULL(2) */
 {
     /*
-	 * will cause compiler [-Wnonnull-compare] warning:
-	 * if (NULL == dir)
+     * will cause compiler [-Wnonnull-compare] warning:
+     * if (nullptr == dir)
         return CA_RET(NULL_PARAM);
-	*/
+    */
 
     if (is_open())
         return CA_RET(DEVICE_BUSY);
@@ -237,10 +237,10 @@ file_logger::~file_logger()
 
     int max_dir_len = dir_len_limit + 1;
 
-    if (NULL == m_log_directory)
+    if (nullptr == m_log_directory)
         m_log_directory = (char*)malloc(max_dir_len);
 
-    if (NULL == m_log_directory)
+    if (nullptr == m_log_directory)
     {
         cerror("malloc() for m_log_directory failed\n");
         return CA_RET(MEMORY_ALLOC_FAILED);
@@ -259,9 +259,9 @@ file_logger::~file_logger()
 /*virtual */int file_logger::set_log_name(const char *base_name)/*  CA_NOTNULL(2)  = 0 */
 {
     /* will cause compiler [-Wnonnull-compare] warning:
-	 * if (NULL == base_name)
+     * if (nullptr == base_name)
         return CA_RET(NULL_PARAM);
-	*/
+    */
 
     if (is_open())
         return CA_RET(DEVICE_BUSY);
@@ -275,10 +275,10 @@ file_logger::~file_logger()
 
     int max_name_len = name_len_limit + 1;
 
-    if (NULL == m_log_name)
+    if (nullptr == m_log_name)
         m_log_name = (char*)malloc(max_name_len);
 
-    if (NULL == m_log_name)
+    if (nullptr == m_log_name)
     {
         cerror("malloc() for m_log_name failed\n");
         return CA_RET(MEMORY_ALLOC_FAILED);
@@ -331,13 +331,13 @@ int file_logger::__update_log_num(void)
     int max_name_len = name_length_limit() + 1;
     char *base_name = (char *)calloc(max_name_len, sizeof(char));
     char date[16] = {0};
-    char *date_ptr = NULL;
+    char *date_ptr = nullptr;
 
     snprintf(date, sizeof(date), "_%04d%02d%02d",
         m_date.tm_year + 1900, m_date.tm_mon + 1, m_date.tm_mday);
     date_ptr = strstr(m_log_name, date);
 
-    if (NULL == date_ptr)
+    if (nullptr == date_ptr)
         strncpy(base_name, m_log_name, max_name_len);
     else
         strncpy(base_name, m_log_name, (size_t)(date_ptr - m_log_name));
@@ -354,7 +354,7 @@ int file_logger::__innerly_set_log_name(const char *base_name, bool updates_log_
     struct tm now;
     int max_name_len = name_length_limit() + 1;
 
-    gettimeofday(&tv, NULL);
+    gettimeofday(&tv, nullptr);
     localtime_r((time_t *)&(tv.tv_sec), &now);
     if (updates_log_num)
     {
@@ -389,7 +389,7 @@ int file_logger::__adjust_path_length_limit(const int max_limit,
         return CA_RET(DEVICE_BUSY);
 
     int limit;
-    char *tmp = NULL;
+    char *tmp = nullptr;
 
     if (target_limit < min_limit)
         limit = min_limit;
@@ -398,7 +398,7 @@ int file_logger::__adjust_path_length_limit(const int max_limit,
     else
         limit = target_limit;
 
-    if (NULL == path_holder_var)
+    if (nullptr == path_holder_var)
         goto ADJUST_ACTION;
 
     if (limit == path_limit_var)
@@ -414,7 +414,7 @@ int file_logger::__adjust_path_length_limit(const int max_limit,
      * when limit > path_limit_var:
      */
 
-    if (NULL == (tmp = (char *)calloc(limit + 1, sizeof(char))))
+    if (nullptr == (tmp = (char *)calloc(limit + 1, sizeof(char))))
         return CA_RET(MEMORY_ALLOC_FAILED);
 
     memcpy(tmp, path_holder_var, path_limit_var + 1);

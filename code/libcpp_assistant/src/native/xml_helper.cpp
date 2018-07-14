@@ -54,7 +54,7 @@ static int __recursively_find_nodes(const xml::element_t *cur_node,
 {
     ++depth_recorder;
 
-    if (NULL == cur_node)
+    if (nullptr == cur_node)
     {
         --depth_recorder;
         nserror(CA_LIB_NAMESPACE_STR"::xml", "null xpath or xml node pointer or path pointer\n");
@@ -122,9 +122,9 @@ static int __recursively_find_nodes(const xml::element_t *cur_node,
      * keeps searching its recursive children for more info.
      */
 
-    xml::element_t *child_node = NULL;
+    xml::element_t *child_node = nullptr;
 
-    for (child_node = const_cast<xml::element_t*>(cur_node->FirstChildElement()); NULL != child_node; child_node = child_node->NextSiblingElement())
+    for (child_node = const_cast<xml::element_t*>(cur_node->FirstChildElement()); nullptr != child_node; child_node = child_node->NextSiblingElement())
     {
         int find_ret = __recursively_find_nodes(child_node, node_names, depth_recorder, result);
 
@@ -169,9 +169,9 @@ static int __generally_find_nodes(const xml::element_t *cur_node,
     }
     else
     {
-    	xml::element_t *child_node = NULL;
+        xml::element_t *child_node = nullptr;
 
-        for (child_node = const_cast<xml::element_t*>(cur_node->FirstChildElement()); NULL != child_node; child_node = child_node->NextSiblingElement())
+        for (child_node = const_cast<xml::element_t*>(cur_node->FirstChildElement()); nullptr != child_node; child_node = child_node->NextSiblingElement())
         {
             int depth_recorder = -1; // Initial depth MUST be -1. Re-declare it on every call to __recursively_find_nodes() for safety!
 
@@ -191,7 +191,7 @@ static int __generally_find_nodes(const xml::element_t *cur_node,
     if (!result.empty())
         result.clear();
 
-    if (NULL == relative_path)
+    if (nullptr == relative_path)
     {
         nserror(CA_LIB_NAMESPACE_STR"::xml", "null relative path pointer\n");
         return CA_RET(NULL_PARAM);
@@ -214,7 +214,7 @@ static int __generally_find_nodes(const xml::element_t *cur_node,
     if (!result.empty())
         result.clear();
 
-    if (NULL == absolute_path)
+    if (nullptr == absolute_path)
     {
         nserror(CA_LIB_NAMESPACE_STR"::xml", "null absolute path pointer\n");
         return CA_RET(NULL_PARAM);
@@ -229,7 +229,7 @@ static int __generally_find_nodes(const xml::element_t *cur_node,
 
     const element_t *root = doc.RootElement();
 
-    if (NULL == root)
+    if (nullptr == root)
     {
         nserror(CA_LIB_NAMESPACE_STR"::xml", "no root node found\n");
         return CA_RET(OBJECT_DOES_NOT_EXIST);
@@ -259,15 +259,15 @@ static int extract_xml_nodes(const std::vector<xml::element_t*> &nodes,
 
     for (int i = 0; i < node_count; ++i)
     {
-    	xml::element_t *element = nodes[i];
+        xml::element_t *element = nodes[i];
         const char *element_text = element->GetText();
 
         node.node_value.clear();
-        if (NULL != element_text)
+        if (nullptr != element_text)
             node.node_value = element_text;
         node.attributes.clear();
 
-        if (NULL == first_attr)
+        if (nullptr == first_attr)
         {
             result.push_back(node);
             continue;
@@ -277,12 +277,12 @@ static int extract_xml_nodes(const std::vector<xml::element_t*> &nodes,
         const char *attribute = first_attr;
 
         va_copy(argp, other_attr);
-        while (NULL != attribute)
+        while (nullptr != attribute)
         {
             //nsdebug(CA_LIB_NAMESPACE_STR, "Attribute = %s\n", attribute);
             const char *attr_value = element->Attribute(attribute);
 
-            if (NULL == attr_value)
+            if (nullptr == attr_value)
             {
                 attribute = va_arg(argp, const char*);
                 if (allows_missing_attributes)
@@ -299,7 +299,7 @@ static int extract_xml_nodes(const std::vector<xml::element_t*> &nodes,
                 return CA_RET(STL_ERROR);
 
             attribute = va_arg(argp, const char*);
-        } /* while (NULL != attribute) */
+        } /* while (nullptr != attribute) */
 
         result.push_back(node);
     } /* for (i : element_count)*/
@@ -312,8 +312,8 @@ static int extract_xml_nodes(const std::vector<xml::element_t*> &nodes,
     size_t expected_node_count,
     std::vector<node_t> &result,
     bool allows_missing_attributes/* = false*/,
-    const char *first_attr/* = NULL*/,
-    .../* Must end with NULL!!! */)
+    const char *first_attr/* = nullptr*/,
+    .../* Must end with nullptr!!! */)
 {
     result.clear();
 
@@ -347,8 +347,8 @@ static int extract_xml_nodes(const std::vector<xml::element_t*> &nodes,
     size_t expected_node_count,
     std::vector<node_t> &result,
     bool allows_missing_attributes/* = false*/,
-    const char *first_attr/* = NULL*/,
-    .../* Must end with NULL!!! */)
+    const char *first_attr/* = nullptr*/,
+    .../* Must end with nullptr!!! */)
 {
     result.clear();
 

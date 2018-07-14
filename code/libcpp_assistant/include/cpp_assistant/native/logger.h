@@ -51,31 +51,31 @@ enum enum_log_level
     LOG_LEVEL_ALL = LOG_LEVEL_MIN,
 
     LOG_LEVEL_DEBUG = LOG_LEVEL_MIN,
-	LOG_LEVEL_D = LOG_LEVEL_DEBUG,
-	LOG_LEVEL_debug = LOG_LEVEL_DEBUG,
-	LOG_LEVEL_d = LOG_LEVEL_DEBUG,
+    LOG_LEVEL_D = LOG_LEVEL_DEBUG,
+    LOG_LEVEL_debug = LOG_LEVEL_DEBUG,
+    LOG_LEVEL_d = LOG_LEVEL_DEBUG,
 
     LOG_LEVEL_INFO,
-	LOG_LEVEL_I = LOG_LEVEL_INFO,
-	LOG_LEVEL_info = LOG_LEVEL_INFO,
-	LOG_LEVEL_i = LOG_LEVEL_INFO,
+    LOG_LEVEL_I = LOG_LEVEL_INFO,
+    LOG_LEVEL_info = LOG_LEVEL_INFO,
+    LOG_LEVEL_i = LOG_LEVEL_INFO,
 
     LOG_LEVEL_WARNING,
-	LOG_LEVEL_WARN = LOG_LEVEL_WARNING,
-	LOG_LEVEL_W = LOG_LEVEL_WARNING,
-	LOG_LEVEL_warning = LOG_LEVEL_WARNING,
-	LOG_LEVEL_warn = LOG_LEVEL_WARNING,
-	LOG_LEVEL_w = LOG_LEVEL_WARNING,
+    LOG_LEVEL_WARN = LOG_LEVEL_WARNING,
+    LOG_LEVEL_W = LOG_LEVEL_WARNING,
+    LOG_LEVEL_warning = LOG_LEVEL_WARNING,
+    LOG_LEVEL_warn = LOG_LEVEL_WARNING,
+    LOG_LEVEL_w = LOG_LEVEL_WARNING,
 
     LOG_LEVEL_ERROR,
-	LOG_LEVEL_E = LOG_LEVEL_ERROR,
-	LOG_LEVEL_error = LOG_LEVEL_ERROR,
-	LOG_LEVEL_e = LOG_LEVEL_ERROR,
+    LOG_LEVEL_E = LOG_LEVEL_ERROR,
+    LOG_LEVEL_error = LOG_LEVEL_ERROR,
+    LOG_LEVEL_e = LOG_LEVEL_ERROR,
 
     LOG_LEVEL_CRITICAL,
-	LOG_LEVEL_C = LOG_LEVEL_CRITICAL,
-	LOG_LEVEL_critical = LOG_LEVEL_CRITICAL,
-	LOG_LEVEL_c = LOG_LEVEL_CRITICAL,
+    LOG_LEVEL_C = LOG_LEVEL_CRITICAL,
+    LOG_LEVEL_critical = LOG_LEVEL_CRITICAL,
+    LOG_LEVEL_c = LOG_LEVEL_CRITICAL,
 
     LOG_LEVEL_MAX = LOG_LEVEL_CRITICAL,
     LOG_LEVEL_COUNT,
@@ -252,9 +252,9 @@ public:
 
     // Sets the name of a logger.
     // NOTE: The name of a logger consists of multiple parts such as base name, date info,
-    //    process ID, etc. However, not all kinds of logger need a name, just assign NULL
+    //    process ID, etc. However, not all kinds of logger need a name, just assign nullptr
     //    to @base_name or ignore this argument if the log name is not needed.
-    virtual int set_log_name(const char *base_name = NULL) = 0;
+    virtual int set_log_name(const char *base_name = nullptr) = 0;
 
     // Name length limit restricts how long a log name string can be.
     virtual int name_length_limit(void) = 0;
@@ -276,17 +276,17 @@ public:
 
     inline logger& get_stream(enum_log_level log_level, bool starts_a_new_line = true)
     {
-    	m_instant_level = (enum_log_level)(log_level % LOG_LEVEL_COUNT);
-    	if (starts_a_new_line
-    		&& current_log_lines() > 0
-			&& is_open()
-    		&& level_enough(m_instant_level))
-		{
-			fputs("\n", m_output_holder);
-			output(HAS_LOG_PREFIX, m_instant_level, "%s", "");
-		}
+        m_instant_level = (enum_log_level)(log_level % LOG_LEVEL_COUNT);
+        if (starts_a_new_line
+            && current_log_lines() > 0
+            && is_open()
+            && level_enough(m_instant_level))
+        {
+            fputs("\n", m_output_holder);
+            output(HAS_LOG_PREFIX, m_instant_level, "%s", "");
+        }
 
-    	return *this;
+        return *this;
     }
 
 /* ===================================
@@ -295,7 +295,7 @@ public:
 public:
     inline bool is_open(void) const
     {
-        return m_is_open && (NULL != m_output_holder);
+        return m_is_open && (nullptr != m_output_holder);
     }
 
     // Shows how many lines have been output by the logger in current fragment.
@@ -318,145 +318,145 @@ public:
 public:
     inline logger& operator<<(const enum_log_level input)
     {
-    	//return operator << <enum_log_level>(input);
-    	return stream_out<enum_log_level>(input, "%u");
+        //return operator << <enum_log_level>(input);
+        return stream_out<enum_log_level>(input, "%u");
     }
 
     inline logger& operator<<(const enum_log_line_limit input)
     {
-    	//return operator << <enum_log_line_limit>(input);
-    	return stream_out<enum_log_line_limit>(input, "%u");
+        //return operator << <enum_log_line_limit>(input);
+        return stream_out<enum_log_line_limit>(input, "%u");
     }
 
     inline logger& operator<<(const enum_log_cache_size input)
     {
-    	//return operator << <enum_log_cache_size>(input);
-    	return stream_out<enum_log_cache_size>(input, "%u");
+        //return operator << <enum_log_cache_size>(input);
+        return stream_out<enum_log_cache_size>(input, "%u");
     }
 
     inline logger& operator<<(const enum_log_path_len_limit input)
     {
-    	//return operator << <enum_log_path_len_limit>(input);
-    	return stream_out<enum_log_path_len_limit>(input, "%u");
+        //return operator << <enum_log_path_len_limit>(input);
+        return stream_out<enum_log_path_len_limit>(input, "%u");
     }
 
     inline logger& operator<<(const bool input)
     {
-    	if (is_open() && level_enough(m_instant_level))
-    	{
-    		color_control_start();
+        if (is_open() && level_enough(m_instant_level))
+        {
+            color_control_start();
 
-    		if (input)
-    			fputs("true", m_output_holder); // fwrite("true", 4, 1, m_output_holder);
-    		else
-    			fputs("false", m_output_holder); // fwrite("false", 5, 1, m_output_holder);
+            if (input)
+                fputs("true", m_output_holder); // fwrite("true", 4, 1, m_output_holder);
+            else
+                fputs("false", m_output_holder); // fwrite("false", 5, 1, m_output_holder);
 
-    		color_control_end();
-    	}
+            color_control_end();
+        }
 
-		return *this;
+        return *this;
     }
 
     inline logger& operator<<(const float input)
     {
-    	//return operator << <float>(input);
-    	return stream_out<float>(input, "%f");
+        //return operator << <float>(input);
+        return stream_out<float>(input, "%f");
     }
 
     inline logger& operator<<(const double input)
     {
-    	//return operator << <double>(input);
-    	return stream_out<double>(input, "%lf");
+        //return operator << <double>(input);
+        return stream_out<double>(input, "%lf");
     }
 
     inline logger& operator<<(const long double input)
     {
-    	//return operator << <long double>(input);
-    	return stream_out<long double>(input, "%Lf");
+        //return operator << <long double>(input);
+        return stream_out<long double>(input, "%Lf");
     }
 
     inline logger& operator<<(const char input)
     {
-    	//return operator << <char>(input);
-    	return stream_out<char>(input, "%hhd");
+        //return operator << <char>(input);
+        return stream_out<char>(input, "%hhd");
     }
 
     inline logger& operator<<(const unsigned char input)
     {
-    	//return operator << <unsigned char>(input);
-    	return stream_out<unsigned char>(input, "%hhu");
+        //return operator << <unsigned char>(input);
+        return stream_out<unsigned char>(input, "%hhu");
     }
 
     inline logger& operator<<(const short int input)
     {
-    	//return operator << <short int>(input);
-    	return stream_out<short int>(input, "%hd");
+        //return operator << <short int>(input);
+        return stream_out<short int>(input, "%hd");
     }
 
     inline logger& operator<<(const unsigned short int input)
     {
-    	//return operator << <unsigned short int>(input);
-    	return stream_out<unsigned short int>(input, "%hu");
+        //return operator << <unsigned short int>(input);
+        return stream_out<unsigned short int>(input, "%hu");
     }
 
     inline logger& operator<<(const int input)
     {
-    	//return operator << <int>(input);
-    	return stream_out<int>(input, "%d");
+        //return operator << <int>(input);
+        return stream_out<int>(input, "%d");
     }
 
     inline logger& operator<<(const unsigned int input)
     {
-    	//return operator << <unsigned int>(input);
-    	return stream_out<unsigned int>(input, "%u");
+        //return operator << <unsigned int>(input);
+        return stream_out<unsigned int>(input, "%u");
     }
 
     inline logger& operator<<(const long int input)
     {
-    	//return operator << <long int>(input);
-    	return stream_out<long int>(input, "%ld");
+        //return operator << <long int>(input);
+        return stream_out<long int>(input, "%ld");
     }
 
     inline logger& operator<<(const unsigned long int input)
     {
-    	//return operator << <unsigned long int>(input);
-    	return stream_out<unsigned long int>(input, "%lu");
+        //return operator << <unsigned long int>(input);
+        return stream_out<unsigned long int>(input, "%lu");
     }
 
     inline logger& operator<<(const long long int input)
     {
-    	//return operator << <long long int>(input);
-    	return stream_out<long long int>(input, "%lld");
+        //return operator << <long long int>(input);
+        return stream_out<long long int>(input, "%lld");
     }
 
     inline logger& operator<<(const unsigned long long int input)
     {
-    	//return operator << <unsigned long long int>(input);
-    	return stream_out<unsigned long long int>(input, "%llu");
+        //return operator << <unsigned long long int>(input);
+        return stream_out<unsigned long long int>(input, "%llu");
     }
 
     inline logger& operator<<(const char *input)
     {
-    	if (is_open() && level_enough(m_instant_level) && nullptr != input)
-    	{
-    		color_control_start();
-    		fputs(input, m_output_holder);
-    		color_control_end();
-    	}
+        if (is_open() && level_enough(m_instant_level) && nullptr != input)
+        {
+            color_control_start();
+            fputs(input, m_output_holder);
+            color_control_end();
+        }
 
-		return *this;
+        return *this;
     }
 
     inline logger& operator<<(const std::string &input)
     {
-    	if (is_open() && level_enough(m_instant_level) && input.length() > 0)
-    	{
-    		color_control_start();
-    		fputs(input.c_str(), m_output_holder);
-    		color_control_end();
-    	}
+        if (is_open() && level_enough(m_instant_level) && input.length() > 0)
+        {
+            color_control_start();
+            fputs(input.c_str(), m_output_holder);
+            color_control_end();
+        }
 
-    	return *this;
+        return *this;
     }
 
 /* ===================================
@@ -472,68 +472,68 @@ protected:
     template<typename T>
     inline logger& operator<<(const T input) // TODO: does not work
     {
-    	if (is_open() && level_enough(m_instant_level))
-    	{
-			color_control_start();
-			fwrite((T*)&input, sizeof(T), 1, m_output_holder);
-			color_control_end();
-    	}
+        if (is_open() && level_enough(m_instant_level))
+        {
+            color_control_start();
+            fwrite((T*)&input, sizeof(T), 1, m_output_holder);
+            color_control_end();
+        }
 
-		return *this;
+        return *this;
     }
 
 #if 0
     template<typename T, const char *fmt>
     inline logger& operator<<(const T input)
     {
-    	if (is_open() && level_enough(m_instant_level))
-    	{
-			color_control_start();
-			fprintf(m_output_holder, fmt, input);
-			color_control_end();
-    	}
+        if (is_open() && level_enough(m_instant_level))
+        {
+            color_control_start();
+            fprintf(m_output_holder, fmt, input);
+            color_control_end();
+        }
 
-		return *this;
+        return *this;
     }
 #else
     template<typename T>
-	inline logger& stream_out(const T input, const char *fmt)
-	{
-		if (is_open() && level_enough(m_instant_level))
-		{
-			color_control_start();
-			fprintf(m_output_holder, fmt, input);
-			color_control_end();
-		}
+    inline logger& stream_out(const T input, const char *fmt)
+    {
+        if (is_open() && level_enough(m_instant_level))
+        {
+            color_control_start();
+            fprintf(m_output_holder, fmt, input);
+            color_control_end();
+        }
 
-		return *this;
-	}
+        return *this;
+    }
 #endif
 
     void color_control_start(void)
     {
-    	if (!m_to_screen)
-    		return;
+        if (!m_to_screen)
+            return;
 
-		if (LOG_LEVEL_WARNING == m_instant_level)
-			fprintf(m_output_holder, "\033[1;33m");
-		else if (LOG_LEVEL_ERROR == m_instant_level || LOG_LEVEL_CRITICAL == m_instant_level)
-			fprintf(m_output_holder, "\033[1;31m");
-		else;
+        if (LOG_LEVEL_WARNING == m_instant_level)
+            fprintf(m_output_holder, "\033[1;33m");
+        else if (LOG_LEVEL_ERROR == m_instant_level || LOG_LEVEL_CRITICAL == m_instant_level)
+            fprintf(m_output_holder, "\033[1;31m");
+        else;
     }
 
     void color_control_end(void)
     {
-    	if (!m_to_screen)
-    		return;
+        if (!m_to_screen)
+            return;
 
-    	if (m_instant_level >= LOG_LEVEL_WARNING)
-    		fprintf(m_output_holder, "\033[0m");
+        if (m_instant_level >= LOG_LEVEL_WARNING)
+            fprintf(m_output_holder, "\033[0m");
     }
 
     inline bool level_enough(enum_log_level level)
     {
-    	return level >= m_log_level;
+        return level >= m_log_level;
     }
 
 /* ===================================

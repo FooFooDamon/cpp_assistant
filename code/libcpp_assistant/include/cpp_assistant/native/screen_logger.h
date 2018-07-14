@@ -93,7 +93,7 @@ public:
         return this->class_name();
     }
 
-    virtual int set_log_name(const char *base_name = NULL)/*  = 0 */
+    virtual int set_log_name(const char *base_name = nullptr)/*  = 0 */
     {
         return CA_RET_OK;
     }

@@ -104,17 +104,17 @@ static void delete_retcode_description_file(void)
 
 static int get_file_line_number(void)
 {
-    FILE *fp = NULL;
+    FILE *fp = nullptr;
     char output[32] = {0};
     const char *CMD = "wc -l "RET_DESC_FILE" | awk '{ print $1 }'";
 
-    if (NULL == (fp = popen(CMD, "r")))
+    if (nullptr == (fp = popen(CMD, "r")))
     {
         fprintf(stderr, "popen(%s) failed: %s\n", CMD, strerror(errno));
         return -1;
     }
 
-    while (NULL != fgets(output, sizeof(output), fp))
+    while (nullptr != fgets(output, sizeof(output), fp))
     {
         printf("%s\n", output);
     }
@@ -234,9 +234,9 @@ TEST(ca_return_code_DeathTest, parse_return_code)
     const int TESTED_RETCODE = 0;
 
     if (calib::__debug_macro_is_defined())
-        ASSERT_EQ(-1, calib::parse_return_code(TESTED_RETCODE, sizeof(msg), NULL));
+        ASSERT_EQ(-1, calib::parse_return_code(TESTED_RETCODE, sizeof(msg), nullptr));
     else
-        ASSERT_DEATH(calib::parse_return_code(TESTED_RETCODE, sizeof(msg), NULL), "");
+        ASSERT_DEATH(calib::parse_return_code(TESTED_RETCODE, sizeof(msg), nullptr), "");
 
 }
 

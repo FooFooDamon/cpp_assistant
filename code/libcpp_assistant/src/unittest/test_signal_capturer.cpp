@@ -159,7 +159,7 @@ SEND_SIGNALS:
 
     int normal_handle_count = 0;
     int critical_handle_count = 0;
-    const time_t kStartTime = time(NULL);
+    const time_t kStartTime = time(nullptr);
     const int kTimtoutSeconds = 5;
 
     pid = getpid();
@@ -168,7 +168,7 @@ SEND_SIGNALS:
     {
         printf("[PID:%d] Waiting for signals ...\n", pid);
         sleep(1);
-        if (time(NULL) - kStartTime > kTimtoutSeconds)
+        if (time(nullptr) - kStartTime > kTimtoutSeconds)
         {
             printf("[PID:%d] Signal waiting timed out, program will abort.\n", pid);
             break;

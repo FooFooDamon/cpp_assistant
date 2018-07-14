@@ -48,7 +48,7 @@ DEFINE_CLASS_NAME(tcp_base);
 
 tcp_base::tcp_base()
 {
-    init(NULL, net_poller::DEFAULT_CONNECTION_COUNT, net_poller::DEFAULT_POLL_TIMEOUT);
+    init(nullptr, net_poller::DEFAULT_CONNECTION_COUNT, net_poller::DEFAULT_POLL_TIMEOUT);
 }
 
 tcp_base::tcp_base(const char *self_name,
@@ -88,7 +88,7 @@ CA_REENTRANT int tcp_base::send_fragment(int fd, const void *buf, int len)
 {
     if (fd < 0 ||
         len < 0 ||
-        NULL == buf)
+        nullptr == buf)
         return CA_RET(INVALID_PARAM_VALUE);
 
     if (0 == len)
@@ -127,7 +127,7 @@ CA_REENTRANT int tcp_base::recv_fragment(int fd, void *buf, int len)
 {
     if (fd < 0 ||
         len < 0 ||
-        NULL == buf)
+        nullptr == buf)
         return CA_RET(INVALID_PARAM_VALUE);
 
     if (0 == len)
@@ -169,12 +169,12 @@ CA_REENTRANT int tcp_base::recv_fragment(int fd, void *buf, int len)
 
 CA_REENTRANT int tcp_base::send_from_connection(net_connection *conn)
 {
-    if (NULL == conn)
+    if (nullptr == conn)
         return CA_RET(NULL_PARAM);
 
     buffer *buf = conn->send_buf;
 
-    if (NULL == buf)
+    if (nullptr == buf)
         return CA_RET(RESOURCE_NOT_AVAILABLE);
 
     int status = conn->conn_status;
@@ -212,12 +212,12 @@ CA_REENTRANT int tcp_base::send_from_connection(net_connection *conn)
 
 CA_REENTRANT int tcp_base::recv_to_connection(net_connection *conn)
 {
-    if (NULL == conn)
+    if (nullptr == conn)
         return CA_RET(NULL_PARAM);
 
     buffer *buf = conn->recv_buf;
 
-    if (NULL == buf)
+    if (nullptr == buf)
         return CA_RET(RESOURCE_NOT_AVAILABLE);
 
     int status = conn->conn_status;
@@ -256,7 +256,7 @@ int tcp_base::send_from_connection(int fd)
 {
     net_connection *conn = find_peer(fd);
 
-    if (NULL == conn)
+    if (nullptr == conn)
         return CA_RET(OBJECT_DOES_NOT_EXIST);
 
     return send_from_connection(conn);
@@ -266,29 +266,29 @@ int tcp_base::recv_to_connection(int fd)
 {
     net_connection *conn = find_peer(fd);
 
-    if (NULL == conn)
+    if (nullptr == conn)
         return CA_RET(OBJECT_DOES_NOT_EXIST);
 
     return recv_to_connection(conn);
 }
 
-/*virtual */void tcp_base::has_what(std::string *result_holder/* = NULL */, format_output_func logger/* = NULL */)
+/*virtual */void tcp_base::has_what(std::string *result_holder/* = nullptr */, format_output_func logger/* = nullptr */)
 {
-    net_connection *conn = NULL;
-    format_output_func ofunc = NULL;
+    net_connection *conn = nullptr;
+    format_output_func ofunc = nullptr;
 
-    if (NULL == ofunc)
+    if (nullptr == ofunc)
         ofunc = printf;
     else
         ofunc = logger;
 
-    if (NULL == result_holder)
+    if (nullptr == result_holder)
     {
         ofunc("connection type: 0x%08X[%s]\n", m_connection_type, desc_of_connection_type(m_connection_type));
         for (connection_map::iterator it = m_peers->begin(); it != m_peers->end(); ++it)
         {
             conn = it->second;
-            if (NULL == conn)
+            if (nullptr == conn)
             {
                 ofunc("connection[%d] null\n", it->first);
                 continue;
@@ -312,7 +312,7 @@ int tcp_base::recv_to_connection(int fd)
         for (connection_map::iterator it = m_peers->begin(); it != m_peers->end(); ++it)
         {
             conn = it->second;
-            if (NULL == conn)
+            if (nullptr == conn)
             {
                 snprintf(buf, sizeof(buf), "connection[%d] null\n", it->first);
             }
@@ -332,12 +332,12 @@ int tcp_base::recv_to_connection(int fd)
 
 net_connection *tcp_base::find_peer(int fd)
 {
-    if (NULL == m_peers)
-        return NULL;
+    if (nullptr == m_peers)
+        return nullptr;
 
     connection_map::iterator it = m_peers->find(fd);
     if (m_peers->end() == it)
-        return NULL;
+        return nullptr;
 
     return it->second;
 }
@@ -356,7 +356,7 @@ tcp_base::conn_info_array& tcp_base::get_active_peers(void) const
 {
     net_connection *conn = find_peer(fd);
 
-    if (NULL == conn)
+    if (nullptr == conn)
         return CA_RET(OBJECT_DOES_NOT_EXIST);
 
     return shutdown_connection(conn);
@@ -367,7 +367,7 @@ int tcp_base::poll(void)
     return m_poller->poll();
 }
 
-/*virtual */int tcp_base::init(const char *self_name/* = NULL*/,
+/*virtual */int tcp_base::init(const char *self_name/* = nullptr*/,
     int max_peer_count/* = net_poller::DEFAULT_CONNECTION_COUNT*/,
     int timeout/* = net_poller::DEFAULT_POLL_TIMEOUT*/)
 {
@@ -375,9 +375,9 @@ int tcp_base::poll(void)
 
     set_self_name(self_name);
     m_connection_type = CONN_TYPE_NONE;
-    m_peers = NULL;
+    m_peers = nullptr;
     m_max_peer_count = max_peer_count;
-    m_poller = NULL;
+    m_poller = nullptr;
     m_timeout = timeout;
 
     try
@@ -392,8 +392,8 @@ int tcp_base::poll(void)
         goto INIT_FAILED;
     }
 
-    if (NULL == m_peers ||
-        NULL == m_poller)
+    if (nullptr == m_peers ||
+        nullptr == m_poller)
     {
         ret = CA_RET(MEMORY_ALLOC_FAILED);
         goto INIT_FAILED;
@@ -415,7 +415,7 @@ INIT_FAILED:
 {
     memset(m_self_name, 0, sizeof(m_self_name));
     m_connection_type = CONN_TYPE_NONE;
-    if (NULL != m_peers)
+    if (nullptr != m_peers)
     {
         //for (ConnectionMap::iterator it = m_peers->begin(); it != m_peers->end(); ++it)
         for (connection_map::iterator it = m_peers->begin(); it != m_peers->end();  )
@@ -424,14 +424,14 @@ INIT_FAILED:
         }
         m_peers->clear();
         delete m_peers;
-        m_peers = NULL;
+        m_peers = nullptr;
         //cdebug("%s m_peers released\n", typeid(*this).name());
     }
     m_max_peer_count = 0;
-    if (NULL != m_poller)
+    if (nullptr != m_poller)
     {
         delete m_poller;
-        m_poller = NULL;
+        m_poller = nullptr;
         //cdebug("%s m_poller released\n", typeid(*this).name());
     }
     m_timeout = 0;
@@ -439,7 +439,7 @@ INIT_FAILED:
 
 int tcp_base::add_connection(net_connection *conn)
 {
-    if (NULL == conn)
+    if (nullptr == conn)
         return CA_RET(NULL_PARAM);
 
     connection_map::iterator it = m_peers->find(conn->fd);
@@ -454,7 +454,7 @@ int tcp_base::add_connection(net_connection *conn)
 
     net_connection *conn_found = it->second;
 
-    if (NULL == conn_found)
+    if (nullptr == conn_found)
     {
         it->second = conn;
         return CA_RET_OK;
@@ -474,7 +474,7 @@ int tcp_base::add_connection(net_connection *conn)
 
 int tcp_base::delete_connection(net_connection *conn, bool delete_peer_node_now/* = false*/)
 {
-    if (NULL == conn)
+    if (nullptr == conn)
         return CA_RET(NULL_PARAM);
 
     int fd = conn->fd;
@@ -488,14 +488,14 @@ int tcp_base::delete_connection(net_connection *conn, bool delete_peer_node_now/
 
     net_connection *cur_conn = it->second;
 
-    if (NULL == cur_conn)
+    if (nullptr == cur_conn)
     {
         m_peers->erase(it);
         cdebug("a null connection with fd = %d erased from map\n", fd);
         return CA_RET_OK;
     }
 
-    if (NULL != m_poller)
+    if (nullptr != m_poller)
         m_poller->delete_monitored_connection(conn); // do not forget to delete monitored event
 
     destroy_net_connection(&cur_conn);
@@ -526,11 +526,11 @@ CA_REENTRANT bool tcp_base::is_ready(int fd, enum_check_operation check_type, in
     FD_SET(fd, &fdset);
 
     if (CHK_OP_READABLE == check_type)
-        ret = select(fd + 1, &fdset, NULL, NULL, &tv);
+        ret = select(fd + 1, &fdset, nullptr, nullptr, &tv);
     else if (CHK_OP_WRITEABLE == check_type)
-        ret = select(fd + 1, NULL, &fdset, NULL, &tv);
+        ret = select(fd + 1, nullptr, &fdset, nullptr, &tv);
     else
-        ret = select(fd + 1, NULL, NULL, &fdset, &tv);
+        ret = select(fd + 1, nullptr, nullptr, &fdset, &tv);
 
     if (ret <= 0 ||
         !FD_ISSET(fd, &fdset))

@@ -144,14 +144,14 @@ public:
         const char *desc,
         int least_value_count = 0,
         const char *assign_expression = "",
-        const char *default_values = NULL,
+        const char *default_values = nullptr,
         bool value_count_is_fixed = true);
 
     // Much like learn_option() above, except that this function learns options in bulk.
     int learn_options(const user_option *option_array, int option_count);
 
-    // Shows result after parsing in terminal if @holder is NULL, or saves the result to @holder.
-    void get_parsing_result(std::string *holder = NULL) const;
+    // Shows result after parsing in terminal if @holder is nullptr, or saves the result to @holder.
+    void get_parsing_result(std::string *holder = nullptr) const;
 
 /* ===================================
  * attributes:
@@ -162,20 +162,20 @@ public:
     // Returns the directory where the host program is in.
     inline const char* program_directory(void) const
     {
-        return m_program_directory.empty() ? NULL : m_program_directory.c_str();
+        return m_program_directory.empty() ? nullptr : m_program_directory.c_str();
     }
 
     // Returns the host program name.
     inline const char* program_name(void) const
     {
-        return m_program_name.empty() ? NULL : m_program_name.c_str();
+        return m_program_name.empty() ? nullptr : m_program_name.c_str();
     }
 
     // Generally sets the info that shows what the host program can do.
     // For example: ls - list directory contents.
     inline void set_usage_header(const char *header)
     {
-        if (NULL == header)
+        if (nullptr == header)
             return;
 
         m_usage_header = header;
@@ -185,7 +185,7 @@ public:
     // For example: ls [OPTION]... [FILE]...
     inline void set_usage_format(const char *format)
     {
-        if (NULL == format)
+        if (nullptr == format)
             return;
 
         m_usage_format = format;
@@ -194,7 +194,7 @@ public:
     // Displays usage info on terminal (if @holder is null)
     // or saves it to @holder string (if @holder is not null).
     // NOTE: The usage info includes usage header, usage format and options details.
-    void usage(std::string *holder = NULL) const;
+    void usage(std::string *holder = nullptr) const;
 
     // Finds the value(s) of option with name @option_name,
     // and @option_name can be the short name or the long name.

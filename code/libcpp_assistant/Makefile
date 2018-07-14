@@ -109,7 +109,7 @@ update_copyright:
 	do \
 		update_code_copyright.sh $$i; \
 	done
-	-for i in `find ./include/ -path ./include/3rdparty -prune -o -type f -iname "*.h" -print | grep -v "\.svn"`; \
+	-for i in `find ./include/ -path ./include/cpp_assistant/3rdparty -prune -o -type f -iname "*.h" -print | grep -v "\.svn"`; \
 	do \
 		update_code_copyright.sh $$i; \
 	done

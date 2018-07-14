@@ -57,7 +57,7 @@
 
 #define CA_OUTPUT_BASE(dev, preamble, type_str, class_str, ns_delim, fmt, ...) do{ \
     struct timeval __tv; \
-    gettimeofday(&__tv, NULL); \
+    gettimeofday(&__tv, nullptr); \
     ::fprintf(dev, "[PID:%d, TID:0x%lx][Time:%ld.%ld] " preamble " " type_str " %s, %s%s%s(): Line %d: " fmt, \
         getpid(), pthread_self(), __tv.tv_sec, __tv.tv_usec, __FILE__, class_str, ns_delim, __FUNCTION__, __LINE__, ##__VA_ARGS__); \
 }while(0)
@@ -113,61 +113,61 @@ typedef int (*format_output_func)(const char *fmt, ...);
 class debug : no_instance
 {
 public:
-	/*
-	 * It's easy to understand that cpp-assistant library may output debug, warning or error info
-	 * when exceptions occur or for some other purposes.
-	 *
-	 * APIs below can be used to do such settings as:
-	 *     enabling or disabling the output prefix displaying,
-	 *     enabling or disabling the output,
-	 *     setting the output destinations (e.g. to stdout, stderr or to files)
-	 * and so on. See comments of each API for more details.
-	 */
+    /*
+     * It's easy to understand that cpp-assistant library may output debug, warning or error info
+     * when exceptions occur or for some other purposes.
+     *
+     * APIs below can be used to do such settings as:
+     *     enabling or disabling the output prefix displaying,
+     *     enabling or disabling the output,
+     *     setting the output destinations (e.g. to stdout, stderr or to files)
+     * and so on. See comments of each API for more details.
+     */
 
-	// Makes the debug or warning/error output display with prefix, like:
-	// [2018-01-01 00:00:00.000000][PID:1234] I'm the output with prefix...
-	// or something else.
-	static void enable_output_prefix(void);
+    // Makes the debug or warning/error output display with prefix, like:
+    // [2018-01-01 00:00:00.000000][PID:1234] I'm the output with prefix...
+    // or something else.
+    static void enable_output_prefix(void);
 
-	// Makes the debug or warning/error output display without prefix.
-	static void disable_output_prefix(void);
+    // Makes the debug or warning/error output display without prefix.
+    static void disable_output_prefix(void);
 
-	/*
-	 * xx_is_enabled(): Checks whether the specified output is enabled.
-	 *
-	 * redirect_xx_output(): Redirects the specified output to stdout, stderr or a file.
-	 *      If @where is NULL, then the specified output will be disabled.
-	 *
-	 * get_xx_output_holder(): Gets the output file pointer.
-	 *
-	 * set_xx_lock(): Sets a lock for the specified output, only required in multi-threading environment.
-	 *
-	 */
+    /*
+     * xx_is_enabled(): Checks whether the specified output is enabled.
+     *
+     * redirect_xx_output(): Redirects the specified output to stdout, stderr or a file.
+     *      If @where is nullptr, then the specified output will be disabled.
+     *
+     * get_xx_output_holder(): Gets the output file pointer.
+     *
+     * set_xx_lock(): Sets a lock for the specified output, only required in multi-threading environment.
+     *
+     */
 
-	static inline bool debug_report_is_enabled(void)
-	{
-		return m_debug_enabled;
-	}
+    static inline bool debug_report_is_enabled(void)
+    {
+        return m_debug_enabled;
+    }
 
-	static void redirect_debug_output(const FILE *where);
+    static void redirect_debug_output(const FILE *where);
 
-	static const FILE* get_debug_output_holder(void);
+    static const FILE* get_debug_output_holder(void);
 
-	static void set_debug_lock(const mutex *lock);
+    static void set_debug_lock(const mutex *lock);
 
-	static bool error_report_is_enabled(void);
+    static bool error_report_is_enabled(void);
 
-	static void redirect_error_output(const FILE *where);
+    static void redirect_error_output(const FILE *where);
 
-	static const FILE* get_error_output_holder(void);
+    static const FILE* get_error_output_holder(void);
 
-	static void set_error_lock(const mutex *lock);
+    static void set_error_lock(const mutex *lock);
 
 private:
-	static bool m_debug_enabled;
+    static bool m_debug_enabled;
 
-	friend bool __debug_is_enabled(void);
-	friend void __set_debug_output(const FILE *);
+    friend bool __debug_is_enabled(void);
+    friend void __set_debug_output(const FILE *);
 
 }; // class debug
 

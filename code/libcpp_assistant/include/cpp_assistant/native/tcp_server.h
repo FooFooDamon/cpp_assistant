@@ -102,7 +102,7 @@ public:
 
     inline int listening_fd(void) const
     {
-        if (NULL == m_listening_conn)
+        if (nullptr == m_listening_conn)
             return INVALID_SOCK_FD;
 
         return m_listening_conn->fd;
@@ -110,7 +110,7 @@ public:
 
     inline const char* listening_ip(void) const
     {
-        if (NULL == m_listening_conn)
+        if (nullptr == m_listening_conn)
             return INVALID_IP;
 
         return m_listening_conn->self_ip;
@@ -118,7 +118,7 @@ public:
 
     inline uint16_t listening_port(void) const
     {
-        if (NULL == m_listening_conn)
+        if (nullptr == m_listening_conn)
             return INVALID_PORT;
 
         return m_listening_conn->self_port;

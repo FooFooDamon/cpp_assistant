@@ -64,7 +64,7 @@ static void init_signal_settings(void)
         signal_setting_t &setting = GET_SETTING_BY_INDEX(i);
 
         setting.status = SIG_NOT_REGISTERED;
-        setting.handler = NULL;
+        setting.handler = nullptr;
         setting.exits_after_handling = false;
         setting.handles_now = false;
     }
@@ -139,7 +139,7 @@ static bool capture_is_forbidden(int sig_num)
     signal_setting_t &setting = GET_SETTING_BY_INDEX(sig_num);
 
     setting.status = SIG_NOT_REGISTERED;
-    setting.handler = NULL;
+    setting.handler = nullptr;
 
     return CA_RET_OK;
 }
@@ -163,7 +163,7 @@ static bool capture_is_forbidden(int sig_num)
     setting.status = SIG_NOT_TRIGGERED;
 
     if (!setting.handles_now /* avoids repetition, see set_signal_trigger_status() */
-        && NULL != setting.handler)
+        && nullptr != setting.handler)
     {
         int handle_ret = (setting.handler)(sig_num);
 
@@ -197,7 +197,7 @@ static bool capture_is_forbidden(int sig_num)
         setting.status = SIG_NOT_TRIGGERED;
 
         if (!setting.handles_now /* avoids repetition, see set_signal_trigger_status() */
-            && NULL != setting.handler)
+            && nullptr != setting.handler)
             (setting.handler)(GET_SIGNUM_BY_INDEX(i));
 
         if (setting.exits_after_handling)

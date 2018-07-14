@@ -44,7 +44,7 @@ DEFINE_CLASS_NAME(tcp_server);
 
 tcp_server::tcp_server()
     : tcp_base(),
-      m_listening_conn(NULL)
+      m_listening_conn(nullptr)
 {
     ;
 }
@@ -53,7 +53,7 @@ tcp_server::tcp_server(const char *self_name,
     int max_peer_count/* = net_poller::DEFAULT_CONNECTION_COUNT*/,
     int timeout/* = net_poller::DEFAULT_POLL_TIMEOUT*/)
     : tcp_base(self_name, max_peer_count, timeout),
-      m_listening_conn(NULL)
+      m_listening_conn(nullptr)
 {
     ;
 }
@@ -172,7 +172,7 @@ int tcp_server::start(const char *ip, uint16_t port)
     m_connection_type = CONN_TYPE_SERVER;
 
     m_listening_conn = create_net_connection(0, 0);
-    if (NULL == m_listening_conn)
+    if (nullptr == m_listening_conn)
     {
         cerror("create_net_connection() failed\n");
         ret = CA_RET(MEMORY_ALLOC_FAILED);
@@ -212,7 +212,7 @@ int tcp_server::end(void)
 
 int tcp_server::accept_new_connection(int send_buf_size, int recv_buf_size, bool is_nonblocking/* = true*/)
 {
-    if (NULL == m_listening_conn)
+    if (nullptr == m_listening_conn)
         return CA_RET(RESOURCE_NOT_AVAILABLE);
 
     struct sockaddr_in client = {0};
@@ -220,7 +220,7 @@ int tcp_server::accept_new_connection(int send_buf_size, int recv_buf_size, bool
     struct sockaddr_in self = {0};
     socklen_t self_len = sizeof(self);
     int accfd = -1;
-    net_connection *conn = NULL;
+    net_connection *conn = nullptr;
     int ret = CA_RET_GENERAL_FAILURE;
 
     if ((accfd = accept(m_listening_conn->fd, (struct sockaddr *)&client, &len)) < 0)
@@ -231,7 +231,7 @@ int tcp_server::accept_new_connection(int send_buf_size, int recv_buf_size, bool
     cdebug("accept() ok, fd = %d\n", accfd);
 
     conn = create_net_connection(send_buf_size, recv_buf_size);
-    if (NULL == conn)
+    if (nullptr == conn)
     {
         cerror("create_net_connection() failed\n");
         ret = CA_RET(MEMORY_ALLOC_FAILED);
@@ -279,10 +279,10 @@ ACCEPT_FAILED:
 
 void tcp_server::destroy_listening_connection(void)
 {
-    if (NULL == m_listening_conn)
+    if (nullptr == m_listening_conn)
         return;
 
-    if (NULL != m_poller)
+    if (nullptr != m_poller)
         m_poller->delete_monitored_connection(m_listening_conn);
 
     cdebug("listening connection with fd = %d will be released\n", m_listening_conn->fd);

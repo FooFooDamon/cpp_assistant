@@ -53,7 +53,7 @@
  *
  * wxc, 2018/07/08, 0.03.00:
  *      1. Added supports for some points of c++11 standard, such as override,
- *      	nullptr, mutex and lock_guard.
+ *          nullptr, mutex and lock_guard.
  *      2. Added no_instance and noncopyable class.
  *      3. Turned some namespaces into classes.
  *      4. Tried Git hash code while SVN version number was not available.

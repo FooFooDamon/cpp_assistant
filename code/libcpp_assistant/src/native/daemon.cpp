@@ -90,7 +90,7 @@ std::set<daemon::clean_func> daemon::m_clean_funcs;
     sa.sa_handler = SIG_IGN;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = 0;
-    if (sigaction(SIGHUP, &sa, NULL) < 0)
+    if (sigaction(SIGHUP, &sa, nullptr) < 0)
     {
         perror("failed to ignore SIGHUP");
         exit(1);
@@ -128,7 +128,7 @@ std::set<daemon::clean_func> daemon::m_clean_funcs;
     // Registration of a null function with atexit() may succeed
     // and cause a crash at program termination,
     // therefore it's better to check null function explicitly.
-    if (NULL == clean_func)
+    if (nullptr == clean_func)
         return CA_RET(NULL_PARAM);
 
     if (m_clean_funcs.end() != m_clean_funcs.find(clean_func))

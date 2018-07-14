@@ -49,7 +49,7 @@ static int func_with_int_ret(void)
 
 static int func_with_ret_and_param(const char *param)
 {
-    if (NULL == param)
+    if (nullptr == param)
     {
         printf("%s(): param is null.\n", __FUNCTION__);
         return -1;
@@ -63,7 +63,7 @@ TEST(daemon, AllInOne)
 {
     ASSERT_FALSE(calib::daemon::is_daemonized());
 
-    ASSERT_EQ(CA_RET(NULL_PARAM), calib::daemon::register_clean_funtion(NULL));
+    ASSERT_EQ(CA_RET(NULL_PARAM), calib::daemon::register_clean_funtion(nullptr));
     ASSERT_EQ(CA_RET(OK), calib::daemon::register_clean_funtion(func_before_daemonization));
 
     calib::daemon::daemonize(/*true, true*/);

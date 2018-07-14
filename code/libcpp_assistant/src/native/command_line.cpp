@@ -65,7 +65,7 @@ command_line::~command_line()
 
 #define SET_IS_SPECIFIED(_option_)  do{\
     option_value_t* op_val = const_cast<option_value_t*>(get_option_value(_option_)); \
-    if (NULL == op_val) \
+    if (nullptr == op_val) \
     {\
         cerror("unknown short option: -%s\n", _option_); \
         return CA_RET(UNKNOWN_CMD_LINE_OPTION); \
@@ -79,7 +79,7 @@ command_line::~command_line()
 
 int command_line::parse(int argc, const char **argv)
 {
-    if (NULL == argv)
+    if (nullptr == argv)
         return CA_RET(NULL_PARAM);
 
     if (argc < 0)
@@ -92,7 +92,7 @@ int command_line::parse(int argc, const char **argv)
 
     char *program_name = strrchr((char*)argv[0], '/');
 
-    if (NULL == program_name)
+    if (nullptr == program_name)
     {
         m_program_name = argv[0];
         m_program_directory = ".";
@@ -103,8 +103,8 @@ int command_line::parse(int argc, const char **argv)
         m_program_name = (++program_name);
     }
 
-    char *short_option = NULL;
-    char *long_option = NULL;
+    char *short_option = nullptr;
+    char *long_option = nullptr;
     std::string long_option_tmp;
 
     #define ADD_VALUE(_option_, _value_) do{\
@@ -113,15 +113,15 @@ int command_line::parse(int argc, const char **argv)
             return CA_RET(UNKNOWN_CMD_LINE_OPTION);\
         if (CA_RET(EXCESS_OBJECT_COUNT) == add_value_ret) \
         {\
-            short_option = NULL; \
-            long_option = NULL; \
-            add_value(NULL, _value_); \
+            short_option = nullptr; \
+            long_option = nullptr; \
+            add_value(nullptr, _value_); \
         }\
     }while(0)
 
     for (int i = 1; i < argc; ++i)
     {
-        if (NULL == argv[i])
+        if (nullptr == argv[i])
             continue;
 
         char *arg_value = const_cast<char*>(argv[i]);
@@ -208,7 +208,7 @@ int command_line::parse(int argc, const char **argv)
             char *option_start = arg_value + 2;
             char *equal_sign_pos = strchr(option_start, '=');
 
-            if (NULL == equal_sign_pos)
+            if (nullptr == equal_sign_pos)
                 long_option = option_start;
             else if (0 == equal_sign_pos - option_start
                 || arg_value + arg_len - 1 == equal_sign_pos)
@@ -235,7 +235,7 @@ int command_line::parse(int argc, const char **argv)
 
             SET_IS_SPECIFIED(short_option);
 
-            if (NULL != equal_sign_pos)
+            if (nullptr != equal_sign_pos)
             {
                 int values_len = arg_len - (equal_sign_pos - arg_value) + 1;
                 std::vector<std::string> long_option_values;
@@ -283,10 +283,10 @@ int command_line::learn_option(const char *name_combination,
     const char *desc,
     int least_value_count/* = 0*/,
     const char *assign_expression/* = ""*/,
-    const char *default_values/* = NULL*/,
+    const char *default_values/* = nullptr*/,
     bool value_count_is_fixed/* = true*/)
 {
-    if (NULL == name_combination || NULL == desc)
+    if (nullptr == name_combination || nullptr == desc)
         return CA_RET(NULL_PARAM);
 
     if (least_value_count < 0)
@@ -314,7 +314,7 @@ int command_line::learn_option(const char *name_combination,
     //cdebug("short option name: %s\n", short_name);
 
     short_name = (char*)malloc(short_name_len + 1);
-    if (NULL == short_name)
+    if (nullptr == short_name)
     {
         cerror("failed to allocate memory for short option\n");
         return CA_RET(MEMORY_ALLOC_FAILED);
@@ -335,7 +335,7 @@ int command_line::learn_option(const char *name_combination,
     //cdebug("long option name: %s\n", long_name);
 
     long_name = (char*)malloc(long_name_len + 1);
-    if (NULL == long_name)
+    if (nullptr == long_name)
     {
         free(short_name);
         cerror("failed to allocate memory for long option\n");
@@ -354,14 +354,14 @@ int command_line::learn_option(const char *name_combination,
 
     option_value_t value = {
         /*.description = */desc,
-        /*.assign_expression = */(NULL != assign_expression) ? assign_expression : "",
+        /*.assign_expression = */(nullptr != assign_expression) ? assign_expression : "",
         /*.least_value_count = */least_value_count,
         /*.value_count_is_fixed = */value_count_is_fixed,
         /*.is_specified = */false,
         /*.values = */std::vector<std::string>()
     };
 
-    if (NULL != default_values)
+    if (nullptr != default_values)
         str::split(default_values, strlen(default_values), " ", value.values);
 
     if (!m_option_entries.insert(std::make_pair(short_name, value)).second)
@@ -376,11 +376,11 @@ int command_line::learn_option(const char *name_combination,
     /*option_value_t &value_ref = m_options[short_name];
 
     value_ref.description = desc;
-    if (NULL != assign_expression)
+    if (nullptr != assign_expression)
         value_ref.assign_expression = assign_expression;
     value_ref.least_value_count = least_value_count;
     value_ref.is_specified = false;
-    if (NULL != default_values)
+    if (nullptr != default_values)
         str::split(default_values, strlen(default_values), " ", value_ref.values);*/
 
     return CA_RET_OK;
@@ -388,7 +388,7 @@ int command_line::learn_option(const char *name_combination,
 
 int command_line::learn_options(const user_option *option_array, int option_count)
 {
-    if (NULL == option_array || option_count <= 0)
+    if (nullptr == option_array || option_count <= 0)
         return CA_RET(INVALID_PARAM_VALUE);
 
     for (int i = 0; i < option_count; ++i)
@@ -412,19 +412,19 @@ int command_line::learn_options(const user_option *option_array, int option_coun
     return CA_RET_OK;
 }
 
-void command_line::get_parsing_result(std::string *holder/* = NULL*/) const
+void command_line::get_parsing_result(std::string *holder/* = nullptr*/) const
 {
-    if (NULL != holder)
+    if (nullptr != holder)
         holder->clear();
 
     std::string tmp;
-    std::string *result_ptr = (NULL != holder) ? holder : &tmp;
+    std::string *result_ptr = (nullptr != holder) ? holder : &tmp;
     char tmp_str[32];
 
     if (!m_has_parsed)
     {
         *result_ptr = "Command line parsing has not been executed yet.";
-        if (NULL == holder)
+        if (nullptr == holder)
             printf("%s\n", result_ptr->c_str());
         return;
     }
@@ -483,13 +483,13 @@ void command_line::get_parsing_result(std::string *holder/* = NULL*/) const
     result_ptr->append(">>> summary: ").append(tmp_str).append(" single parameter(s) in total\n");
     result_ptr->append("=========================");
 
-    if (NULL == holder)
+    if (nullptr == holder)
         printf("%s\n", result_ptr->c_str());
 }
 
-void command_line::usage(std::string *holder/* = NULL*/) const
+void command_line::usage(std::string *holder/* = nullptr*/) const
 {
-    if (NULL != holder)
+    if (nullptr != holder)
         holder->clear();
 
     const char *program_name = m_program_name.empty() ? "[Unknown program name]"
@@ -497,7 +497,7 @@ void command_line::usage(std::string *holder/* = NULL*/) const
 
     if (!m_usage_header.empty())
     {
-        if (NULL != holder)
+        if (nullptr != holder)
         {
             *holder += program_name;
             *holder += " - ";
@@ -511,7 +511,7 @@ void command_line::usage(std::string *holder/* = NULL*/) const
     const char *usage_format = m_usage_format.empty() ? "[options ...] [targets ...]"
         : m_usage_format.c_str();
 
-    if (NULL != holder)
+    if (nullptr != holder)
     {
         *holder += "Format: ";
         *holder += program_name;
@@ -528,7 +528,7 @@ void command_line::usage(std::string *holder/* = NULL*/) const
     {
         option_name_value_map::const_iterator op_val_iter = m_option_entries.find(option_iter->second);
 
-        if (NULL != holder)
+        if (nullptr != holder)
         {
             *holder += "-";
             *holder += op_val_iter->first;
@@ -550,8 +550,8 @@ void command_line::usage(std::string *holder/* = NULL*/) const
 
 const command_line::option_value_t* command_line::get_option_value(const char *option_name) const
 {
-    if (NULL == option_name)
-        return NULL;
+    if (nullptr == option_name)
+        return nullptr;
 
     option_name_value_map::const_iterator op_val_iter = m_option_entries.end();
     option_name_name_map::const_iterator option_iter = m_option_name_relations.find((option_name_t)option_name);
@@ -562,14 +562,14 @@ const command_line::option_value_t* command_line::get_option_value(const char *o
         op_val_iter = m_option_entries.find(option_iter->second); // @option_name is a long name.
 
     if (m_option_entries.end() == op_val_iter)
-        return NULL;
+        return nullptr;
 
     return &(op_val_iter->second);
 }
 
 int command_line::add_value(const char *option, const std::string &value)
 {
-    if (NULL == option)
+    if (nullptr == option)
     {
         m_single_parameters.push_back(value);
         //cdebug("%s added into m_single_parameters successfully\n", value.c_str());

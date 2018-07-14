@@ -149,7 +149,7 @@ static void test_default_constructor(
     ASSERT_EQ(demo.value(), accessor.get_value());
     ASSERT_EQ(calib::floating_point<FT>::DEFAULT_DECIMAL_PLACE_COUNT, demo.decimal_place_count());
     ASSERT_EQ(demo.decimal_place_count(), accessor.get_decimal_place_count());
-    ASSERT_EQ(NULL, accessor.get_string());
+    ASSERT_EQ(nullptr, accessor.get_string());
 
     SET_G_RET_SUCCESS();
 }
@@ -169,7 +169,7 @@ static void test_other_constructors(
     ASSERT_EQ(demo_default_decimal_place.value(), accessor_default.get_value());
     ASSERT_EQ(calib::floating_point<FT>::DEFAULT_DECIMAL_PLACE_COUNT, demo_default_decimal_place.decimal_place_count());
     ASSERT_EQ(demo_default_decimal_place.decimal_place_count(), accessor_default.get_decimal_place_count());
-    ASSERT_EQ(NULL, accessor_default.get_string());
+    ASSERT_EQ(nullptr, accessor_default.get_string());
 
     calib::floating_point<FT> demo_specific_decimal_place(tested_num, decimal_place_count);
     calib::floating_point_accessor<FT> accessor_specific(demo_specific_decimal_place);
@@ -179,7 +179,7 @@ static void test_other_constructors(
     ASSERT_EQ(demo_specific_decimal_place.value(), accessor_specific.get_value());
     ASSERT_EQ(decimal_place_count, demo_specific_decimal_place.decimal_place_count());
     ASSERT_EQ(demo_specific_decimal_place.decimal_place_count(), accessor_specific.get_decimal_place_count());
-    ASSERT_EQ(NULL, accessor_specific.get_string());
+    ASSERT_EQ(nullptr, accessor_specific.get_string());
 
     SET_G_RET_SUCCESS();
 }
@@ -204,8 +204,8 @@ static void test_copy_constructor(
     ASSERT_EQ(demo_src.value(), demo_copy.value());
     ASSERT_EQ(demo_src.decimal_place_count(), demo_copy.decimal_place_count());
     ASSERT_EQ(calib::floating_point<FT>::DEFAULT_DECIMAL_PLACE_COUNT, demo_src.decimal_place_count());
-    ASSERT_EQ(NULL, accessor_src.get_string());
-    ASSERT_EQ(NULL, accessor_copy.get_string());
+    ASSERT_EQ(nullptr, accessor_src.get_string());
+    ASSERT_EQ(nullptr, accessor_copy.get_string());
 
     SET_G_RET_SUCCESS();
 }
@@ -235,14 +235,14 @@ static void test_assignment_operators(
     for_raw_num = src_num;
     PRINT_DECIMAL_PLACE_COUNT(for_raw_num.decimal_place_count());
     ASSERT_EQ(calib::floating_point<FT>::DEFAULT_DECIMAL_PLACE_COUNT, for_raw_num.decimal_place_count());
-    ASSERT_EQ(NULL, accessor_for_raw.get_string());
-    calib::floating_point<FT>::change_precision(for_raw_num.decimal_place_count(), modified_num, NULL, NULL);
+    ASSERT_EQ(nullptr, accessor_for_raw.get_string());
+    calib::floating_point<FT>::change_precision(for_raw_num.decimal_place_count(), modified_num, nullptr, nullptr);
     ASSERT_TRUE(modified_num == for_raw_num.value());
 
     for_floating_class = for_raw_num;
     PRINT_DECIMAL_PLACE_COUNT(for_floating_class.decimal_place_count());
     ASSERT_EQ(calib::floating_point<FT>::DEFAULT_DECIMAL_PLACE_COUNT, for_floating_class.decimal_place_count());
-    ASSERT_EQ(NULL, accessor_for_class.get_string());
+    ASSERT_EQ(nullptr, accessor_for_class.get_string());
     ASSERT_TRUE(for_floating_class.value() == for_raw_num.value());
 }
 

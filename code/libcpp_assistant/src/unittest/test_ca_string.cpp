@@ -49,13 +49,13 @@ TEST(ca_string, split)
     const char *SHORT_STR = "/usr/local/include/cpp_assistant/";
     const int SHORT_STR_LEN = strlen(SHORT_STR);
 
-    ASSERT_EQ(CA_RET(INVALID_PARAM_VALUE), calib::str::split(NULL, 0, NULL, result));
+    ASSERT_EQ(CA_RET(INVALID_PARAM_VALUE), calib::str::split(nullptr, 0, nullptr, result));
     ASSERT_EQ(0, result.size());
-    ASSERT_EQ(CA_RET(INVALID_PARAM_VALUE), calib::str::split(SHORT_STR, -SHORT_STR_LEN, NULL, result));
+    ASSERT_EQ(CA_RET(INVALID_PARAM_VALUE), calib::str::split(SHORT_STR, -SHORT_STR_LEN, nullptr, result));
     ASSERT_EQ(0, result.size());
-    ASSERT_EQ(CA_RET(INVALID_PARAM_VALUE), calib::str::split(SHORT_STR, 0, NULL, result));
+    ASSERT_EQ(CA_RET(INVALID_PARAM_VALUE), calib::str::split(SHORT_STR, 0, nullptr, result));
     ASSERT_EQ(0, result.size());
-    ASSERT_EQ(CA_RET(INVALID_PARAM_VALUE), calib::str::split(SHORT_STR, SHORT_STR_LEN, NULL, result));
+    ASSERT_EQ(CA_RET(INVALID_PARAM_VALUE), calib::str::split(SHORT_STR, SHORT_STR_LEN, nullptr, result));
     ASSERT_EQ(0, result.size());
     ASSERT_EQ(CA_RET(OK), calib::str::split(SHORT_STR, SHORT_STR_LEN, DELIM_SLASH, result));
     ASSERT_EQ(4, result.size());
@@ -72,7 +72,7 @@ TEST(ca_string, split)
     char *long_str = (char*)calloc(LONG_STR_CAPACITY, sizeof(char));
     int long_str_len = 0;
 
-    ASSERT_TRUE(NULL != long_str);
+    ASSERT_TRUE(nullptr != long_str);
 
     const char *NODE_1 = "哈哈";
     const char *NODE_2 = "呵呵";

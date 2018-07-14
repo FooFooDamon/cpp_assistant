@@ -38,7 +38,7 @@
 CA_LIB_NAMESPACE_BEGIN
 
 DEFINE_CLASS_NAME(sequential_buffer);
-const void* sequential_buffer::OVERFLOW_PTR = NULL;
+const void* sequential_buffer::OVERFLOW_PTR = nullptr;
 
 sequential_buffer::sequential_buffer()
 {
@@ -72,7 +72,7 @@ sequential_buffer::~sequential_buffer()
 
 int sequential_buffer::create(int size)
 {
-    if (NULL != m_data)
+    if (nullptr != m_data)
         return CA_RET(OBJECT_ALREADY_EXISTS);
 
     return innerly_create(size);
@@ -96,7 +96,7 @@ int sequential_buffer::resize(int new_size)
 
     void *new_buf = calloc(new_size, sizeof(char));
 
-    if (NULL == new_buf)
+    if (nullptr == new_buf)
         return CA_RET(MEMORY_ALLOC_FAILED);
 
     int data_size = (this->data_size() <= new_size) ? this->data_size() : new_size;
@@ -119,7 +119,7 @@ int sequential_buffer::read(const int len, void *data)
     if (empty() || 0 == len)
         return 0;
 
-    if (len < 0 || NULL == data)
+    if (len < 0 || nullptr == data)
         return CA_RET(INVALID_PARAM_VALUE);
 
     int available_len = this->data_size();
@@ -142,7 +142,7 @@ int sequential_buffer::write(const int len, const void *data)
     if (full() || 0 == len)
         return 0;
 
-    if (len < 0 || NULL == data)
+    if (len < 0 || nullptr == data)
         return CA_RET(INVALID_PARAM_VALUE);
 
     int available_len = this->free_size();
@@ -162,8 +162,8 @@ int sequential_buffer::write(const int len, const void *data)
 
 void* sequential_buffer::get_read_pointer(void)
 {
-    if (NULL == m_data)
-        return NULL;
+    if (nullptr == m_data)
+        return nullptr;
 
     if (has_overflown_pointer())
         move_data_to_header();
@@ -177,7 +177,7 @@ void* sequential_buffer::get_read_pointer(void)
 int sequential_buffer::move_read_pointer(const int offset)
 {
     if (offset <= 0 ||
-        NULL == m_data)
+        nullptr == m_data)
         return 0;
 
     if (has_overflown_pointer())
@@ -207,8 +207,8 @@ int sequential_buffer::move_read_pointer(const int offset)
 
 void* sequential_buffer::get_write_pointer(void)
 {
-    if (NULL == m_data)
-        return NULL;
+    if (nullptr == m_data)
+        return nullptr;
 
     if (has_overflown_pointer())
         move_data_to_header();
@@ -222,7 +222,7 @@ void* sequential_buffer::get_write_pointer(void)
 int sequential_buffer::move_write_pointer(const int offset)
 {
     if (offset <= 0 ||
-        NULL == m_data)
+        nullptr == m_data)
         return 0;
 
     if (has_overflown_pointer())
@@ -297,12 +297,12 @@ int sequential_buffer::innerly_create(int size)
     if (size < MIN_BUF_SIZE)
         size = MIN_BUF_SIZE;
 
-    if (m_total_size == size && NULL != m_data)
+    if (m_total_size == size && nullptr != m_data)
         return CA_RET_OK;
 
     clear();
 
-    if (NULL == (m_data = calloc(size, sizeof(char))))
+    if (nullptr == (m_data = calloc(size, sizeof(char))))
         return CA_RET(MEMORY_ALLOC_FAILED);
 
     m_total_size = size;
@@ -336,7 +336,7 @@ int sequential_buffer::copy_from(const sequential_buffer& src)
 
 void sequential_buffer::init(void)
 {
-    m_data = NULL;
+    m_data = nullptr;
     m_total_size = 0;
     m_read_pos = 0;
     m_write_pos = 0;
@@ -344,10 +344,10 @@ void sequential_buffer::init(void)
 
 void sequential_buffer::clear(void)
 {
-    if (NULL != m_data)
+    if (nullptr != m_data)
     {
         free(m_data);
-        m_data = NULL;
+        m_data = nullptr;
     }
     m_total_size = 0;
     m_read_pos = 0;

@@ -63,64 +63,64 @@ using std::lock_guard;
 class mutex : public noncopyable
 {
 public:
-	mutex()
-	{
-		;
-	}
+    mutex()
+    {
+        ;
+    }
 
-	~mutex()
-	{
-		pthread_mutex_destroy(&m_native_mutex);
-	}
+    ~mutex()
+    {
+        pthread_mutex_destroy(&m_native_mutex);
+    }
 
-	typedef pthread_mutex_t* 			native_handle_type;
+    typedef pthread_mutex_t*            native_handle_type;
 
-	inline void lock(void)
-	{
-		pthread_mutex_lock(&m_native_mutex); // TODO: throw exception if failed.
-	}
+    inline void lock(void)
+    {
+        pthread_mutex_lock(&m_native_mutex); // TODO: throw exception if failed.
+    }
 
-	inline bool try_lock(void)
-	{
-		return (0 == pthread_mutex_trylock(&m_native_mutex));
-	}
+    inline bool try_lock(void)
+    {
+        return (0 == pthread_mutex_trylock(&m_native_mutex));
+    }
 
-	inline void unlock(void)
-	{
-		pthread_mutex_unlock(&m_native_mutex);
-	}
+    inline void unlock(void)
+    {
+        pthread_mutex_unlock(&m_native_mutex);
+    }
 
-	inline native_handle_type native_handle(void)
-	{
-		return &m_native_mutex;
-	}
+    inline native_handle_type native_handle(void)
+    {
+        return &m_native_mutex;
+    }
 
 private:
-	pthread_mutex_t m_native_mutex = PTHREAD_MUTEX_INITIALIZER;
+    pthread_mutex_t m_native_mutex = PTHREAD_MUTEX_INITIALIZER;
 };
 
 template<typename T>
 class lock_guard : public noncopyable
 {
 public:
-	explicit lock_guard(T& target_mutex)
-		: m_mutex(target_mutex)
-	{
-		m_mutex.lock();
-	}
+    explicit lock_guard(T& target_mutex)
+        : m_mutex(target_mutex)
+    {
+        m_mutex.lock();
+    }
 
-	// TODO: lock_guard(T& target_mutext, adopt_lock_t)
+    // TODO: lock_guard(T& target_mutext, adopt_lock_t)
 
-	~lock_guard()
-	{
-		m_mutex.unlock();
-	}
-
-private:
-	lock_guard();
+    ~lock_guard()
+    {
+        m_mutex.unlock();
+    }
 
 private:
-	T& m_mutex;
+    lock_guard();
+
+private:
+    T& m_mutex;
 };
 
 #endif // if CA_SINCE_CPP_11

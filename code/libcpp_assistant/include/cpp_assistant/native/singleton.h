@@ -99,10 +99,10 @@ public:
 public:
     static CA_THREAD_SAFE inline T* get_instance(void)
     {
-        if (NULL == m_instance)
+        if (nullptr == m_instance)
         {
             lock_guard<mutex> lock(m_lock);
-            if (NULL == m_instance)
+            if (nullptr == m_instance)
             {
                 static T ins; // Constructor of a common class or a derived class has to be accessible to singleton<T>.
                 m_instance = &ins;
@@ -144,7 +144,7 @@ private:
     static mutex m_lock;
 };
 
-template<typename T> T* singleton<T>::m_instance = NULL;
+template<typename T> T* singleton<T>::m_instance = nullptr;
 template<typename T> mutex singleton<T>::m_lock;
 
 CA_LIB_NAMESPACE_END

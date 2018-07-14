@@ -74,7 +74,7 @@ CA_REENTRANT const char *desc_of_connection_status(int src_value)
 CA_REENTRANT const char *desc_of_connection_type(int src_value)
 {
     if (src_value < CONN_TYPE_MIN || src_value > CONN_TYPE_MAX)
-        return NULL;
+        return nullptr;
 
     const char *desc[] = {
         "connection type: none",
@@ -98,10 +98,10 @@ static void init_net_connection(net_conn &conn)
     conn.conn_status = CONN_STATUS_DISCONNECTED;
     conn.is_blocking = true;
     conn.is_validated = false;
-    conn.send_buf = NULL;
-    conn.recv_buf = NULL;
+    conn.send_buf = nullptr;
+    conn.recv_buf = nullptr;
     conn.last_op_time = 0;
-    conn.owner = NULL;
+    conn.owner = nullptr;
 }
 
 CA_REENTRANT net_conn *create_net_connection(int send_buf_size, int recv_buf_size)
@@ -110,7 +110,7 @@ CA_REENTRANT net_conn *create_net_connection(int send_buf_size, int recv_buf_siz
     bool needs_send_buf = (send_buf_size > 0), needs_recv_buf = (recv_buf_size > 0);
     bool send_buf_ok = false, recv_buf_ok = false;
 
-    if (NULL == conn)
+    if (nullptr == conn)
     {
         nserror(CA_LIB_NAMESPACE_STR, "malloc() for new connection node failed\n");
         goto CREATE_FAILED;
@@ -119,8 +119,8 @@ CA_REENTRANT net_conn *create_net_connection(int send_buf_size, int recv_buf_siz
 
     try
     {
-        conn->send_buf = needs_send_buf ? (new buffer(send_buf_size)) : NULL;
-        conn->recv_buf = needs_recv_buf ? (new buffer(recv_buf_size)) : NULL;
+        conn->send_buf = needs_send_buf ? (new buffer(send_buf_size)) : nullptr;
+        conn->recv_buf = needs_recv_buf ? (new buffer(recv_buf_size)) : nullptr;
     }
     catch (std::bad_alloc& e)
     {
@@ -129,9 +129,9 @@ CA_REENTRANT net_conn *create_net_connection(int send_buf_size, int recv_buf_siz
     }
 
     send_buf_ok = (!needs_send_buf) ? true
-        : (NULL != conn->send_buf && NULL != conn->send_buf->data());
+        : (nullptr != conn->send_buf && nullptr != conn->send_buf->data());
     recv_buf_ok = (!needs_recv_buf) ? true
-        : (NULL != conn->recv_buf && NULL != conn->recv_buf->data());
+        : (nullptr != conn->recv_buf && nullptr != conn->recv_buf->data());
     if (!send_buf_ok || !recv_buf_ok)
     {
         nserror(CA_LIB_NAMESPACE_STR, "new() for connection buffer failed\n");
@@ -142,55 +142,55 @@ CA_REENTRANT net_conn *create_net_connection(int send_buf_size, int recv_buf_siz
 
 CREATE_FAILED:
 
-    if (NULL != conn)
+    if (nullptr != conn)
     {
-        if (NULL != conn->send_buf)
+        if (nullptr != conn->send_buf)
         {
             delete(conn->send_buf);
-            conn->send_buf = NULL;
+            conn->send_buf = nullptr;
         }
-        if (NULL != conn->recv_buf)
+        if (nullptr != conn->recv_buf)
         {
             delete(conn->recv_buf);
-            conn->recv_buf = NULL;
+            conn->recv_buf = nullptr;
         }
         free(conn);
-        conn = NULL;
+        conn = nullptr;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 CA_REENTRANT void destroy_net_connection(net_conn **conn)
 {
-    if ((net_conn **)NULL == conn)
+    if ((net_conn **)nullptr == conn)
         return;
 
-    if (NULL != *conn)
+    if (nullptr != *conn)
     {
         if ((*conn)->fd >= 0)
             close((*conn)->fd);
 
-        if (NULL != (*conn)->send_buf)
+        if (nullptr != (*conn)->send_buf)
         {
             delete((*conn)->send_buf);
-            (*conn)->send_buf = NULL;
+            (*conn)->send_buf = nullptr;
         }
 
-        if (NULL != (*conn)->recv_buf)
+        if (nullptr != (*conn)->recv_buf)
         {
             delete((*conn)->recv_buf);
-            (*conn)->recv_buf = NULL;
+            (*conn)->recv_buf = nullptr;
         }
 
         free(*conn);
-        *conn = NULL;
+        *conn = nullptr;
     }
 }
 
 CA_REENTRANT bool is_valid_ipv4(const char *ip)
 {
-    if (NULL == ip)
+    if (nullptr == ip)
         return false;
 
     uint32_t addr_num_value = 0;

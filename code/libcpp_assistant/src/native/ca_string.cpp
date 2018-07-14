@@ -44,25 +44,25 @@ CA_REENTRANT int split(const char *src,
 {
     result.clear();
 
-    if (NULL == src ||
+    if (nullptr == src ||
         src_len <= 0 ||
-        NULL == delim)
+        nullptr == delim)
         return CA_RET(INVALID_PARAM_VALUE);
 
     bool is_long_str = (src_len + 1 > MAX_STRING_LEN_IN_STACK);
-    char *buf_heap = NULL;
+    char *buf_heap = nullptr;
 
     if (is_long_str)
     {
         buf_heap = (char*)calloc(src_len + 1, sizeof(char));
-        if (NULL == buf_heap)
+        if (nullptr == buf_heap)
             return CA_RET(MEMORY_ALLOC_FAILED);
     }
 
     char buf_stack[MAX_STRING_LEN_IN_STACK] = {0};
     char *buf = is_long_str ? buf_heap : buf_stack;
-    char *part = NULL;
-    char *save_ptr = NULL;
+    char *part = nullptr;
+    char *save_ptr = nullptr;
     std::string tmp;
 
     //nsdebug(CA_LIB_NAMESPACE_STR"::str", "address: buf_stack[%p], buf_heap[%p], buf[%p]\n", buf_stack, buf_heap, buf);
@@ -70,7 +70,7 @@ CA_REENTRANT int split(const char *src,
     //nsdebug(CA_LIB_NAMESPACE_STR"::str", "before splitting, buf: %s\n", buf);
 
     part = strtok_r(buf, delim, &save_ptr);
-    while (NULL != part)
+    while (nullptr != part)
     {
         //nsdebug(CA_LIB_NAMESPACE_STR"::str", "part: %s\n", part);
         tmp.clear();
@@ -86,7 +86,7 @@ CA_REENTRANT int split(const char *src,
             result.clear();
             return CA_RET_GENERAL_FAILURE;
         }
-        part = strtok_r(NULL, delim, &save_ptr);
+        part = strtok_r(nullptr, delim, &save_ptr);
     }
 
     //nsdebug(CA_LIB_NAMESPACE_STR"::str", "after splitting, buf: %s\n", buf);
