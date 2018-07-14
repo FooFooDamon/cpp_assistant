@@ -10,6 +10,6 @@ else
 	DEBUG_FLAG =
 	OPTIMIZE_FLAG = -O2
 endif
-CFLAGS += $(DEFINES) $(INCLUDES) $(OPTIMIZE_FLAG) -g -fPIC
+CFLAGS += $(DEFINES) $(INCLUDES) $(OPTIMIZE_FLAG) -g -fPIC -Wno-misleading-indentation
 CXXFLAGS = $(CFLAGS) -ftemplate-depth-128
 LDFLAGS +=

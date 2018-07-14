@@ -53,25 +53,14 @@ DEFINE_CLASS_NAME(logger);
 
 logger::logger()
     : m_log_level(LOG_LEVEL_ALL)
+	, m_instant_level(LOG_LEVEL_ALL)
     , m_is_open(false)
-    , m_output_holder(NULL)
+    , m_output_holder(nullptr)
     , m_cur_line(0)
     , m_log_num(0)
+	, m_to_screen(false) // has to be initialized again in the constructor of a specified derived class
 {
     memset(&m_date, 0, sizeof(struct tm));
-#if 0 // It is meaningless in initialization of base class.
-    std::string who;
-
-    who.append(typeid(*this).name());
-    std::transform(who.begin(), who.end(), who.begin(), tolower);
-    if (NULL != strstr(who.c_str(), "screen") || NULL != strstr(who.c_str(), "terminal"))
-        m_to_screen = true;
-    else
-        m_to_screen = false;
-    cdebug("type: %s, m_to_screen: %d\n", who.c_str(), m_to_screen);
-#else
-    m_to_screen = false; // defaults to false.
-#endif
 }
 
 logger::~logger()
@@ -282,6 +271,16 @@ int logger::d(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
     CALL_FORMATED_OUTPUT(true, LOG_LEVEL_DEBUG, fmt);
 }
 
+int logger::DEBUG(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
+{
+    CALL_FORMATED_OUTPUT(true, LOG_LEVEL_DEBUG, fmt);
+}
+
+int logger::D(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
+{
+    CALL_FORMATED_OUTPUT(true, LOG_LEVEL_DEBUG, fmt);
+}
+
 int logger::info(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
 {
     CALL_FORMATED_OUTPUT(true, LOG_LEVEL_INFO, fmt);
@@ -292,12 +291,42 @@ int logger::i(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
     CALL_FORMATED_OUTPUT(true, LOG_LEVEL_INFO, fmt);
 }
 
+int logger::INFO(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
+{
+    CALL_FORMATED_OUTPUT(true, LOG_LEVEL_INFO, fmt);
+}
+
+int logger::I(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
+{
+    CALL_FORMATED_OUTPUT(true, LOG_LEVEL_INFO, fmt);
+}
+
 int logger::warn(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
 {
     CALL_FORMATED_OUTPUT(true, LOG_LEVEL_WARNING, fmt);
 }
 
+int logger::warning(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
+{
+    CALL_FORMATED_OUTPUT(true, LOG_LEVEL_WARNING, fmt);
+}
+
 int logger::w(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
+{
+    CALL_FORMATED_OUTPUT(true, LOG_LEVEL_WARNING, fmt);
+}
+
+int logger::WARN(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
+{
+    CALL_FORMATED_OUTPUT(true, LOG_LEVEL_WARNING, fmt);
+}
+
+int logger::WARNING(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
+{
+    CALL_FORMATED_OUTPUT(true, LOG_LEVEL_WARNING, fmt);
+}
+
+int logger::W(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
 {
     CALL_FORMATED_OUTPUT(true, LOG_LEVEL_WARNING, fmt);
 }
@@ -312,12 +341,32 @@ int logger::e(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
     CALL_FORMATED_OUTPUT(true, LOG_LEVEL_ERROR, fmt);
 }
 
+int logger::ERROR(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
+{
+    CALL_FORMATED_OUTPUT(true, LOG_LEVEL_ERROR, fmt);
+}
+
+int logger::E(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
+{
+    CALL_FORMATED_OUTPUT(true, LOG_LEVEL_ERROR, fmt);
+}
+
 int logger::critical(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
 {
     CALL_FORMATED_OUTPUT(true, LOG_LEVEL_CRITICAL, fmt);
 }
 
 int logger::c(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
+{
+    CALL_FORMATED_OUTPUT(true, LOG_LEVEL_CRITICAL, fmt);
+}
+
+int logger::CRITICAL(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
+{
+    CALL_FORMATED_OUTPUT(true, LOG_LEVEL_CRITICAL, fmt);
+}
+
+int logger::C(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
 {
     CALL_FORMATED_OUTPUT(true, LOG_LEVEL_CRITICAL, fmt);
 }

@@ -32,6 +32,41 @@
 #include "base/debug.h"
 #include "file_logger.h"
 
+static void stream_logging_test(calib::logger &logger, calib::enum_log_level log_level)
+{
+	const char *prefix = "stream logging test with log level ";
+	float float_value = 1.23;
+	double double_value = 1.23456;
+	long double long_double_value = 1.23456789;
+	char char_value = 1;
+	unsigned char unsigned_char_value = 2;
+	short int short_int_value = 3;
+	unsigned short int unsigned_short_int_value = 4;
+	int int_value = 5;
+	unsigned int unsigned_int_value = 6;
+	long int long_int_value = 7;
+	unsigned long int unsigned_long_int_value = 8;
+	long long int long_long_int_value = 9;
+	unsigned long long int unsigned_long_long_int_value = 10;
+	std::string string_value = "This is a string, not a char*.";
+
+	logger.get_stream(log_level) << prefix << log_level << ": bool: " << true;
+	logger.get_stream(log_level) << prefix << log_level << ": float_value: " << float_value;
+	logger.get_stream(log_level) << prefix << log_level << ": double_value: " << double_value;
+	logger.get_stream(log_level) << prefix << log_level << ": long_double_value: " << long_double_value;
+	logger.get_stream(log_level) << prefix << log_level << ": char_value: " << char_value;
+	logger.get_stream(log_level) << prefix << log_level << ": unsigned_char_value: " << unsigned_char_value;
+	logger.get_stream(log_level) << prefix << log_level << ": short_int_value: " << short_int_value;
+	logger.get_stream(log_level) << prefix << log_level << ": unsigned_short_int_value: " << unsigned_short_int_value;
+	logger.get_stream(log_level) << prefix << log_level << ": int_value: " << int_value;
+	logger.get_stream(log_level) << prefix << log_level << ": unsigned_int_value: " << unsigned_int_value;
+	logger.get_stream(log_level) << prefix << log_level << ": long_int_value: " << long_int_value;
+	logger.get_stream(log_level) << prefix << log_level << ": unsigned_long_int_value: " << unsigned_long_int_value;
+	logger.get_stream(log_level) << prefix << log_level << ": long_long_int_value: " << long_long_int_value;
+	logger.get_stream(log_level) << prefix << log_level << ": unsigned_long_long_int_value: " << unsigned_long_long_int_value;
+	logger.get_stream(log_level) << prefix << log_level << ": string_value: " << string_value;
+}
+
 TEST(file_logger, AllInOne)
 {
     const char *TEST_STR = "文件日志记录器测试\n";
@@ -228,6 +263,7 @@ TEST(file_logger, AllInOne)
             ASSERT_EQ(debug_macro_is_defined ? CA_RET(NULL_PARAM) : 0, logger.d(NULL));
             ASSERT_EQ(0, logger.d("%s", TEST_STR));
         }
+        stream_logging_test(logger, calib::LOG_LEVEL_DEBUG);
 
         if (logger.log_level() <= calib::LOG_LEVEL_INFO)
         {
@@ -239,6 +275,7 @@ TEST(file_logger, AllInOne)
             ASSERT_EQ(debug_macro_is_defined ? CA_RET(NULL_PARAM) : 0, logger.i(NULL));
             ASSERT_EQ(0, logger.i("%s", TEST_STR));
         }
+        stream_logging_test(logger, calib::LOG_LEVEL_INFO);
 
         if (logger.log_level() <= calib::LOG_LEVEL_WARNING)
         {
@@ -250,6 +287,7 @@ TEST(file_logger, AllInOne)
             ASSERT_EQ(debug_macro_is_defined ? CA_RET(NULL_PARAM) : 0, logger.w(NULL));
             ASSERT_EQ(0, logger.w("%s", TEST_STR));
         }
+        stream_logging_test(logger, calib::LOG_LEVEL_WARNING);
 
         if (logger.log_level() <= calib::LOG_LEVEL_ERROR)
         {
@@ -261,6 +299,7 @@ TEST(file_logger, AllInOne)
             ASSERT_EQ(debug_macro_is_defined ? CA_RET(NULL_PARAM) : 0, logger.e(NULL));
             ASSERT_EQ(0, logger.e("%s", TEST_STR));
         }
+        stream_logging_test(logger, calib::LOG_LEVEL_ERROR);
 
         if (logger.log_level() <= calib::LOG_LEVEL_CRITICAL)
         {
@@ -272,6 +311,7 @@ TEST(file_logger, AllInOne)
             ASSERT_EQ(debug_macro_is_defined ? CA_RET(NULL_PARAM) : 0, logger.c(NULL));
             ASSERT_EQ(0, logger.c("%s", TEST_STR));
         }
+        stream_logging_test(logger, calib::LOG_LEVEL_CRITICAL);
     }
 
     ASSERT_EQ(CA_RET_OK, logger.close());
