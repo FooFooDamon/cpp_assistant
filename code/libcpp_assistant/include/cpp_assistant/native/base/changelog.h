@@ -51,6 +51,14 @@
  *
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  *
+ * wxc, 2018/07/14, 0.03.01:
+ *      1. Added the conversion between bool and string in str::to_string()
+ *          and str::from_string().
+ *      2. include -> include/cpp_assistant.
+ *      3. Added more aliases for logger::debug/info/warn/error/critical(),
+ *          stream-style logger interfaces (logger::<< operator overloading).
+ *      4. Adjusted some compilation parameters.
+ *
  * wxc, 2018/07/08, 0.03.00:
  *      1. Added supports for some points of c++11 standard, such as override,
  *          nullptr, mutex and lock_guard.

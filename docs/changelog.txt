@@ -1,3 +1,11 @@
+wxc, 2018/07/14, v0.0.14:
+	libcpp_assistant改进：
+	1、str::to/from_string()增加对bool类型的支持；
+	2、include目录改为include/cpp_assistant；
+	3、为logger::debug/info/warn/error/critical()增加更多别名；
+	4、为logger类增加流式输出接口，即 << 运算符重载；
+	5、调整部分编译参数。
+
 wxc, 2018/07/08, v0.0.13:
 	1、libcpp_assistant加入对部分C++11特性的支持，以及namespace内的接口改成
 		类静态成员函数
