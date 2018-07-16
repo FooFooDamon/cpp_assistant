@@ -34,10 +34,7 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
-namespace str
-{
-
-CA_REENTRANT int split(const char *src,
+CA_REENTRANT /* static */int str::split(const char *src,
     const int src_len,
     const char *delim,
     std::vector<std::string> &result)
@@ -49,7 +46,7 @@ CA_REENTRANT int split(const char *src,
         nullptr == delim)
         return CA_RET(INVALID_PARAM_VALUE);
 
-    bool is_long_str = (src_len + 1 > MAX_STRING_LEN_IN_STACK);
+    bool is_long_str = (src_len + 1 > MAX_LEN_IN_STACK);
     char *buf_heap = nullptr;
 
     if (is_long_str)
@@ -59,7 +56,7 @@ CA_REENTRANT int split(const char *src,
             return CA_RET(MEMORY_ALLOC_FAILED);
     }
 
-    char buf_stack[MAX_STRING_LEN_IN_STACK] = {0};
+    char buf_stack[MAX_LEN_IN_STACK] = {0};
     char *buf = is_long_str ? buf_heap : buf_stack;
     char *part = nullptr;
     char *save_ptr = nullptr;
@@ -95,7 +92,5 @@ CA_REENTRANT int split(const char *src,
 
     return CA_RET_OK;
 }
-
-} // namespace str
 
 CA_LIB_NAMESPACE_END
