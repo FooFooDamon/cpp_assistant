@@ -45,7 +45,7 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
-class sys : no_instance
+class sys : public no_instance
 {
 public:
     static inline CA_REENTRANT bool host_is_big_endian(void)

@@ -46,7 +46,7 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
-class xml : no_instance
+class xml : public no_instance
 {
 public:
 

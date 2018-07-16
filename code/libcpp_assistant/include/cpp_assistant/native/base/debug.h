@@ -110,7 +110,7 @@ CA_LIB_NAMESPACE_BEGIN
 
 typedef int (*format_output_func)(const char *fmt, ...);
 
-class debug : no_instance
+class debug : public no_instance
 {
 public:
     /*
