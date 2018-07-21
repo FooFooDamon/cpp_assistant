@@ -112,7 +112,7 @@ CA_REENTRANT net_conn *create_net_connection(int send_buf_size, int recv_buf_siz
 
     if (nullptr == conn)
     {
-        nserror(CA_LIB_NAMESPACE_STR, "malloc() for new connection node failed\n");
+        nserror(::, "malloc() for new connection node failed\n");
         goto CREATE_FAILED;
     }
     init_net_connection(*conn);
@@ -124,7 +124,7 @@ CA_REENTRANT net_conn *create_net_connection(int send_buf_size, int recv_buf_siz
     }
     catch (std::bad_alloc& e)
     {
-        nserror(CA_LIB_NAMESPACE_STR, "exception caught during new() for connection buffer: %s\n", e.what());
+        nserror(::, "exception caught during new() for connection buffer: %s\n", e.what());
         goto CREATE_FAILED;
     }
 
@@ -134,7 +134,7 @@ CA_REENTRANT net_conn *create_net_connection(int send_buf_size, int recv_buf_siz
         : (nullptr != conn->recv_buf && nullptr != conn->recv_buf->data());
     if (!send_buf_ok || !recv_buf_ok)
     {
-        nserror(CA_LIB_NAMESPACE_STR, "new() for connection buffer failed\n");
+        nserror(::, "new() for connection buffer failed\n");
         goto CREATE_FAILED;
     }
 

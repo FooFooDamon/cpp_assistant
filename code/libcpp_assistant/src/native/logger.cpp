@@ -49,7 +49,7 @@ const bool NO_LOG_PREFIX = false;
 const bool RELEASES_LOG_BUF_ON_CLOSE = true;
 const bool NOT_RELEASE_LOG_BUF_ON_CLOSE = false;
 
-DEFINE_CLASS_NAME(logger);
+//DEFINE_CLASS_NAME(logger);
 
 logger::logger()
     : m_log_level(LOG_LEVEL_ALL)
@@ -271,7 +271,7 @@ int logger::d(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
     CALL_FORMATED_OUTPUT(true, LOG_LEVEL_DEBUG, fmt);
 }
 
-int logger::DEBUG(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
+int logger::DEBUGGING(const char *fmt, ...) /* CA_NOTNULL(2)  CA_PRINTF_CHECK(2, 3) */
 {
     CALL_FORMATED_OUTPUT(true, LOG_LEVEL_DEBUG, fmt);
 }

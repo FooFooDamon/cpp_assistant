@@ -158,7 +158,7 @@ public:
  * attributes:
  * =================================== */
 public:
-    DEFINE_CLASS_NAME_FUNC()
+    //DEFINE_CLASS_NAME_FUNC()
 
     inline void *data(void) const
     {
@@ -244,7 +244,7 @@ protected:
  * data:
  * =================================== */
 protected:
-    DECLARE_CLASS_NAME_VAR();
+    //DECLARE_CLASS_NAME_VAR();
     void *m_data;
     int m_total_size;
     int m_read_pos;

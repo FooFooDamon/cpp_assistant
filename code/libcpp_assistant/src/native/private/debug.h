@@ -101,18 +101,15 @@ void __error(const char *format, ...) CA_NOTNULL(1) CA_PRINTF_CHECK(1, 2);
 
 #define debug_is_enabled                                __debug_is_enabled
 #define cdebug(fmt, ...)                                __output(__debug, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define csdebug(_class_, fmt, ...)                      __output(__debug, _class_::class_name(), "::", fmt, ##__VA_ARGS__)
-#define nsdebug(ns_str, fmt, ...)                       __output(__debug, ns_str, "::", fmt, ##__VA_ARGS__)
+#define nsdebug(_namespace_, fmt, ...)                  __output(__debug, CA_LIB_NAMESPACE_STR "::" #_namespace_, "::", fmt, ##__VA_ARGS__)
 
 #define __error_report_is_enabled                       __error_report_is_enabled
 
 #define cwarn(fmt, ...)                                 __output(__warn, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define cswarn(_class_, fmt, ...)                       __output(__warn, _class_::class_name(), "::", fmt, ##__VA_ARGS__)
-#define nswarn(ns_str, fmt, ...)                        __output(__warn, ns_str, "::", fmt, ##__VA_ARGS__)
+#define nswarn(_namespace_, fmt, ...)                   __output(__warn, CA_LIB_NAMESPACE_STR "::" #_namespace_, "::", fmt, ##__VA_ARGS__)
 
 #define cerror(fmt, ...)                                __output(__error, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define cserror(_class_, fmt, ...)                      __output(__error, _class_::class_name(), "::", fmt, ##__VA_ARGS__)
-#define nserror(ns_str, fmt, ...)                       __output(__error, ns_str, "::", fmt, ##__VA_ARGS__)
+#define nserror(_namespace_, fmt, ...)                  __output(__error, CA_LIB_NAMESPACE_STR "::" #_namespace_, "::", fmt, ##__VA_ARGS__)
 
 CA_LIB_NAMESPACE_END
 

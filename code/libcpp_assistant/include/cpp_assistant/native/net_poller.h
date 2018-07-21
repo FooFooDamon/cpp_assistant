@@ -162,7 +162,7 @@ public:
  * attributes:
  * =================================== */
 public:
-    DEFINE_CLASS_NAME_FUNC()
+    //DEFINE_CLASS_NAME_FUNC()
 
     inline void set_timeout(int milliseconds)
     {
@@ -231,7 +231,7 @@ protected:
  * data:
  * =================================== */
 private:
-    DECLARE_CLASS_NAME_VAR();
+    //DECLARE_CLASS_NAME_VAR();
     int m_fd;
     int m_max_connection_count;
     int m_current_connection_count;

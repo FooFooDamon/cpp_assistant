@@ -89,7 +89,7 @@ public:
  * attributes:
  * =================================== */
 public:
-    DEFINE_CLASS_NAME_FUNC()
+    //DEFINE_CLASS_NAME_FUNC()
 
 /* ===================================
  * status:
@@ -112,7 +112,7 @@ protected:
  * data:
  * =================================== */
 protected:
-    DECLARE_CLASS_NAME_VAR();
+    //DECLARE_CLASS_NAME_VAR();
     static bool m_is_daemonized;
     static std::set<clean_func> m_clean_funcs;
 };

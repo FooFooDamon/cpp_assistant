@@ -76,7 +76,7 @@ public:
  * attributes:
  * =================================== */
 public:
-    DEFINE_CLASS_NAME_FUNC()
+    //DEFINE_CLASS_NAME_FUNC()
 
     virtual int directory_length_limit(void)/*  = 0 */
     {
@@ -90,7 +90,7 @@ public:
 
     virtual const char *log_name(void) const/*  = 0 */
     {
-        return this->class_name();
+        return typeid(this).name();
     }
 
     virtual int set_log_name(const char *base_name = nullptr)/*  = 0 */
@@ -137,7 +137,7 @@ protected:
  * data:
  * =================================== */
 protected:
-    DECLARE_CLASS_NAME_VAR();
+    //DECLARE_CLASS_NAME_VAR();
 };
 
 typedef screen_logger terminal_logger;

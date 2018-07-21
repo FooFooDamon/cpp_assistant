@@ -62,14 +62,14 @@ CA_REENTRANT /* static */int str::split(const char *src,
     char *save_ptr = nullptr;
     std::string tmp;
 
-    //nsdebug(CA_LIB_NAMESPACE_STR"::str", "address: buf_stack[%p], buf_heap[%p], buf[%p]\n", buf_stack, buf_heap, buf);
+    //nsdebug(str, "address: buf_stack[%p], buf_heap[%p], buf[%p]\n", buf_stack, buf_heap, buf);
     strncpy(buf, src, strlen(src));
-    //nsdebug(CA_LIB_NAMESPACE_STR"::str", "before splitting, buf: %s\n", buf);
+    //nsdebug(str, "before splitting, buf: %s\n", buf);
 
     part = strtok_r(buf, delim, &save_ptr);
     while (nullptr != part)
     {
-        //nsdebug(CA_LIB_NAMESPACE_STR"::str", "part: %s\n", part);
+        //nsdebug(str, "part: %s\n", part);
         tmp.clear();
         tmp += part;
         try
@@ -78,7 +78,7 @@ CA_REENTRANT /* static */int str::split(const char *src,
         }
         catch (std::exception& e)
         {
-            nserror(CA_LIB_NAMESPACE_STR"::str", "result.push_back() failed: %s\n", e.what());
+            nserror(str, "result.push_back() failed: %s\n", e.what());
             if (is_long_str) free(buf_heap);
             result.clear();
             return CA_RET_GENERAL_FAILURE;
@@ -86,7 +86,7 @@ CA_REENTRANT /* static */int str::split(const char *src,
         part = strtok_r(nullptr, delim, &save_ptr);
     }
 
-    //nsdebug(CA_LIB_NAMESPACE_STR"::str", "after splitting, buf: %s\n", buf);
+    //nsdebug(str, "after splitting, buf: %s\n", buf);
 
     if (is_long_str) free(buf_heap);
 

@@ -72,39 +72,59 @@
 #define CA_RAW_DEBUG(fmt, ...)                  CA_OUTPUT_RAW(CA_GET_MUTABLE_DEBUG_OUTPUT_HOLDER(), fmt, ##__VA_ARGS__)
 #define CA_DEBUG(fmt, ...)                      CA_DEBUG_BASE("", "", "", fmt, ##__VA_ARGS__)
 #define CA_DEBUG_C(fmt, ...)                    CA_DEBUG_BASE("", typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define CA_DEBUG_CS(_class_, fmt, ...)          CA_DEBUG_BASE("", _class_::class_name(), "::", fmt, ##__VA_ARGS__)
-#define CA_DEBUG_NS(ns_str, fmt, ...)           CA_DEBUG_BASE("", ns_str, "::", fmt, ##__VA_ARGS__)
+#define CA_DEBUG_NS(_namespace_, fmt, ...)      CA_DEBUG_BASE("", #_namespace_, "::", fmt, ##__VA_ARGS__)
 #else
 #define CA_RAW_DEBUG(fmt, ...)                  do{;}while(0)
 #define CA_DEBUG(fmt, ...)                      do{;}while(0)
 #define CA_DEBUG_C(fmt, ...)                    do{;}while(0)
-#define CA_DEBUG_CS(fmt, ...)                   do{;}while(0)
-#define CA_DEBUG_NS(ns_str, fmt, ...)           do{;}while(0)
+#define CA_DEBUG_NS(_namespace_, fmt, ...)      do{;}while(0)
 #endif
 
 #define CA_RAW_INFO(fmt, ...)                   CA_OUTPUT_RAW(CA_GET_MUTABLE_DEBUG_OUTPUT_HOLDER(), fmt, ##__VA_ARGS__)
 #define CA_INFO(fmt, ...)                       CA_INFO_BASE("", "", "", fmt, ##__VA_ARGS__)
 #define CA_INFO_C(fmt, ...)                     CA_INFO_BASE("", typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define CA_INFO_CS(_class_, fmt, ...)           CA_INFO_BASE("", _class_::class_name(), "::", fmt, ##__VA_ARGS__)
-#define CA_INFO_NS(ns_str, fmt, ...)            CA_INFO_BASE("", ns_str, "::", fmt, ##__VA_ARGS__)
+#define CA_INFO_NS(_namespace_, fmt, ...)       CA_INFO_BASE("", #_namespace_, "::", fmt, ##__VA_ARGS__)
 
 #define CA_RAW_WARN(fmt, ...)                   CA_OUTPUT_RAW(CA_GET_MUTABLE_ERROR_OUTPUT_HOLDER(), fmt, ##__VA_ARGS__)
 #define CA_WARN(fmt, ...)                       CA_WARN_BASE("", "", "", fmt, ##__VA_ARGS__)
 #define CA_WARN_C(fmt, ...)                     CA_WARN_BASE("", typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define CA_WARN_CS(_class_, fmt, ...)           CA_WARN_BASE("", _class_::class_name(), "::", fmt, ##__VA_ARGS__)
-#define CA_WARN_NS(ns_str, fmt, ...)            CA_WARN_BASE("", ns_str, "::", fmt, ##__VA_ARGS__)
+#define CA_WARN_NS(_namespace_, fmt, ...)       CA_WARN_BASE("", #_namespace_, "::", fmt, ##__VA_ARGS__)
 
 #define CA_RAW_ERROR(fmt, ...)                  CA_OUTPUT_RAW(CA_GET_MUTABLE_ERROR_OUTPUT_HOLDER(), fmt, ##__VA_ARGS__)
 #define CA_ERROR(fmt, ...)                      CA_ERROR_BASE("", "", "", fmt, ##__VA_ARGS__)
 #define CA_ERROR_C(fmt, ...)                    CA_ERROR_BASE("", typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define CA_ERROR_CS(_class_, fmt, ...)          CA_ERROR_BASE("", _class_::class_name(), "::", fmt, ##__VA_ARGS__)
-#define CA_ERROR_NS(ns_str, fmt, ...)           CA_ERROR_BASE("", ns_str, "::", fmt, ##__VA_ARGS__)
+#define CA_ERROR_NS(_namespace_, fmt, ...)      CA_ERROR_BASE("", #_namespace_, "::", fmt, ##__VA_ARGS__)
 
 #define CA_RAW_CRITICAL(fmt, ...)               CA_OUTPUT_RAW(CA_GET_MUTABLE_ERROR_OUTPUT_HOLDER(), fmt, ##__VA_ARGS__)
 #define CA_CRITICAL(fmt, ...)                   CA_CRITICAL_BASE("", "", "", fmt, ##__VA_ARGS__)
 #define CA_CRITICAL_C(fmt, ...)                 CA_CRITICAL_BASE("", typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define CA_CRITICAL_CS(_class_, fmt, ...)       CA_CRITICAL_BASE("", _class_::class_name(), "::", fmt, ##__VA_ARGS__)
-#define CA_CRITICAL_NS(ns_str, fmt, ...)        CA_CRITICAL_BASE("", ns_str, "::", fmt, ##__VA_ARGS__)
+#define CA_CRITICAL_NS(_namespace_, fmt, ...)   CA_CRITICAL_BASE("", #_namespace_, "::", fmt, ##__VA_ARGS__)
+
+/*
+ * [F]ormatted logging macros. x could be:
+ *     d, debug, D, DEBUGGING (DEBUG should not be used because it's generally used as a debug controlling macro somewhere).
+ *     i, info, I, INFO,
+ *     w, warn, W, WARN,
+ *     e, error, E, ERROR,
+ *     c, critical, C, CRITICAL.
+ */
+
+#define logf(x, fmt, ...)						CA_OUTPUT_RAW(CA_LIB_NAMESPACE::LOG_LEVEL_##x >= CA_LIB_NAMESPACE::LOG_LEVEL_WARNING ? CA_GET_MUTABLE_ERROR_OUTPUT_HOLDER() : CA_GET_MUTABLE_DEBUG_OUTPUT_HOLDER(), fmt, ##__VA_ARGS__)
+
+#define LOGF(x, fmt, ...)						CA_##x##_BASE("", "", "", fmt, ##__VA_ARGS__)
+#define LOGF_C(x, fmt, ...)						CA_##x##_BASE("", typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
+#define LOGF_NS(_namespace_, fmt, ...)          CA_##x##_BASE("", #_namespace_, "::", fmt, ##__VA_ARGS__)
+
+/*
+ * [S]tream-style logging macros. Value of x is the same as formatted logging.
+ * TODO: Not finished yet ...
+ */
+
+#define logs(x)
+
+#define LOGS(x)
+#define LOGS_C(x)
+#define LOGS_NS(_namespace_)
 
 CA_LIB_NAMESPACE_BEGIN
 

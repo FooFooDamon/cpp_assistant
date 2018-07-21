@@ -134,7 +134,7 @@ public:
  * attributes:
  * =================================== */
 public:
-    DEFINE_CLASS_NAME_FUNC()
+    //DEFINE_CLASS_NAME_FUNC()
 
     inline const char *self_name(void) const
     {
@@ -240,7 +240,7 @@ protected:
  * data:
  * =================================== */
 protected:
-    DECLARE_CLASS_NAME_VAR();
+    //DECLARE_CLASS_NAME_VAR();
     char m_self_name[MAX_CONNECTION_NAME_LEN + 1];
     int m_connection_type;
     connection_map *m_peers;

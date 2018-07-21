@@ -44,7 +44,7 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
-DEFINE_CLASS_NAME(daemon);
+//DEFINE_CLASS_NAME(daemon);
 bool daemon::m_is_daemonized = false;
 std::set<daemon::clean_func> daemon::m_clean_funcs;
 

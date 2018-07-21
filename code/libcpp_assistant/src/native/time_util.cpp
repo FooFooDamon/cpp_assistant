@@ -41,7 +41,7 @@ extern long int timezone; // defined and modified by system
 
 CA_LIB_NAMESPACE_BEGIN
 
-DEFINE_CLASS_NAME(time_util);
+//DEFINE_CLASS_NAME(time_util);
 
 static mutex s_lock;
 bool time_util::m_timezone_is_initialized = false;
@@ -74,7 +74,7 @@ const time_util& time_util::operator=(const time_util& src)
         lock_guard<mutex> lock(s_lock);
         if (!m_timezone_is_initialized)
         {
-            csdebug(time_util, "Initializing time zone ...\n");
+            nsdebug(time_util, "Initializing time zone ...\n");
             tzset(); // Lets system select the best approximate time zone
             m_timezone_is_initialized = true;
         }

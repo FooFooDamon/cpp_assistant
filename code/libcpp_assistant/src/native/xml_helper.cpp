@@ -57,7 +57,7 @@ static int __recursively_find_nodes(const xml::element_t *cur_node,
     if (nullptr == cur_node)
     {
         --depth_recorder;
-        nserror(CA_LIB_NAMESPACE_STR"::xml", "null xpath or xml node pointer or path pointer\n");
+        nserror(xml, "null xpath or xml node pointer or path pointer\n");
         return CA_RET(NULL_PARAM);
     }
 
@@ -81,7 +81,7 @@ static int __recursively_find_nodes(const xml::element_t *cur_node,
     bool type_invalid = (TiXmlNode::TINYXML_ELEMENT != t);
     bool reaches_final_level = (int)(node_names.size() - 1) == depth_recorder;
 
-    /*nsdebug(CA_LIB_NAMESPACE_STR, "searching level %d: expected node name: %s, actual node name: %s\n",
+    /*nsdebug(xml, "searching level %d: expected node name: %s, actual node name: %s\n",
         depth_recorder, expected_node_name, cur_node_name);*/
     if (type_invalid ||
         !name_satisfied ||
@@ -100,12 +100,12 @@ static int __recursively_find_nodes(const xml::element_t *cur_node,
             }
             catch (std::exception& e)
             {
-                nserror(CA_LIB_NAMESPACE_STR"::xml", "result.push_back() failed: %s\n", e.what());
+                nserror(xml, "result.push_back() failed: %s\n", e.what());
                 result.clear();
                 --depth_recorder;
                 return CA_RET(STL_ERROR);
             }
-            /*nsdebug(CA_LIB_NAMESPACE_STR, "reached the final level and the bottom node has been successfully"
+            /*nsdebug(xml, "reached the final level and the bottom node has been successfully"
                 " added to result set, ptr = %p, depth = %d\n", cur_node, depth_recorder);*/
         }
 
@@ -115,7 +115,7 @@ static int __recursively_find_nodes(const xml::element_t *cur_node,
         return CA_RET_OK;
     }
 
-    //nsdebug(CA_LIB_NAMESPACE_STR, "~ ~ ~ ~ ~ node %s validated, depth = %d\n", cur_node_name, depth_recorder);
+    //nsdebug(xml, "~ ~ ~ ~ ~ node %s validated, depth = %d\n", cur_node_name, depth_recorder);
 
     /*
      * Until now, node names are OK and the final level of path has not been reached,
@@ -153,11 +153,11 @@ static int __generally_find_nodes(const xml::element_t *cur_node,
 
     if (0 != ret || 0 == node_count)
     {
-        nserror(CA_LIB_NAMESPACE_STR"::xml", "str::split() failed or invalid path string, original path string = %s,"
+        nserror(xml, "str::split() failed or invalid path string, original path string = %s,"
             " ret = %d, result size = %d\n", path, ret, node_count);
         return (ret < 0) ? ret : CA_RET_GENERAL_FAILURE;
     }
-    //nsdebug(CA_LIB_NAMESPACE_STR, "path[%s] has been split in to %d part(s) successfully\n", path, node_count);
+    //nsdebug(xml, "path[%s] has been split in to %d part(s) successfully\n", path, node_count);
 
     if (path_contains_cur_node)
     {
@@ -193,14 +193,14 @@ static int __generally_find_nodes(const xml::element_t *cur_node,
 
     if (nullptr == relative_path)
     {
-        nserror(CA_LIB_NAMESPACE_STR"::xml", "null relative path pointer\n");
+        nserror(xml, "null relative path pointer\n");
         return CA_RET(NULL_PARAM);
     }
 
     if ('\0' == relative_path[0]
         || '/' == relative_path[0])
     {
-        nserror(CA_LIB_NAMESPACE_STR"::xml", "invalid relative path: %s\n", relative_path);
+        nserror(xml, "invalid relative path: %s\n", relative_path);
         return CA_RET(INVALID_PATH);
     }
 
@@ -216,14 +216,14 @@ static int __generally_find_nodes(const xml::element_t *cur_node,
 
     if (nullptr == absolute_path)
     {
-        nserror(CA_LIB_NAMESPACE_STR"::xml", "null absolute path pointer\n");
+        nserror(xml, "null absolute path pointer\n");
         return CA_RET(NULL_PARAM);
     }
 
     if ('\0' == absolute_path[0]
         || '/' != absolute_path[0])
     {
-        nserror(CA_LIB_NAMESPACE_STR"::xml", "invalid absolute path: %s\n", absolute_path);
+        nserror(xml, "invalid absolute path: %s\n", absolute_path);
         return CA_RET(INVALID_PATH);
     }
 
@@ -231,7 +231,7 @@ static int __generally_find_nodes(const xml::element_t *cur_node,
 
     if (nullptr == root)
     {
-        nserror(CA_LIB_NAMESPACE_STR"::xml", "no root node found\n");
+        nserror(xml, "no root node found\n");
         return CA_RET(OBJECT_DOES_NOT_EXIST);
     }
 
@@ -253,7 +253,7 @@ static int extract_xml_nodes(const std::vector<xml::element_t*> &nodes,
     if ((size_t)node_count > expected_node_count)
         node_count = expected_node_count;
 
-    //nsdebug(CA_LIB_NAMESPACE_STR, "node size: %ld, expected node count: %d\n", nodes.size(), node_count);
+    //nsdebug(xml, "node size: %ld, expected node count: %d\n", nodes.size(), node_count);
 
     xml::node_t node;
 
@@ -279,7 +279,7 @@ static int extract_xml_nodes(const std::vector<xml::element_t*> &nodes,
         va_copy(argp, other_attr);
         while (nullptr != attribute)
         {
-            //nsdebug(CA_LIB_NAMESPACE_STR, "Attribute = %s\n", attribute);
+            //nsdebug(xml, "Attribute = %s\n", attribute);
             const char *attr_value = element->Attribute(attribute);
 
             if (nullptr == attr_value)
@@ -288,8 +288,7 @@ static int extract_xml_nodes(const std::vector<xml::element_t*> &nodes,
                 if (allows_missing_attributes)
                     continue;
 
-                nswarn(CA_LIB_NAMESPACE_STR"::xml", "Attrbite[%s] of node[%s] does not exist.\n",
-                    attribute, element->Value());
+                nswarn(xml, "Attrbite[%s] of node[%s] does not exist.\n", attribute, element->Value());
 
                 return CA_RET(OBJECT_DOES_NOT_EXIST);
             }

@@ -40,7 +40,7 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
-DEFINE_CLASS_NAME(tcp_server);
+//DEFINE_CLASS_NAME(tcp_server);
 
 tcp_server::tcp_server()
     : tcp_base(),
@@ -73,19 +73,19 @@ CA_REENTRANT bool tcp_server::can_be_listened(const char *ip, const uint16_t por
 
     if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
-        cserror(tcp_server, "socket() failed\n");
+        nserror(tcp_server, "socket() failed\n");
         goto CHECK_FAILED;
     }
 
     if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (const void *)&reuse_addr_flag, sizeof(int)) < 0)
     {
-        cserror(tcp_server, "setsockopt() failed\n");
+        nserror(tcp_server, "setsockopt() failed\n");
         goto CHECK_FAILED;
     }
 
     if (set_nonblocking(fd) < 0)
     {
-        cserror(tcp_server, "SetNonblocking() failed\n");
+        nserror(tcp_server, "SetNonblocking() failed\n");
         goto CHECK_FAILED;
     }
 
@@ -98,13 +98,13 @@ CA_REENTRANT bool tcp_server::can_be_listened(const char *ip, const uint16_t por
 
     if (bind(fd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in)) < 0)
     {
-        cswarn(tcp_server, "bind() failed\n");
+        nswarn(tcp_server, "bind() failed\n");
         goto CHECK_FAILED;
     }
 
     if (listen(fd, 5) < 0)
     {
-        cswarn(tcp_server, "listen() failed\n");
+        nswarn(tcp_server, "listen() failed\n");
         goto CHECK_FAILED;
     }
 

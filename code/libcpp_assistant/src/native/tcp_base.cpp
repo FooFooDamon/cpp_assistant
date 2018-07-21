@@ -44,7 +44,7 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
-DEFINE_CLASS_NAME(tcp_base);
+//DEFINE_CLASS_NAME(tcp_base);
 
 tcp_base::tcp_base()
 {
@@ -511,7 +511,7 @@ CA_REENTRANT bool tcp_base::is_ready(int fd, enum_check_operation check_type, in
 {
     if (fd < 0 || timeout_usec < 0)
     {
-        cserror(tcp_base, "invalid params\n");
+        nserror(tcp_base, "invalid params\n");
         return false;
     }
 
@@ -535,7 +535,7 @@ CA_REENTRANT bool tcp_base::is_ready(int fd, enum_check_operation check_type, in
     if (ret <= 0 ||
         !FD_ISSET(fd, &fdset))
     {
-        cserror(tcp_base, "select() failed, errno = %d\n", errno);
+        nserror(tcp_base, "select() failed, errno = %d\n", errno);
         return false;
     }
 
@@ -549,13 +549,13 @@ CA_REENTRANT bool tcp_base::is_ready(int fd, enum_check_operation check_type, in
 
     if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &err, &errlen) < 0)
     {
-        cserror(tcp_base, "getsockopt() failed, errno = %d\n", errno);
+        nserror(tcp_base, "getsockopt() failed, errno = %d\n", errno);
         return false;
     }
 
     if (err)
     {
-        cserror(tcp_base, "error occurred on sock fd, errno = %d\n", err);
+        nserror(tcp_base, "error occurred on sock fd, errno = %d\n", err);
         return false;
     }
 

@@ -32,7 +32,7 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
-DEFINE_CLASS_NAME(screen_logger);
+//DEFINE_CLASS_NAME(screen_logger);
 
 screen_logger::screen_logger()
 {

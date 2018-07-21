@@ -604,7 +604,7 @@ public:
  * attributes:
  * =================================== */
 public:
-    DEFINE_CLASS_NAME_FUNC()
+    //DEFINE_CLASS_NAME_FUNC()
 
     FT value(void) const
     {
@@ -706,7 +706,7 @@ public:
     static const FT EPSILON;
 
 protected:
-    DECLARE_CLASS_NAME_VAR();
+    //DECLARE_CLASS_NAME_VAR();
     FT m_value;
     int m_decimal_place_count;
     std::string *m_string;

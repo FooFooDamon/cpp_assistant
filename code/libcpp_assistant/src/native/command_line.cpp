@@ -34,7 +34,7 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
-DEFINE_CLASS_NAME(command_line);
+//DEFINE_CLASS_NAME(command_line);
 
 command_line::command_line()
     : m_has_parsed(false)

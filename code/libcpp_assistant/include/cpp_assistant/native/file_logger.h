@@ -73,7 +73,7 @@ public:
  * attributes:
  * =================================== */
 public:
-    DEFINE_CLASS_NAME_FUNC()
+    //DEFINE_CLASS_NAME_FUNC()
 
     virtual const char *log_directory(void) const
     {
@@ -167,7 +167,7 @@ protected:
  * data:
  * =================================== */
 protected:
-    DECLARE_CLASS_NAME_VAR();
+    //DECLARE_CLASS_NAME_VAR();
     //INHERIT_CLASS_NAME_VAR(logger);
     int m_name_len_limit;
     int m_dir_len_limit;

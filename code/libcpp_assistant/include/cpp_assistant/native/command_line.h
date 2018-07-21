@@ -157,7 +157,7 @@ public:
  * attributes:
  * =================================== */
 public:
-    DEFINE_CLASS_NAME_FUNC()
+    //DEFINE_CLASS_NAME_FUNC()
 
     // Returns the directory where the host program is in.
     inline const char* program_directory(void) const
@@ -251,7 +251,7 @@ protected:
  * data:
  * =================================== */
 protected:
-    DECLARE_CLASS_NAME_VAR();
+    //DECLARE_CLASS_NAME_VAR();
     std::string m_program_directory;
     std::string m_program_name;
     std::string m_usage_header;

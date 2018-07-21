@@ -36,7 +36,7 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
-DEFINE_CLASS_NAME(signal_capturer);
+//DEFINE_CLASS_NAME(signal_capturer);
 
 static signal_setting_t s_signal_settings[SIGNAL_COUNT];
 static bool s_settings_initialized = false;
@@ -52,7 +52,7 @@ static bool s_settings_initialized = false;
 #define INIT_SIG_SETTINGS_ONCE()            do {\
     if (!s_settings_initialized) { \
         init_signal_settings(); \
-        /*csdebug(Signal, "Signal initialization successful.\n");*/\
+        /*nsdebug(signal_capturer, "Signal initialization successful.\n");*/\
         s_settings_initialized = true; \
     } \
 }while(0)
@@ -189,7 +189,7 @@ static bool capture_is_forbidden(int sig_num)
             continue;
 
         ++registered_count;
-        //csdebug(Signal, "Checking signal %d ...\n", GET_SIGNUM_BY_INDEX(i));
+        //nsdebug(signal_capturer, "Checking signal %d ...\n", GET_SIGNUM_BY_INDEX(i));
 
         if (SIG_TRIGGERED != setting.status)
             continue;
@@ -208,7 +208,7 @@ static bool capture_is_forbidden(int sig_num)
     }
 
     if (handled_count > 0)
-        csdebug(signal_capturer, "%d signals total, %d triggered and handled\n", registered_count, handled_count);
+        nsdebug(signal_capturer, "%d signals total, %d triggered and handled\n", registered_count, handled_count);
 
     return handled_count;
 }

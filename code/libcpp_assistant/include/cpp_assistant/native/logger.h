@@ -51,8 +51,10 @@ enum enum_log_level
     LOG_LEVEL_ALL = LOG_LEVEL_MIN,
 
     LOG_LEVEL_DEBUG = LOG_LEVEL_MIN,
+	LOG_LEVEL_DEBUGGING = LOG_LEVEL_DEBUG,
     LOG_LEVEL_D = LOG_LEVEL_DEBUG,
     LOG_LEVEL_debug = LOG_LEVEL_DEBUG,
+	LOG_LEVEL_debugging = LOG_LEVEL_DEBUG,
     LOG_LEVEL_d = LOG_LEVEL_DEBUG,
 
     LOG_LEVEL_INFO,
@@ -190,7 +192,7 @@ public:
 
     int debug(const char *fmt, ...) CA_NOTNULL(2) CA_PRINTF_CHECK(2, 3);
     int d(const char *fmt, ...) CA_NOTNULL(2) CA_PRINTF_CHECK(2, 3);
-    int DEBUG(const char *fmt, ...) CA_NOTNULL(2) CA_PRINTF_CHECK(2, 3);
+    int DEBUGGING(const char *fmt, ...) CA_NOTNULL(2) CA_PRINTF_CHECK(2, 3); // DEBUG may be used as a macro somewhere.
     int D(const char *fmt, ...) CA_NOTNULL(2) CA_PRINTF_CHECK(2, 3);
 
     int info(const char *fmt, ...) CA_NOTNULL(2) CA_PRINTF_CHECK(2, 3);
@@ -219,7 +221,7 @@ public:
  * attributes:
  * =================================== */
 public:
-    DEFINE_CLASS_NAME_FUNC()
+    //DEFINE_CLASS_NAME_FUNC()
 
     inline enum_log_level log_level(void) const
     {
@@ -540,7 +542,7 @@ protected:
  * data:
  * =================================== */
 protected:
-    DECLARE_CLASS_NAME_VAR();
+    //DECLARE_CLASS_NAME_VAR();
     enum_log_level m_log_level;
     enum_log_level m_instant_level;
     bool m_is_open;

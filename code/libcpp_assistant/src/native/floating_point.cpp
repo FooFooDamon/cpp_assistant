@@ -30,7 +30,7 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
-DEFINE_TEMPLATE_CLASS_NAME(floating_point, FT);
+//DEFINE_TEMPLATE_CLASS_NAME(floating_point, FT);
 
 template<> const int floating_point<float>::DEFAULT_DECIMAL_PLACE_COUNT = 4;
 template<> const int floating_point<float>::MAX_DECIMAL_PLACE_COUNT = FLT_DIG;
