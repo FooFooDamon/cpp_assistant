@@ -38,6 +38,7 @@
 
 #include "native/base/noncopyable.h"
 #include "native/base/no_instance.h"
+#include "native/base/debug.h"
 #include "native/ca_string.h"
 #include "native/floating_point.h"
 #include "native/time_util.h"
