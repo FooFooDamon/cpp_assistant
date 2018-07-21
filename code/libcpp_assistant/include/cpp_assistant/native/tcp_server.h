@@ -100,7 +100,7 @@ public:
 public:
     DEFINE_CLASS_NAME_FUNC()
 
-    inline int listening_fd(void) const
+    inline int listening_fd(void) const override
     {
         if (nullptr == m_listening_conn)
             return INVALID_SOCK_FD;
@@ -108,7 +108,7 @@ public:
         return m_listening_conn->fd;
     }
 
-    inline const char* listening_ip(void) const
+    inline const char* listening_ip(void) const override
     {
         if (nullptr == m_listening_conn)
             return INVALID_IP;
@@ -116,7 +116,7 @@ public:
         return m_listening_conn->self_ip;
     }
 
-    inline uint16_t listening_port(void) const
+    inline uint16_t listening_port(void) const override
     {
         if (nullptr == m_listening_conn)
             return INVALID_PORT;
