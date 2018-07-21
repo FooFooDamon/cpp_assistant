@@ -224,7 +224,7 @@ int net_poller::handle_monitored_connection(const struct net_connection *conn, i
     }
 
     int operation = 0;
-    poll_event_t ee = {0};
+    poll_event_t pe = {0};
 
     if (EVENT_HANDLE_TYPE_ADD == op_type)
         operation = EPOLL_CTL_ADD;
@@ -233,14 +233,14 @@ int net_poller::handle_monitored_connection(const struct net_connection *conn, i
     else
         operation = EPOLL_CTL_MOD;
 
-    ee.events = events;
-    ee.data.ptr = (void*)conn;
-    if (epoll_ctl(m_fd, operation, conn->fd, &ee) < 0)
+    pe.events = events;
+    pe.data.ptr = (void*)conn;
+    if (epoll_ctl(m_fd, operation, conn->fd, &pe) < 0)
     {
         int ret = -errno;
 
         cerror("epoll_ctl(%d, %d, %d, %p) failed, ret = %d\n",
-            m_fd, operation, conn->fd, &ee, ret);
+            m_fd, operation, conn->fd, &pe, ret);
 
         return ret;
     }
@@ -255,7 +255,7 @@ int net_poller::handle_monitored_connection(const struct net_connection *conn, i
     else
     {
 #ifdef SAVE_ALL_POLLER_CONNECTIONS
-        m_total_connections[conn->fd] = ee;
+        m_total_connections[conn->fd] = pe;
 #endif
         if (EVENT_HANDLE_TYPE_ADD == op_type)
             ++m_current_connection_count;
