@@ -40,9 +40,17 @@
 #define CPP_ASSISTANT_NAME                          "cpp-assistant"
 #define CPP_ASSISTANT_LIB_NAME                      "cpp-assistant library"
 
-#define CA_LIB_NAMESPACE_STR                        "cal"
+// You can change the namespace value by running "make CA_LIB_NAMESPACE=xxxx" on compilation,
+// and add "-DCA_LIB_NAMESPACE=xxxx" into your application Makefile.
+#ifndef CA_LIB_NAMESPACE
 #define CA_LIB_NAMESPACE                            cal
-#define CA_LIB_NAMESPACE_BEGIN                      namespace cal {
+#endif
+
+#ifndef CA_LIB_NAMESPACE_STR
+#define CA_LIB_NAMESPACE_STR                        "cal"
+#endif
+
+#define CA_LIB_NAMESPACE_BEGIN                      namespace CA_LIB_NAMESPACE {
 #define CA_LIB_NAMESPACE_END                        }
 
 #ifdef CA_THREAD_SAFE
@@ -55,6 +63,7 @@
 #endif
 #define CA_REENTRANT
 
+#if 0 // not needed any more
 #define CLASS_NAME_VAR                              m_class_name
 
 #define DECLARE_CLASS_NAME_VAR()                    static const char *CLASS_NAME_VAR
@@ -75,6 +84,7 @@
     }
 
 #define DEFINE_TEMPLATE_CLASS_FUNC                  DEFINE_CLASS_NAME_FUNC
+#endif
 
 CA_LIB_NAMESPACE_BEGIN
 
