@@ -109,10 +109,10 @@
  *     c, critical, C, CRITICAL.
  */
 
-#define logf(x, fmt, ...)						CA_OUTPUT_RAW(CA_LIB_NAMESPACE::LOG_LEVEL_##x >= CA_LIB_NAMESPACE::LOG_LEVEL_WARNING ? CA_GET_MUTABLE_ERROR_OUTPUT_HOLDER() : CA_GET_MUTABLE_DEBUG_OUTPUT_HOLDER(), fmt, ##__VA_ARGS__)
+#define logf(x, fmt, ...)                       CA_OUTPUT_RAW(CA_LIB_NAMESPACE::LOG_LEVEL_##x >= CA_LIB_NAMESPACE::LOG_LEVEL_WARNING ? CA_GET_MUTABLE_ERROR_OUTPUT_HOLDER() : CA_GET_MUTABLE_DEBUG_OUTPUT_HOLDER(), fmt, ##__VA_ARGS__)
 
-#define LOGF(x, fmt, ...)						CA_##x##_BASE("", "", "", fmt, ##__VA_ARGS__)
-#define LOGF_C(x, fmt, ...)						CA_##x##_BASE("", typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
+#define LOGF(x, fmt, ...)                       CA_##x##_BASE("", "", "", fmt, ##__VA_ARGS__)
+#define LOGF_C(x, fmt, ...)                     CA_##x##_BASE("", typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
 #define LOGF_NS(_namespace_, fmt, ...)          CA_##x##_BASE("", #_namespace_, "::", fmt, ##__VA_ARGS__)
 
 /*

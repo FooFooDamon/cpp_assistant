@@ -51,6 +51,11 @@
  *
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  *
+ * wxc, 2018/07/21, 0.04.00:
+ *      1. Added CA_LIB_NAMESPACE customization on compilation.
+ *      2. Removed the definition and using of m_class_name.
+ *      3. Simplified the series of CA_XX() logging APIs.
+ *
  * wxc, 2018/07/14, 0.03.01:
  *      1. Added the conversion between bool and string in str::to_string()
  *          and str::from_string().
