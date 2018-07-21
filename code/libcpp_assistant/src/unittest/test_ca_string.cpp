@@ -68,7 +68,7 @@ TEST(ca_string, split)
      * Tests a long string.
      */
 
-    const int LONG_STR_CAPACITY = calib::str::MAX_STRING_LEN_IN_STACK + 32;
+    const int LONG_STR_CAPACITY = calib::str::MAX_LEN_IN_STACK + 32;
     char *long_str = (char*)calloc(LONG_STR_CAPACITY, sizeof(char));
     int long_str_len = 0;
 
@@ -77,7 +77,7 @@ TEST(ca_string, split)
     const char *NODE_1 = "哈哈";
     const char *NODE_2 = "呵呵";
     const int NODE_LEN = strlen(NODE_1);
-    const int NODE_COUNT = calib::str::MAX_STRING_LEN_IN_STACK / (NODE_LEN + strlen(DELIM_SLASH)) + 1;
+    const int NODE_COUNT = calib::str::MAX_LEN_IN_STACK / (NODE_LEN + strlen(DELIM_SLASH)) + 1;
 
     for (int i = 0; i < NODE_COUNT; ++i)
     {
@@ -85,7 +85,7 @@ TEST(ca_string, split)
         strcat(long_str, (0 == i % 2) ? NODE_1 : NODE_2);
     }
     long_str_len = strlen(long_str);
-    ASSERT_GE(long_str_len, calib::str::MAX_STRING_LEN_IN_STACK);
+    ASSERT_GE(long_str_len, calib::str::MAX_LEN_IN_STACK);
 
     ASSERT_EQ(CA_RET(OK), calib::str::split(long_str, long_str_len, DELIM_SLASH, result));
     ASSERT_EQ(NODE_COUNT, result.size());
@@ -99,7 +99,7 @@ TEST(ca_string, split)
     PRINT_STR_FRAGMENTS(result);
     ASSERT_EQ(CA_RET(OK), calib::str::split(long_str, long_str_len, DELIM_COMMA, result));
     ASSERT_EQ(1, result.size());
-    ASSERT_GE(result[0].length(), calib::str::MAX_STRING_LEN_IN_STACK);
+    ASSERT_GE(result[0].length(), calib::str::MAX_LEN_IN_STACK);
     PRINT_STR_FRAGMENTS(result);
 
     free(long_str);
