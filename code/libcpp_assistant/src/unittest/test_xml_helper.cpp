@@ -54,7 +54,7 @@ static void make_node_header(int node_level)
     {
         strncat(tabs, "\\t", 2);
     }
-    snprintf(cmd, sizeof(cmd), "printf \"%s<level%d> this is level %d.\\n\" >> "XML_FILE_NAME,
+    snprintf(cmd, sizeof(cmd), "printf \"%s<level%d> this is level %d.\\n\" >> " XML_FILE_NAME,
         tabs, node_level, node_level);
     system(cmd);
 }
@@ -68,7 +68,7 @@ static void make_node_footer(int node_level)
     {
         strncat(tabs, "\\t", 2);
     }
-    snprintf(cmd, sizeof(cmd), "printf \"%s</level%d><!-- end of level%d -->\\n\" >> "XML_FILE_NAME,
+    snprintf(cmd, sizeof(cmd), "printf \"%s</level%d><!-- end of level%d -->\\n\" >> " XML_FILE_NAME,
         tabs, node_level, node_level);
     system(cmd);
 }
@@ -98,16 +98,16 @@ static void make_nodes(int node_level)
 
 static void make_xml(void)
 {
-    system("echo \"<?xml version=\\\"1.0\\\"?>\" > "XML_FILE_NAME);
+    system("echo \"<?xml version=\\\"1.0\\\"?>\" > " XML_FILE_NAME);
     for (int root_count = 0; root_count < ROOT_NODE_COUNT; ++root_count)
     {
-        system("echo \"<root>\" >> "XML_FILE_NAME);
+        system("echo \"<root>\" >> " XML_FILE_NAME);
         if (0 == root_count)
-            system("printf \"\\t<pretest id=\\\"0\\\"> 中文：这是热身测试。English: this is pretest. </pretest>\\n\" >> "XML_FILE_NAME);
+            system("printf \"\\t<pretest id=\\\"0\\\"> 中文：这是热身测试。English: this is pretest. </pretest>\\n\" >> " XML_FILE_NAME);
 
         make_nodes(1);
 
-        system("echo \"</root>\" >> "XML_FILE_NAME);
+        system("echo \"</root>\" >> " XML_FILE_NAME);
     }
     //system("sed -i '/^\\-e/s///g' "XML_FILE_NAME);
 }

@@ -125,7 +125,7 @@ static void test_default_constructor(
     }
 
     calib::floating_point<FT> demo;
-    calib::floating_point_accessor<FT> accessor(demo);
+    calib::_floating_point_accessor<FT> accessor(demo);
 
     printf("Type of demo: %s\n", demo.type());
     printf("Bytes for type[%s]: %d\n", demo.type(), demo.type_size());
@@ -162,7 +162,7 @@ static void test_other_constructors(
     SET_G_RET_FAILURE();
 
     calib::floating_point<FT> demo_default_decimal_place(tested_num);
-    calib::floating_point_accessor<FT> accessor_default(demo_default_decimal_place);
+    calib::_floating_point_accessor<FT> accessor_default(demo_default_decimal_place);
 
     PRINT_FLOATING_POINT_VALUE(demo_default_decimal_place.value(), calib::floating_point<FT>::MAX_DECIMAL_PLACE_COUNT);
     PRINT_DECIMAL_PLACE_COUNT(demo_default_decimal_place.decimal_place_count());
@@ -172,7 +172,7 @@ static void test_other_constructors(
     ASSERT_EQ(nullptr, accessor_default.get_string());
 
     calib::floating_point<FT> demo_specific_decimal_place(tested_num, decimal_place_count);
-    calib::floating_point_accessor<FT> accessor_specific(demo_specific_decimal_place);
+    calib::_floating_point_accessor<FT> accessor_specific(demo_specific_decimal_place);
 
     PRINT_FLOATING_POINT_VALUE(demo_specific_decimal_place.value(), calib::floating_point<FT>::MAX_DECIMAL_PLACE_COUNT);
     PRINT_DECIMAL_PLACE_COUNT(demo_specific_decimal_place.decimal_place_count());
@@ -192,9 +192,9 @@ static void test_copy_constructor(
     SET_G_RET_FAILURE();
 
     calib::floating_point<FT> demo_src(tested_num);
-    calib::floating_point_accessor<FT> accessor_src(demo_src);
+    calib::_floating_point_accessor<FT> accessor_src(demo_src);
     calib::floating_point<FT> demo_copy(demo_src);
-    calib::floating_point_accessor<FT> accessor_copy(demo_copy);
+    calib::_floating_point_accessor<FT> accessor_copy(demo_copy);
 
     PRINT_FLOATING_POINT_VALUE(demo_src.value(), calib::floating_point<FT>::MAX_DECIMAL_PLACE_COUNT);
     PRINT_DECIMAL_PLACE_COUNT(demo_src.decimal_place_count());
@@ -228,9 +228,9 @@ static void test_assignment_operators(
     FT src_num = tested_num;
     FT modified_num = src_num;
     calib::floating_point<FT> for_raw_num;
-    calib::floating_point_accessor<FT> accessor_for_raw(for_raw_num);
+    calib::_floating_point_accessor<FT> accessor_for_raw(for_raw_num);
     calib::floating_point<FT> for_floating_class;
-    calib::floating_point_accessor<FT> accessor_for_class(for_floating_class);
+    calib::_floating_point_accessor<FT> accessor_for_class(for_floating_class);
 
     for_raw_num = src_num;
     PRINT_DECIMAL_PLACE_COUNT(for_raw_num.decimal_place_count());

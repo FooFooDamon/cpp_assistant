@@ -81,8 +81,8 @@ static int generate_retcode_description_file(void)
 {
     char cmd[1024] = {0};
 
-    snprintf(cmd, sizeof(cmd), "grep \"S_DESCRIPTIONS\\[USER_RET_CODE_COUNT\\]\" "RET_SRC_FILE" -A %d"
-        " | grep \\\" | awk -F \\\" '{ print $2 }' > "RET_DESC_FILE, calib::USER_RET_CODE_COUNT);
+    snprintf(cmd, sizeof(cmd), "grep \"S_DESCRIPTIONS\\[USER_RET_CODE_COUNT\\]\" " RET_SRC_FILE " -A %d"
+        " | grep \\\" | awk -F \\\" '{ print $2 }' > " RET_DESC_FILE, calib::USER_RET_CODE_COUNT);
 
     //printf("generating %s: %s\n", RET_DESC_FILE, cmd);
     system(cmd);
@@ -99,14 +99,14 @@ static int generate_retcode_description_file(void)
 static void delete_retcode_description_file(void)
 {
     //system("rm -f "RET_DESC_FILE);
-    fprintf(stderr, "Please delete "RET_DESC_FILE" manually if needed.\n");
+    fprintf(stderr, "Please delete " RET_DESC_FILE " manually if needed.\n");
 }
 
 static int get_file_line_number(void)
 {
     FILE *fp = nullptr;
     char output[32] = {0};
-    const char *CMD = "wc -l "RET_DESC_FILE" | awk '{ print $1 }'";
+    const char *CMD = "wc -l " RET_DESC_FILE " | awk '{ print $1 }'";
 
     if (nullptr == (fp = popen(CMD, "r")))
     {
