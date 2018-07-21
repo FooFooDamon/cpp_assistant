@@ -417,7 +417,7 @@ INIT_FAILED:
     m_connection_type = CONN_TYPE_NONE;
     if (nullptr != m_peers)
     {
-        //for (ConnectionMap::iterator it = m_peers->begin(); it != m_peers->end(); ++it)
+        //for (connection_map::iterator it = m_peers->begin(); it != m_peers->end(); ++it)
         for (connection_map::iterator it = m_peers->begin(); it != m_peers->end();  )
         {
             delete_connection((it++)->second); // erase() within this function may affect increment of it !!
