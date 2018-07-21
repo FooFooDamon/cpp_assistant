@@ -61,6 +61,8 @@
 
 #define DEFINE_CLASS_NAME(_class_)                  const char* _class_::CLASS_NAME_VAR = typeid(_class_).name()
 
+#define OVERWRITE_CLASS_NAME(_class_)				_class_::CLASS_NAME_VAR = #_class_
+
 #define INHERIT_CLASS_NAME_VAR(_parent_)            using _parent_::CLASS_NAME_VAR
 
 #define DEFINE_TEMPLATE_CLASS_NAME(_class_, _type_) \
