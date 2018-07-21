@@ -106,7 +106,7 @@ file_logger::~file_logger()
     cdebug("done.\n");
 
     /*
-     * Sets cache buffer so that
+     * Sets memory buffer so that
      * log contents are flushed in batches.
      * NOTE: If the buf parameter of setvbuf() is null,
      *   then the bufsize specified by user may be ineffective

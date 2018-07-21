@@ -56,7 +56,7 @@ template<> const long double floating_point<long double>::EPSILON = LDBL_EPSILON
 /*
  * NOTE: Definitions below just provide default values in order to avoid compile errors
  *     due to using invalid types(floating_point<unsigned int> for example) in application code.
- *     These definitions should be used in testing code only.
+ *     Invalid types should be used in testing code only.
  */
 template<typename FT> const int floating_point<FT>::DEFAULT_DECIMAL_PLACE_COUNT = floating_point<float>::DEFAULT_DECIMAL_PLACE_COUNT;
 template<typename FT> const int floating_point<FT>::MAX_DECIMAL_PLACE_COUNT = floating_point<float>::MAX_DECIMAL_PLACE_COUNT;
