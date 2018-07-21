@@ -109,8 +109,6 @@
  *     c, critical, C, CRITICAL.
  */
 
-#define logf(x, fmt, ...)                       CA_OUTPUT_RAW(CA_LIB_NAMESPACE::LOG_LEVEL_##x >= CA_LIB_NAMESPACE::LOG_LEVEL_WARNING ? CA_GET_MUTABLE_ERROR_OUTPUT_HOLDER() : CA_GET_MUTABLE_DEBUG_OUTPUT_HOLDER(), fmt, ##__VA_ARGS__)
-
 #define LOGF(x, fmt, ...)                       CA_##x##_BASE("", "", "", fmt, ##__VA_ARGS__)
 #define LOGF_C(x, fmt, ...)                     CA_##x##_BASE("", typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
 #define LOGF_NS(_namespace_, fmt, ...)          CA_##x##_BASE("", #_namespace_, "::", fmt, ##__VA_ARGS__)
@@ -119,8 +117,6 @@
  * [S]tream-style logging macros. Value of x is the same as formatted logging.
  * TODO: Not finished yet ...
  */
-
-#define logs(x)
 
 #define LOGS(x)
 #define LOGS_C(x)
