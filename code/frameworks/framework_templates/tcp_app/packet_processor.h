@@ -91,7 +91,7 @@ public:
  * attributes:
  * =================================== */
 public:
-    DEFINE_CLASS_NAME_FUNC()
+    //DEFINE_CLASS_NAME_FUNC()
     message_cache* get_message_cache(void) const
     {
         return m_message_cache;
@@ -137,7 +137,7 @@ protected:
  * data:
  * =================================== */
 protected:
-    DECLARE_CLASS_NAME_VAR();
+    //DECLARE_CLASS_NAME_VAR();
     message_cache *m_message_cache;
     component_map *m_component_map;
     std::map<std::string, int64_t> *m_timestamps_when_pkts_incomplete;

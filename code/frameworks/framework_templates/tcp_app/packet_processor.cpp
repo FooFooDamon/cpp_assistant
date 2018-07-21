@@ -90,7 +90,7 @@ static component_cleaner s_component_cleaner; // for automatically cleaning g_pa
 namespace cafw
 {
 
-DEFINE_CLASS_NAME(packet_processor);
+//DEFINE_CLASS_NAME(packet_processor);
 
 int packet_processor::m_max_packet_length = PROTO_HEADER_SIZE;
 
@@ -617,11 +617,11 @@ OUTPUT:
 #endif
     if (PROTO_RET_SUCCESS == retcode)
         GLOG_INFO("~ ~ ~ ~ ~ ~ ~ ~ ~ ~ %s::%s() for [ 0x%08X | %s | %s ] successful, total time spent: %ld us\n",
-            class_name(), __FUNC__, command, component.description, sid, cal::time_util::get_utc_microseconds() - start_time);
+            typeid(*this).name(), __FUNC__, command, component.description, sid, cal::time_util::get_utc_microseconds() - start_time);
     else
         GLOG_ERROR("! ! ! ! ! ! ! ! ! ! %s::%s() for [ 0x%08X | %s | %s ] failed,"
             " ret = %d, desc = %s, total time spent: %ld us\n",
-            class_name(), __FUNC__, command, component.description, sid,
+            typeid(*this).name(), __FUNC__, command, component.description, sid,
             retcode, get_return_code_description(retcode), cal::time_util::get_utc_microseconds() - start_time);
 
     return RET_OK;

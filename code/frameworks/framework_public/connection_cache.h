@@ -141,7 +141,7 @@ public:
  * attributes:
  * =================================== */
 public:
-    DEFINE_CLASS_NAME_FUNC()
+    //DEFINE_CLASS_NAME_FUNC()
 
 /* ===================================
  * status:
@@ -163,7 +163,7 @@ protected:
  * data:
  * =================================== */
 protected:
-    DECLARE_CLASS_NAME_VAR();
+    //DECLARE_CLASS_NAME_VAR();
     dict *m_connection_dictionary;
     server_group *m_type_group;
 };
