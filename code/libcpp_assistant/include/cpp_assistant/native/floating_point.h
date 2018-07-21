@@ -31,7 +31,7 @@
  *
  *  Created on: 2017/09/23
  *      Author: wenxiongchang
- * Description: A template for floating_point-point types(float, double and long double).
+ * Description: A template for floating-point types(float, double and long double).
  */
 
 #ifndef __CPP_ASSISTANT_FLOATING_POINT_CALCULATION_H__
@@ -73,29 +73,29 @@ template<typename FT> class floating_point;
  * WARNING: floating_point_accessor is used for testings only, DO NOT use it in any practical projects!
  */
 template<typename FT>
-class floating_point_accessor
+class _floating_point_accessor
 {
 /* ===================================
  * constructors:
  * =================================== */
 private:
-    floating_point_accessor();
+    _floating_point_accessor();
 
 public:
-    explicit floating_point_accessor(const floating_point<FT>& tested_obj) : m_tested_object(tested_obj) {}
+    explicit _floating_point_accessor(const floating_point<FT>& tested_obj) : m_tested_object(tested_obj) {}
 
 /* ===================================
  * copy control:
  * =================================== */
 private:
-    explicit floating_point_accessor(const floating_point_accessor& src);
-    floating_point_accessor& operator=(const floating_point_accessor& src);
+    explicit _floating_point_accessor(const _floating_point_accessor& src);
+    _floating_point_accessor& operator=(const _floating_point_accessor& src);
 
 /* ===================================
  * destructor:
  * =================================== */
 public:
-    ~floating_point_accessor(){}
+    ~_floating_point_accessor(){}
 
 /* ===================================
  * abilities:
@@ -210,7 +210,7 @@ public:
  * types:
  * =================================== */
 
-    friend class floating_point_accessor<FT>;
+    friend class _floating_point_accessor<FT>;
 
     /*
      * Replaces enumerations below with static member constants
