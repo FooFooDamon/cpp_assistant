@@ -41,7 +41,7 @@
 
 #include <map>
 
-#include "cpp_assistant/ca_full.h"
+#include "base/all.h"
 #include "char_dictionary.h"
 
 namespace cafw

@@ -44,7 +44,7 @@
 
 #include <typeinfo>
 
-#include "cpp_assistant/ca_full.h"
+#include "base/all.h"
 #include "mutable_customization.h" // A header file defined by user.
 
 #ifndef USE_JSON_MSG

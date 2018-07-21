@@ -37,7 +37,7 @@
 #ifndef __CASDK_FRAMEWORK_MAIN_APP_H__
 #define __CASDK_FRAMEWORK_MAIN_APP_H__
 
-#include "cpp_assistant/ca_full.h"
+#include "base/all.h"
 
 namespace cafw
 {
