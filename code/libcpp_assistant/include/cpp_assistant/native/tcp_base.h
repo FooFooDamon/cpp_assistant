@@ -44,7 +44,6 @@
 #include <vector>
 #include <string>
 
-#include "base/debug.h"
 #include "net_common.h"
 #include "net_poller.h"
 
@@ -82,6 +81,8 @@ public:
     typedef connection_map conn_map;
 
     typedef net_poller::conn_info_array conn_info_array;
+
+    typedef int (*format_output_func)(const char *fmt, ...);
 
 protected:
 
