@@ -22,6 +22,8 @@ ifneq ($(NO_TINYXML),)
 	TINYXML_FLAG = "NO_TINYXML=1"
 endif
 
+export CA_LIB_NAMESPACE
+
 NATIVE_SRCS += $(shell find $(DIR_NATIVE) -name "*.cpp" | grep -v "\.svn")
 NATIVE_OBJS += $(addsuffix .o, $(basename $(NATIVE_SRCS)))
 
