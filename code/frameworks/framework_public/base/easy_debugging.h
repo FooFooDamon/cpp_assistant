@@ -47,83 +47,6 @@
 
 #define __FUNC__                                    __FUNCTION__
 
-// NOTE: ctx is a pointer to ThreadContext structure.
-#ifdef LOG_HAS_PID
-#define TLOG_BASE(log_level, fmt, ...)              do{\
-    ctx->screen_logger.output(cal::HAS_LOG_PREFIX, log_level, "[PID:%d][%s:%02d]" fmt, \
-        getpid(), ctx->name.c_str(), ctx->num, ##__VA_ARGS__); \
-    if (ctx->file_logger.is_open()) \
-        ctx->file_logger.output(cal::HAS_LOG_PREFIX, log_level, fmt, ##__VA_ARGS__); \
-}while(0)
-#else
-#define TLOG_BASE(log_level, fmt, ...)              do{\
-    ctx->screen_logger.output(cal::HAS_LOG_PREFIX, log_level, "[%s:%02d]" fmt, \
-        ctx->name.c_str(), ctx->num, ##__VA_ARGS__); \
-    if (ctx->file_logger.is_open()) \
-        ctx->file_logger.output(cal::HAS_LOG_PREFIX, log_level, fmt, ##__VA_ARGS__); \
-}while(0)
-#endif
-
-#define TQ_LOG_BASE(log_level, fmt, ...)            do{\
-    if (cafw::is_quiet_mode()) \
-        break; \
-    TLOG_BASE(log_level, fmt, ##__VA_ARGS__); \
-}while(0)
-
-#define TLOG_BASE_V(log_level, class_str, ns_delim, fmt, ...)   TLOG_BASE(log_level, "%s, %s%s%s(): Line %d: " fmt, \
-    __FILE__, class_str, ns_delim, __FUNC__, __LINE__, ##__VA_ARGS__)
-
-#define TQ_LOG_BASE_V(log_level, fmt, ...)          do{\
-    if (cafw::is_quiet_mode()) \
-        break; \
-    TLOG_BASE_V(log_level, fmt, ##__VA_ARGS__); \
-}while(0)
-
-#define TLOG_DEBUG(fmt, ...)                        TLOG_BASE(cal::LOG_LEVEL_DEBUG, fmt, ##__VA_ARGS__)
-#define TQ_LOG_DEBUG(fmt, ...)                      TQ_LOG_BASE(cal::LOG_LEVEL_DEBUG, fmt, ##__VA_ARGS__)
-#define TLOG_DEBUG_C(fmt, ...)                      TLOG_BASE_V(cal::LOG_LEVEL_DEBUG, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define TQ_LOG_DEBUG_C(fmt, ...)                    TQ_LOG_BASE_V(cal::LOG_LEVEL_DEBUG, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define TLOG_DEBUG_CS(_class_, fmt, ...)            TLOG_BASE_V(cal::LOG_LEVEL_DEBUG, _class_::class_name(), "::", fmt, ##__VA_ARGS__)
-#define TQ_LOG_DEBUG_CS(_class_, fmt, ...)          TQ_LOG_BASE_V(cal::LOG_LEVEL_DEBUG, _class_::class_name(), "::", fmt, ##__VA_ARGS__)
-#define TLOG_DEBUG_NS(ns_str, fmt, ...)             TLOG_BASE_V(cal::LOG_LEVEL_DEBUG, ns_str, "::", fmt, ##__VA_ARGS__)
-#define TQ_LOG_DEBUG_NS(ns_str, fmt, ...)           TQ_LOG_BASE_V(cal::LOG_LEVEL_DEBUG, ns_str, "::", fmt, ##__VA_ARGS__)
-
-#define TLOG_INFO(fmt, ...)                         TLOG_BASE(cal::LOG_LEVEL_INFO, fmt, ##__VA_ARGS__)
-#define TQ_LOG_INFO(fmt, ...)                       TQ_LOG_BASE(cal::LOG_LEVEL_INFO, fmt, ##__VA_ARGS__)
-#define TLOG_INFO_C(fmt, ...)                       TLOG_BASE_V(cal::LOG_LEVEL_INFO, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define TQ_LOG_INFO_C(fmt, ...)                     TQ_LOG_BASE_V(cal::LOG_LEVEL_INFO, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define TLOG_INFO_CS(_class_, fmt, ...)             TLOG_BASE_V(cal::LOG_LEVEL_INFO, _class_::class_name(), "::", fmt, ##__VA_ARGS__)
-#define TQ_LOG_INFO_CS(_class_, fmt, ...)           TQ_LOG_BASE_V(cal::LOG_LEVEL_INFO, _class_::class_name(), "::", fmt, ##__VA_ARGS__)
-#define TLOG_INFO_NS(ns_str, fmt, ...)              TLOG_BASE_V(cal::LOG_LEVEL_INFO, ns_str, "::", fmt, ##__VA_ARGS__)
-#define TQ_LOG_INFO_NS(ns_str, fmt, ...)            TQ_LOG_BASE_V(cal::LOG_LEVEL_INFO, ns_str, "::", fmt, ##__VA_ARGS__)
-
-#define TLOG_WARN(fmt, ...)                         TLOG_BASE(cal::LOG_LEVEL_WARNING, fmt, ##__VA_ARGS__)
-#define TQ_LOG_WARN(fmt, ...)                       TQ_LOG_BASE(cal::LOG_LEVEL_WARNING, fmt, ##__VA_ARGS__)
-#define TLOG_WARN_C(fmt, ...)                       TLOG_BASE_V(cal::LOG_LEVEL_WARNING, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define TQ_LOG_WARN_C(fmt, ...)                     TQ_LOG_BASE_V(cal::LOG_LEVEL_WARNING, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define TLOG_WARN_CS(_class_, fmt, ...)             TLOG_BASE_V(cal::LOG_LEVEL_WARNING, _class_::class_name(), "::", fmt, ##__VA_ARGS__)
-#define TQ_LOG_WARN_CS(_class_, fmt, ...)           TQ_LOG_BASE_V(cal::LOG_LEVEL_WARNING, _class_::class_name(), "::", fmt, ##__VA_ARGS__)
-#define TLOG_WARN_NS(ns_str, fmt, ...)              TLOG_BASE_V(cal::LOG_LEVEL_WARNING, ns_str, "::", fmt, ##__VA_ARGS__)
-#define TQ_LOG_WARN_NS(ns_str, fmt, ...)            TQ_LOG_BASE_V(cal::LOG_LEVEL_WARNING, ns_str, "::", fmt, ##__VA_ARGS__)
-
-#define TLOG_ERROR(fmt, ...)                        TLOG_BASE(cal::LOG_LEVEL_ERROR, fmt, ##__VA_ARGS__)
-#define TQ_LOG_ERROR(fmt, ...)                      TQ_LOG_BASE(cal::LOG_LEVEL_ERROR, fmt, ##__VA_ARGS__)
-#define TLOG_ERROR_C(fmt, ...)                      TLOG_BASE_V(cal::LOG_LEVEL_ERROR, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define TQ_LOG_ERROR_C(fmt, ...)                    TQ_LOG_BASE_V(cal::LOG_LEVEL_ERROR, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define TLOG_ERROR_CS(_class_, fmt, ...)            TLOG_BASE_V(cal::LOG_LEVEL_ERROR, _class_::class_name(), "::", fmt, ##__VA_ARGS__)
-#define TQ_LOG_ERROR_CS(_class_, fmt, ...)          TQ_LOG_BASE_V(cal::LOG_LEVEL_ERROR, _class_::class_name(), "::", fmt, ##__VA_ARGS__)
-#define TLOG_ERROR_NS(ns_str, fmt, ...)             TLOG_BASE_V(cal::LOG_LEVEL_ERROR, ns_str, "::", fmt, ##__VA_ARGS__)
-#define TQ_LOG_ERROR_NS(ns_str, fmt, ...)           TQ_LOG_BASE_V(cal::LOG_LEVEL_ERROR, ns_str, "::", fmt, ##__VA_ARGS__)
-
-#define TLOG_CRITICAL(fmt, ...)                        TLOG_BASE(cal::LOG_LEVEL_CRITICAL, fmt, ##__VA_ARGS__)
-#define TQ_LOG_CRITICAL(fmt, ...)                      TQ_LOG_BASE(cal::LOG_LEVEL_CRITICAL, fmt, ##__VA_ARGS__)
-#define TLOG_CRITICAL_C(fmt, ...)                      TLOG_BASE_V(cal::LOG_LEVEL_CRITICAL, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define TQ_LOG_CRITICAL_C(fmt, ...)                    TQ_LOG_BASE_V(cal::LOG_LEVEL_CRITICAL, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define TLOG_CRITICAL_CS(_class_, fmt, ...)            TLOG_BASE_V(cal::LOG_LEVEL_CRITICAL, _class_::class_name(), "::", fmt, ##__VA_ARGS__)
-#define TQ_LOG_CRITICAL_CS(_class_, fmt, ...)          TQ_LOG_BASE_V(cal::LOG_LEVEL_CRITICAL, _class_::class_name(), "::", fmt, ##__VA_ARGS__)
-#define TLOG_CRITICAL_NS(ns_str, fmt, ...)             TLOG_BASE_V(cal::LOG_LEVEL_CRITICAL, ns_str, "::", fmt, ##__VA_ARGS__)
-#define TQ_LOG_CRITICAL_NS(ns_str, fmt, ...)           TQ_LOG_BASE_V(cal::LOG_LEVEL_CRITICAL, ns_str, "::", fmt, ##__VA_ARGS__)
-
 #define GLOG_BASE(log_level, fmt, ...)              do{\
     g_screen_logger->output(cal::HAS_LOG_PREFIX, log_level, fmt, ##__VA_ARGS__); \
     if (NULL != g_file_logger) \
@@ -186,14 +109,14 @@
 #define GLOG_ERROR_NS(ns_str, fmt, ...)             GLOG_BASE_V(cal::LOG_LEVEL_ERROR, ns_str, "::", fmt, ##__VA_ARGS__)
 #define GQ_LOG_ERROR_NS(ns_str, fmt, ...)           GQ_LOG_BASE_V(cal::LOG_LEVEL_ERROR, ns_str, "::", fmt, ##__VA_ARGS__)
 
-#define GLOG_CRITICAL(fmt, ...)                        GLOG_BASE(cal::LOG_LEVEL_CRITICAL, fmt, ##__VA_ARGS__)
-#define GQ_LOG_CRITICAL(fmt, ...)                      GQ_LOG_BASE(cal::LOG_LEVEL_CRITICAL, fmt, ##__VA_ARGS__)
-#define GLOG_CRITICAL_C(fmt, ...)                      GLOG_BASE_V(cal::LOG_LEVEL_CRITICAL, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define GQ_LOG_CRITICAL_C(fmt, ...)                    GQ_LOG_BASE_V(cal::LOG_LEVEL_CRITICAL, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define GLOG_CRITICAL_CS(_class_, fmt, ...)            GLOG_BASE_V(cal::LOG_LEVEL_CRITICAL, _class_::class_name(), "::", fmt, ##__VA_ARGS__)
-#define GQ_LOG_CRITICAL_CS(_class_, fmt, ...)          GQ_LOG_BASE_V(cal::LOG_LEVEL_CRITICAL, _class_::class_name(), "::", fmt, ##__VA_ARGS__)
-#define GLOG_CRITICAL_NS(ns_str, fmt, ...)             GLOG_BASE_V(cal::LOG_LEVEL_CRITICAL, ns_str, "::", fmt, ##__VA_ARGS__)
-#define GQ_LOG_CRITICAL_NS(ns_str, fmt, ...)           GQ_LOG_BASE_V(cal::LOG_LEVEL_CRITICAL, ns_str, "::", fmt, ##__VA_ARGS__)
+#define GLOG_CRITICAL(fmt, ...)                     GLOG_BASE(cal::LOG_LEVEL_CRITICAL, fmt, ##__VA_ARGS__)
+#define GQ_LOG_CRITICAL(fmt, ...)                   GQ_LOG_BASE(cal::LOG_LEVEL_CRITICAL, fmt, ##__VA_ARGS__)
+#define GLOG_CRITICAL_C(fmt, ...)                   GLOG_BASE_V(cal::LOG_LEVEL_CRITICAL, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
+#define GQ_LOG_CRITICAL_C(fmt, ...)                 GQ_LOG_BASE_V(cal::LOG_LEVEL_CRITICAL, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
+#define GLOG_CRITICAL_CS(_class_, fmt, ...)         GLOG_BASE_V(cal::LOG_LEVEL_CRITICAL, _class_::class_name(), "::", fmt, ##__VA_ARGS__)
+#define GQ_LOG_CRITICAL_CS(_class_, fmt, ...)       GQ_LOG_BASE_V(cal::LOG_LEVEL_CRITICAL, _class_::class_name(), "::", fmt, ##__VA_ARGS__)
+#define GLOG_CRITICAL_NS(ns_str, fmt, ...)          GLOG_BASE_V(cal::LOG_LEVEL_CRITICAL, ns_str, "::", fmt, ##__VA_ARGS__)
+#define GQ_LOG_CRITICAL_NS(ns_str, fmt, ...)        GQ_LOG_BASE_V(cal::LOG_LEVEL_CRITICAL, ns_str, "::", fmt, ##__VA_ARGS__)
 
 #define GLOG_FLUSH()                                do{\
     if (NULL != g_file_logger) \
