@@ -205,12 +205,12 @@ public:
      * @timeout_usec microseconds.
      */
 
-    static inline CA_REENTRANT bool is_writable(int fd, int timeout_usec)
+    static inline CA_REENTRANT bool is_writable(int fd, int timeout_usec = net_poller::DEFAULT_POLL_TIMEOUT)
     {
         return is_ready(fd, CHK_OP_WRITEABLE, timeout_usec);
     }
 
-    static inline CA_REENTRANT bool is_readable(int fd, int timeout_usec)
+    static inline CA_REENTRANT bool is_readable(int fd, int timeout_usec = net_poller::DEFAULT_POLL_TIMEOUT)
     {
         return is_ready(fd, CHK_OP_READABLE, timeout_usec);
     }
@@ -227,9 +227,13 @@ protected:
     virtual int init(const char *self_name = nullptr,
         int max_peer_count = net_poller::DEFAULT_CONNECTION_COUNT,
         int timeout = net_poller::DEFAULT_POLL_TIMEOUT);
+
     virtual void clear(void);
+
     int add_connection(net_connection *conn);
+
     int delete_connection(net_connection *conn, bool delete_peer_node_now = false);
+
     static CA_REENTRANT bool is_ready(int fd, enum_check_operation check_type, int timeout_usec);
 
 /* ===================================
