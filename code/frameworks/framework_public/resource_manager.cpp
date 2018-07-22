@@ -31,11 +31,7 @@
 #include <string.h>
 
 #include "connection_cache.h"
-//#include "program_template/app_tools/db_auxiliary.h"
-//#include "program_template/business_tools/message_cache.h"
 #include "config_manager.h"
-
-cafw::thread_context *g_thread_contexts = NULL;
 
 extern int prepare_extra_resource(const void *condition, struct extra_resource_t *target);
 extern void release_extra_resource(struct extra_resource_t **target);
@@ -471,116 +467,6 @@ int resource_manager::__prepare_extra_resource(const void *condition)
 void resource_manager::__release_extra_resource(void)
 {
     release_extra_resource(&(m_resource->extra_resource));
-}
-
-int prepare_thread_resource(void)
-{
-    // TODO: how to get these parameters when there is no configuration file?
-    const int kThreadCount = CFG_GET_COUNTER(XNODE_WORKER_THREAD);
-    const int kInputBufSize = CFG_GET_COUNTER(XNODE_TCP_RECV_BUF);
-    const int kOutputBufSize = CFG_GET_COUNTER(XNODE_TCP_SEND_BUF);
-
-    if (kThreadCount <= 0)
-    {
-        GLOG_ERROR_NS("cafw", "invalid worker-thread count: <= 0\n");
-        return RET_FAILED;
-    }
-
-    g_thread_contexts = new thread_context[kThreadCount];
-
-    for (int i = 0; i < kThreadCount; ++i)
-    {
-        thread_context &ctx = g_thread_contexts[i];
-        char thread_num[8] = {0};
-
-        ctx.num = i;
-        ctx.type = thread_context::TYPE_WORKER;
-        ctx.name = g_file_logger->log_name();
-        snprintf(thread_num, sizeof(thread_num), "%04d", ctx.num);
-        ctx.name.append((thread_context::TYPE_WORKER == ctx.type) ? "_worker_" : "_supervisor_")
-            .append(thread_num);
-        pthread_mutex_init(&(ctx.lock), NULL);
-        ctx.screen_logger.set_log_level(g_screen_logger->log_level());
-        ctx.file_logger.set_log_level(g_file_logger->log_level());
-        ctx.file_logger.set_log_directory(g_file_logger->log_directory());
-        ctx.file_logger.set_log_name(ctx.name.c_str());
-        ctx.file_logger.open();
-        ctx.status = thread_context::STATUS_BASIC_PART_INITIALIZED;
-        ctx.should_exit = false;
-        memset(&(ctx.timed_task_refresh_times), 0, sizeof(ctx.timed_task_refresh_times));
-        ctx.input_packet_cache = new calns::buffer(kInputBufSize);
-        ctx.output_packet_cache = new calns::buffer(kOutputBufSize);
-
-#ifdef HAS_DATABASE
-        // TODO: ctx.resource.db_connection;
-#endif
-    }
-
-    return RET_OK;
-
-/*PREPARATION_FAILED:
-
-    release_thread_resource();
-
-    return RET_FAILED;*/
-}
-
-void release_thread_resource(void)
-{
-    if (NULL == g_thread_contexts)
-        return;
-
-    const int kThreadCount = CFG_GET_COUNTER(XNODE_WORKER_THREAD);
-
-    int wait_secs = 0;
-
-    while (wait_secs < THREAD_TERMINATION_TIMEOUT_SECS)
-    {
-        bool all_exited_normally = true;
-
-        for (int i = 0; i < kThreadCount; ++i)
-        {
-            if (thread_context::STATUS_EXITED_NORMALLY != g_thread_contexts[i].status)
-            {
-                all_exited_normally = false;
-                break;
-            }
-        }
-
-        if (all_exited_normally)
-        {
-            GLOG_INFO_NS("cafw", "all worker threads have exited normally, wait_secs = %d\n", wait_secs);
-            break;
-        }
-
-        GLOG_INFO_NS("cafw", "waiting for worker threads exiting, wait_secs = %d\n", wait_secs);
-        sleep(1);
-        ++wait_secs;
-    }
-
-    for (int i = 0; i < kThreadCount; ++i)
-    {
-        thread_context &ctx = g_thread_contexts[i];
-
-        if (NULL != ctx.input_packet_cache)
-        {
-            delete ctx.input_packet_cache;
-            ctx.input_packet_cache = NULL;
-        }
-
-        if (NULL != ctx.output_packet_cache)
-        {
-            delete ctx.output_packet_cache;
-            ctx.output_packet_cache = NULL;
-        }
-
-#ifdef HAS_DATABASE
-        // TODO: ctx.resource.db_connection;
-#endif
-    }
-
-    delete[] g_thread_contexts;
-    g_thread_contexts = NULL;
 }
 
 } // namespace cafw

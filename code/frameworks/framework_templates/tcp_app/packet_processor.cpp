@@ -508,7 +508,7 @@ int packet_processor::single_operator_general_flow(const struct calns::net_conne
      * Step 2: Do validation if required.
      */
 
-    if (NULL != component.in_packet_is_ok && !component.in_packet_is_ok(NULL, whole_in_body, retcode))
+    if (NULL != component.in_packet_is_ok && !component.in_packet_is_ok(whole_in_body, retcode))
     {
         GLOG_ERROR_C("input packet validation failed\n");
         goto OUTPUT;

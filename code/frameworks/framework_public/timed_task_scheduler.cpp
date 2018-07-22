@@ -426,50 +426,11 @@ void default_heartbeat_timed_task(void)
     master_conn_cache->do_batch_operation(update_connection_status);
     slave_conn_cache->do_batch_operation(update_connection_status);
 #endif
-
-    /*db_heartbeat();
-#ifdef HAS_DATABASE
-    if (db_needs_reconnect())
-    {
-        kpi_send(KPI_DEF_CONNECT_DB_ERR);
-        db_reconnect();
-    }
-#ifdef MULTI_THREADING
-    const int kThreadCount = CFG_GET_COUNTER(XNODE_WORKER_THREAD);
-    int64_t cur_time = calns::Time::GetUtcMicroseconds();
-
-    for (int i = 0; i < kThreadCount; ++i)
-    {
-        ThreadContext &ctx = g_thread_contexts[i];
-
-        if (ThreadContext::THREAD_STATUS_EXITED_NORMALLY == ctx.status)
-            continue;
-
-        ctx.timed_task_refresh_times[ThreadContext::WORKER_TASK_DB_HEARTBEAT] = cur_time;
-    }
-#endif
-#endif
-
-    kpi_send(KPI_DEF_HEARTBEAT);*/
 }
 
 void default_log_flushing_timed_task(void)
 {
     GLOG_FLUSH();
-#ifdef MULTI_THREADING
-    const int kThreadCount = CFG_GET_COUNTER(XNODE_WORKER_THREAD);
-    int64_t cur_time = calns::time_util::GetUtcMicroseconds();
-
-    for (int i = 0; i < kThreadCount; ++i)
-    {
-        ThreadContext &ctx = g_thread_contexts[i];
-
-        if (ThreadContext::THREAD_STATUS_EXITED_NORMALLY == ctx.status)
-            continue;
-
-        ctx.timed_task_refresh_times[ThreadContext::WORKER_TASK_LOG_FLUSHING] = cur_time;
-    }
-#endif
 }
 
 } // namespace cafw

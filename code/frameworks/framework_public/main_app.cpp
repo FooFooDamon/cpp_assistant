@@ -317,14 +317,6 @@ int main_app::prepare_resources(void)
         return RET_FAILED;
     }
 
-#ifdef MULTI_THREADING
-    if (prepare_thread_resource() < 0)
-    {
-        GLOG_ERROR_C("prepare_thread_resource() failed\n");
-        return RET_FAILED;
-    }
-#endif
-
 #ifdef HAS_TCP
     if (m_packet_processor->build_component_map())
     {
@@ -457,37 +449,11 @@ int main_app::register_timed_tasks(void)
 
 int main_app::initialize_business(void)
 {
-#ifdef MULTI_THREADING
-    const int kThreadCount = CFG_GET_COUNTER(XNODE_WORKER_THREAD);
-
-    for (int i = 0; i < kThreadCount; ++i)
-    {
-        pthread_t tid;
-        int *thread_index = new int(i);
-        int ret = pthread_create(&tid, NULL, workder_thread, thread_index);
-
-        if (ret < 0)
-        {
-            GLOG_ERROR_C("failed to create new thread, i = %d\n", i);
-            return ret;
-        }
-
-        g_thread_contexts[i].tid = tid;
-        g_thread_contexts[i].status = thread_context::STATUS_FULLY_INITIALIZED;
-
-        GLOG_INFO_C("new thread: num = %d, tid = 0x%x, type = %d, name = %s\n",
-            i, tid, g_thread_contexts[i].type, g_thread_contexts[i].full_name.c_str());
-    }
-#endif
-
     return init_business();
 }
 
 void main_app::finalize_business(void)
 {
-#ifdef MULTI_THREADING
-    // TODO: thread resources retrieving.
-#endif
     ::finalize_business();
 }
 
@@ -550,10 +516,6 @@ int main_app::run_business(void)
 
 void main_app::release_resources(void)
 {
-#ifdef MULTI_THREADING
-    release_thread_resource();
-#endif
-
     if (NULL != m_resource_manager)
         m_resource_manager->clean();
 

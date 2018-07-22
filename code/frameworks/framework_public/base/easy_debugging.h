@@ -141,8 +141,6 @@ extern calns::file_logger *g_file_logger;
 namespace cafw
 {
 
-struct thread_context;
-
 inline void enable_quiet_mode(void)
 {
     g_is_quiet_mode = true;
@@ -168,7 +166,5 @@ int init_logger(
 void clear_logger(void);
 
 }
-
-extern cafw::thread_context *g_thread_contexts;
 
 #endif /* __CASDK_FRAMEWORK_EASY_DEBUG_H__ */

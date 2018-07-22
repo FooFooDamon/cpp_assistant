@@ -46,11 +46,9 @@
 namespace cafw
 {
 
-struct thread_context;
-
 typedef int (*group_fragment_func)(const msg_base *fragment, msg_base *whole);
 
-typedef bool (*validate_input_packet_func)(thread_context *ctx, msg_base *parsed_body, int &retcode);
+typedef bool (*validate_input_packet_func)(msg_base *parsed_body, int &retcode);
 
 typedef int (*business_func)(
     const calns::net_connection *in_conn,

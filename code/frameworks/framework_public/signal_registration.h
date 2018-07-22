@@ -60,43 +60,10 @@ extern const signal_registration_info g_sig_configs[];
 #define DECLARE_DEFAULT_SIG_HANDLER(name)                   int DEFAULT_SIG_HANDLER(name)(int name)
 #define EXTERN_DECLARE_DEFAULT_SIG_HANDLER(name)            extern DECLARE_DEFAULT_SIG_HANDLER(name)
 
-#ifdef MULTI_THREADING
-
-#define DEFINE_DEFAULT_SIG_HANDLER(name)                    int DEFAULT_SIG_HANDLER(name)(int name){\
-    GLOG_INFO("%s captured\n", name); \
-\
-    bool should_exit = false; \
-\
-    for (int i = 0; calns::INVALID_SIGNAL_NUM != g_sig_configs[i].sig_num; ++i) \
-    {\
-        if (name == g_sig_configs[i].sig_num) \
-        {\
-            should_exit = g_sig_configs[i].exit_after_handling; \
-            break; \
-        }\
-    }\
-\
-    if (should_exit) \
-    {\
-        const int kThreadCount = CFG_GET_COUNTER(XNODE_WORKER_THREAD); \
-\
-        for (int i = 0; i < kThreadCount; ++i) \
-        {\
-            g_thread_contexts[i].should_exit = true; \
-        }\
-    }\
-\
-    return RET_OK;\
-}
-
-#else
-
 #define DEFINE_DEFAULT_SIG_HANDLER(name)                    int DEFAULT_SIG_HANDLER(name)(int name){\
     GLOG_INFO("%s captured\n", #name);\
     return RET_OK;\
 }
-
-#endif
 
 #define CUSTOMIZED_SIG_HANDLER(name)                        customized_##name##_handler
 

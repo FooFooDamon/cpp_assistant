@@ -134,7 +134,7 @@ protected:
     resource_t *m_resource;
     bool m_is_ready;
 };
-
+#if 0 // used in future
 typedef struct thread_context
 {
     enum
@@ -187,7 +187,7 @@ typedef thread_context thrdctx;
 
 int prepare_thread_resource(void);
 void release_thread_resource(void);
-
+#endif
 }
 
 #endif /* __CASDK_FRAMEWORK_RESOURCE_MANAGER_H__ */
