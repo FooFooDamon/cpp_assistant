@@ -52,19 +52,19 @@ int timed_task_scheduler::register_one(const std::string &name, const timed_task
 {
     if (!is_ready())
     {
-        GLOG_ERROR_C("resource not ready\n");
+        LOGF_C(E, "resource not ready\n");
         return RET_FAILED;
     }
 
     if (exists(name))
     {
-        GLOG_INFO_C("task[%s] has already been registered, nothing needs to be done\n", name.c_str());
+        LOGF_C(I, "task[%s] has already been registered, nothing needs to be done\n", name.c_str());
         return RET_OK;
     }
 
     if (!__task_info_is_ok(info))
     {
-        GLOG_ERROR_C("invalid task info\n");
+        LOGF_C(E, "invalid task info\n");
         return RET_FAILED;
     }
 
@@ -72,12 +72,12 @@ int timed_task_scheduler::register_one(const std::string &name, const timed_task
     int trigger_type = info.trigger_type;
     const int64_t kMinInterval = static_cast<int64_t>(timed_task_config::MIN_TRIGGER_INTERVAL);
     const int64_t kMaxInterval = static_cast<int64_t>(timed_task_config::MAX_TRIGGER_INTERVAL);
-    //GLOG_DEBUG_C("MinInterval: %ld, MaxInterval: %ld\n", kMinInterval, kMaxInterval);
+    //LOGF_C(D, "MinInterval: %ld, MaxInterval: %ld\n", kMinInterval, kMaxInterval);
 
     if (timed_task_config::TRIGGERED_PERIODICALLY == trigger_type)
     {
         int64_t interval = labs(info.time_interval);
-        //GLOG_DEBUG_C("target interval: %ld\n", interval);
+        //LOGF_C(D, "target interval: %ld\n", interval);
 
         if (interval < kMinInterval)
             actual_info.time_interval = kMinInterval;
@@ -94,7 +94,7 @@ int timed_task_scheduler::register_one(const std::string &name, const timed_task
 
     if (!(m_tasks->insert(std::make_pair(name, actual_info)).second))
     {
-        GLOG_ERROR_C("std::map::insert() failed\n");
+        LOGF_C(E, "std::map::insert() failed\n");
         return RET_FAILED;
     }
 
@@ -105,14 +105,14 @@ int timed_task_scheduler::unregister_one(const std::string &name)
 {
     if (!is_ready())
     {
-        GLOG_ERROR_C("resource not ready\n");
+        LOGF_C(E, "resource not ready\n");
         return RET_FAILED;
     }
 
     int erase_count = m_tasks->erase(name);
     if (0 == erase_count)
     {
-        GLOG_ERROR_C("task[%s] not found or deletion failed\n", name.c_str());
+        LOGF_C(E, "task[%s] not found or deletion failed\n", name.c_str());
         return RET_FAILED;
     }
 
@@ -135,7 +135,7 @@ int timed_task_scheduler::set_event_trigger_time(const std::string &name, const 
 {
     if (!exists(name))
     {
-        GLOG_ERROR_C("task[%s] not found\n", name.c_str());
+        LOGF_C(E, "task[%s] not found\n", name.c_str());
         return RET_FAILED;
     }
 
@@ -143,7 +143,7 @@ int timed_task_scheduler::set_event_trigger_time(const std::string &name, const 
 
     if (timed_task_config::TRIGGERED_PERIODICALLY == info.trigger_type)
     {
-        GLOG_ERROR_C("[%s] is not an event-triggered task\n", name.c_str());
+        LOGF_C(E, "[%s] is not an event-triggered task\n", name.c_str());
         return RET_FAILED;
     }
 
@@ -157,7 +157,7 @@ void timed_task_scheduler::check_and_execute(void)
 {
     if (!is_ready())
     {
-        GLOG_ERROR_C("resource not ready\n");
+        LOGF_C(E, "resource not ready\n");
         return;
     }
 
@@ -196,7 +196,7 @@ void timed_task_scheduler::check_and_execute(void)
                 task_info.has_triggered = true;
             }
 
-            GLOG_INFO_C("one round of [%s] done, time spent: %ld us\n",
+            LOGF_C(I, "one round of [%s] done, time spent: %ld us\n",
                 it->first.c_str(), calns::time_util::get_utc_microseconds() - start_time);
         }
         cur_time = calns::time_util::get_utc_microseconds();
@@ -235,7 +235,7 @@ int timed_task_scheduler::__inner_init(void)
     if ((NULL == m_tasks) &&
         (NULL == (m_tasks = new timed_task_map)))
     {
-        GLOG_ERROR_C("TimedTask structure initialization failed\n");
+        LOGF_C(E, "TimedTask structure initialization failed\n");
         return RET_FAILED;
     }
 
@@ -304,7 +304,7 @@ static void update_connection_status(char *name, void *conn)
         if (!peer_index->conn_detail->is_validated)
         {
             // TODO: more operations like shutting down this connection
-            GLOG_WARN("this client is not validated!!!\n");
+            RLOGF(W, "this client is not validated!!!\n");
         }
 
         return;
@@ -335,7 +335,7 @@ static void update_connection_status(char *name, void *conn)
         int64_t default_timeout = CFG_GET_TIMEOUT_USEC(XNODE_DEFAULT_WAITING_FOR_PEER_REPLY);
         int64_t longest_timeout = CFG_GET_TIMEOUT_USEC(XNODE_LONGEST_WAITING_FOR_PEER_REPLY);
 
-        GLOG_DEBUG("cur_time: %ld, last_heartbeat_time: %ld,"
+        RLOGF(D, "cur_time: %ld, last_heartbeat_time: %ld,"
             " actual_timeout = cur_time - last_heartbeat_time = %ld, default_timeout = %ld,"
             " longest_timeout = %ld\n", cur_time, last_heartbeat_time, actual_timeout,
             default_timeout, longest_timeout);
@@ -351,7 +351,7 @@ static void update_connection_status(char *name, void *conn)
 
 SEND_HEARTBEAT:
 
-        GLOG_DEBUG("^~^~^~^~ request to: [%s][%s:%u]\n",
+        RLOGF(D, "^~^~^~^~ request to: [%s][%s:%u]\n",
             peer_index->conn_alias, peer_index->peer_ip, peer_index->peer_port);
         send_heartbeat_request(peer_index->fd);
 
@@ -362,7 +362,7 @@ DISCONNECT:
         client->disconnect_server(conn_found);
         peer_index->fd = calns::INVALID_SOCK_FD;
         peer_index->conn_detail = NULL;
-        GLOG_ERROR("no heart beat response for too long, detached from server %s\n",
+        RLOGF(E, "no heart beat response for too long, detached from server %s\n",
             conn_found->peer_name);
 
         return;
@@ -374,7 +374,7 @@ DISCONNECT:
 
     if (ret < 0)
     {
-        GLOG_ERROR("! ! ! ! ! connection to [%s][%s:%u] failed, ret = %d, msg = %s\n",
+        RLOGF(E, "! ! ! ! ! connection to [%s][%s:%u] failed, ret = %d, msg = %s\n",
             peer_index->conn_alias, peer_index->peer_ip, peer_index->peer_port, ret, calns::what(ret).c_str());
         peer_index->fd = calns::INVALID_SOCK_FD;
         peer_index->conn_detail = NULL;
@@ -385,14 +385,14 @@ DISCONNECT:
 
     calns::net_connection *detail = (*(client->peers()))[fd];
 
-    GLOG_INFO("~ ~ ~ ~ ~ connection to [%s][%s:%u] successful, fd = %d, local address = [%s:%u]\n",
+    RLOGF(I, "~ ~ ~ ~ ~ connection to [%s][%s:%u] successful, fd = %d, local address = [%s:%u]\n",
         peer_index->conn_alias, peer_index->peer_ip, peer_index->peer_port, fd, detail->self_ip, detail->self_port);
 
-    GLOG_INFO("identity report request to: [%s][%s:%u]\n",
+    RLOGF(I, "identity report request to: [%s][%s:%u]\n",
         peer_index->conn_alias, peer_index->peer_ip, peer_index->peer_port);
     send_identity_report_request(fd);
 
-    GLOG_DEBUG("^~^~^~^~ request to: [%s][%s:%u]\n",
+    RLOGF(D, "^~^~^~^~ request to: [%s][%s:%u]\n",
         peer_index->conn_alias, peer_index->peer_ip, peer_index->peer_port);
     send_heartbeat_request(fd);
 
@@ -409,7 +409,7 @@ DISCONNECT:
         if (NULL != owner_ptr)
             detail->owner = owner_ptr;
         else
-            GLOG_WARN_NS("", "can not find connection cache item with name[%s]|is_master[%d],"
+            LOGF_NS(W, "", "can not find connection cache item with name[%s]|is_master[%d],"
                 " owner info not set\n", name, peer_index->attribute.is_master);
 
         strncpy(detail->peer_name, name, calns::MAX_CONNECTION_NAME_LEN);

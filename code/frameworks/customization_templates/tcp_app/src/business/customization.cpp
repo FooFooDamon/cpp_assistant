@@ -115,19 +115,19 @@ int init_extra_config(struct extra_config_t **extra_items)
 {
     if (NULL == extra_items)
     {
-        GLOG_ERROR_NS("", "null param\n");
+        LOGF_NS(E, "", "null param\n");
         return RET_FAILED;
     }
 
     if (NULL != *extra_items)
     {
-        GLOG_INFO_NS("", "extra configuration structure already initialized\n");
+        LOGF_NS(I, "", "extra configuration structure already initialized\n");
         return RET_OK;
     }
 
     if (NULL == (*extra_items = new extra_config_t))
     {
-        GLOG_ERROR_NS("", "new extra_conf_t failed\n");
+        LOGF_NS(E, "", "new extra_conf_t failed\n");
         return RET_FAILED;
     }
 
@@ -141,13 +141,13 @@ int destroy_extra_config(struct extra_config_t **extra_items)
 {
     if (NULL == extra_items)
     {
-        GLOG_ERROR_NS("", "null param\n");
+        LOGF_NS(E, "", "null param\n");
         return RET_FAILED;
     }
 
     if (NULL == extra_items)
     {
-        GLOG_INFO_NS("", "extra configuration structure already destroyed\n");
+        LOGF_NS(I, "", "extra configuration structure already destroyed\n");
         return RET_OK;
     }
 
@@ -303,7 +303,7 @@ int run_private_business(bool &exit_after_this_round)
 
 void finalize_business(void)
 {
-    GLOG_INFO("g_send_packet_count = %d, g_recv_packet_count = %d\n",
+    RLOGF(I, "g_send_packet_count = %d, g_recv_packet_count = %d\n",
         g_send_packet_count, g_recv_packet_count);
     ; // TODO: Add your own stuff, or do nothing if there is none.
 }
@@ -438,14 +438,14 @@ SET_ASSEMBLE_OUT_FUNC_TO_NULL(multi_packet_response_test);
 DECLARE_BUSINESS_FUNC(single_packet_request_test)
 {
     ++g_recv_packet_count;
-    GLOG_INFO_NS("", "g_recv_packet_count = %d\n", g_recv_packet_count);
+    LOGF_NS(I, "", "g_recv_packet_count = %d\n", g_recv_packet_count);
     return RET_OK;
 }
 
 DECLARE_BUSINESS_FUNC(single_packet_response_test)
 {
     ++g_recv_packet_count;
-    GLOG_INFO_NS("", "g_recv_packet_count = %d\n", g_recv_packet_count);
+    LOGF_NS(I, "", "g_recv_packet_count = %d\n", g_recv_packet_count);
     return RET_OK;
 }
 
@@ -458,14 +458,14 @@ DECLARE_GROUP_FUNC(multi_packet_request_test)
 
     if (NULL == converted_frag)
     {
-        GLOG_ERROR_NS("", "failed to convert \"fragment\" pointer from msg_base* to"
+        LOGF_NS(E, "", "failed to convert \"fragment\" pointer from msg_base* to"
             " SimpleMultiPacketTestReq*\n");
         return RET_FAILED;
     }
 
     if (NULL == converted_whole)
     {
-        GLOG_ERROR_NS("", "failed to convert \"whole\" pointer from msg_base* to"
+        LOGF_NS(E, "", "failed to convert \"whole\" pointer from msg_base* to"
             " SimpleMultiPacketTestReq*\n");
         return RET_FAILED;
     }
@@ -481,10 +481,10 @@ DECLARE_BUSINESS_FUNC(multi_packet_request_test)
 
     for (int i = 0; i < req->packet_number_size(); ++i)
     {
-        GLOG_INFO_NS("", "packet[%d] was handled successfully\n", req->packet_number(i));
+        LOGF_NS(I, "", "packet[%d] was handled successfully\n", req->packet_number(i));
     }
     g_recv_packet_count += req->packet_number_size();
-    GLOG_INFO_NS("", "g_recv_packet_count = %d\n", g_recv_packet_count);
+    LOGF_NS(I, "", "g_recv_packet_count = %d\n", g_recv_packet_count);
 
     return RET_OK;
 }
@@ -492,7 +492,7 @@ DECLARE_BUSINESS_FUNC(multi_packet_request_test)
 DECLARE_BUSINESS_FUNC(multi_packet_response_test)
 {
     ++g_recv_packet_count;
-    GLOG_INFO_NS("", "g_recv_packet_count = %d\n", g_recv_packet_count);
+    LOGF_NS(I, "", "g_recv_packet_count = %d\n", g_recv_packet_count);
     return RET_OK;
 }
 

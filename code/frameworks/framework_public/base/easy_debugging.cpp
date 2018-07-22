@@ -50,14 +50,14 @@ int init_logger(
     {
         if (NULL == log_dir || NULL == log_name)
         {
-            GLOG_ERROR_NS("cafw", "null log_dir or log_name\n");
+            LOGF_NS(E, "cafw", "null log_dir or log_name\n");
             return RET_FAILED;
         }
 
         if (NULL == g_file_logger
             && NULL == (g_file_logger = new calns::file_logger))
         {
-            GLOG_ERROR_NS("cafw", "failed to allocate memory for g_file_logger\n");
+            LOGF_NS(E, "cafw", "failed to allocate memory for g_file_logger\n");
             return RET_FAILED;
         }
         // Note: g_screen_logger was created at the beginning.
@@ -81,22 +81,22 @@ int init_logger(
 
         logger->set_log_level((calns::enum_log_level)log_level);
 
-        //GLOG_DEBUG_NS("cafw", "log_dir: %s\n", log_dir);
+        //LOGF_NS(D, "cafw", "log_dir: %s\n", log_dir);
         if ((ret = logger->set_log_directory(log_dir)) < 0)
         {
-            GLOG_ERROR_NS("cafw", "failed to set log directory to [%s]\n", log_dir);
+            LOGF_NS(E, "cafw", "failed to set log directory to [%s]\n", log_dir);
             goto LOG_INIT_FAILED;
         }
 
         if ((ret = logger->set_log_name(log_name)) < 0)
         {
-            GLOG_ERROR_NS("cafw", "failed to set log name to [%s], ret = %d\n", log_name, ret);
+            LOGF_NS(E, "cafw", "failed to set log name to [%s], ret = %d\n", log_name, ret);
             goto LOG_INIT_FAILED;
         }
 
         if ((ret = logger->open()) < 0)
         {
-            GLOG_ERROR_NS("cafw", "failed to open log file [%s], ret = %d\n", log_name, ret);
+            LOGF_NS(E, "cafw", "failed to open log file [%s], ret = %d\n", log_name, ret);
             goto LOG_INIT_FAILED;
         }
     }

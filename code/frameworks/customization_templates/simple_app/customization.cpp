@@ -81,19 +81,19 @@ int init_extra_config(struct extra_config_t **extra_items)
 {
     if (NULL == extra_items)
     {
-        GLOG_ERROR_NS("", "null param\n");
+        LOGF_NS(E, "", "null param\n");
         return RET_FAILED;
     }
 
     if (NULL != *extra_items)
     {
-        GLOG_INFO_NS("", "extra configuration structure already initialized\n");
+        LOGF_NS(I, "", "extra configuration structure already initialized\n");
         return RET_OK;
     }
 
     if (NULL == (*extra_items = new extra_config_t))
     {
-        GLOG_ERROR_NS("", "new extra_conf_t failed\n");
+        LOGF_NS(E, "", "new extra_conf_t failed\n");
         return RET_FAILED;
     }
 
@@ -107,13 +107,13 @@ int destroy_extra_config(struct extra_config_t **extra_items)
 {
     if (NULL == extra_items)
     {
-        GLOG_ERROR_NS("", "null param\n");
+        LOGF_NS(E, "", "null param\n");
         return RET_FAILED;
     }
 
     if (NULL == extra_items)
     {
-        GLOG_INFO_NS("", "extra configuration structure already destroyed\n");
+        LOGF_NS(I, "", "extra configuration structure already destroyed\n");
         return RET_OK;
     }
 
@@ -180,13 +180,13 @@ int init_business(void)
 // Modify this function to meet your needs.
 int run_private_business(bool &exit_after_this_round)
 {
-    /*GLOG_INFO_NS("", "========== Begin of SIGSEGV test ==========\n");
+    /*LOGF_NS(I, "", "========== Begin of SIGSEGV test ==========\n");
     strcpy(NULL, "foo");
-    GLOG_INFO_NS("", "========== End of SIGSEGV test ==========\n");*/
+    LOGF_NS(I, "", "========== End of SIGSEGV test ==========\n");*/
 
     static int s_business_counter = 0;
 
-    GLOG_INFO_NS("", "This is a demo test, s_business_counter = %d\n", s_business_counter);
+    LOGF_NS(I, "", "This is a demo test, s_business_counter = %d\n", s_business_counter);
     sleep(1);
     ++s_business_counter;
 

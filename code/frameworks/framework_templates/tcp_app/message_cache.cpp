@@ -56,7 +56,7 @@ int message_cache::create(int dict_size)
     if ((NULL == m_message_dictionary) &&
         (NULL == (m_message_dictionary = char_dict_create(DEFAULT_DICT_SIZE))))
     {
-        GLOG_ERROR_C("char_dict_create() failed\n");
+        LOGF_C(E, "char_dict_create() failed\n");
         return RET_FAILED;
     }
 
@@ -121,7 +121,7 @@ void message_cache::clean_expired_messages(int64_t cur_utc_usec)
 
         if (msg_expired)
         {
-            GLOG_INFO_C("message[%s | 0x%08X] last operated on time[%ld] expired, cleaned up now\n",
+            LOGF_C(I, "message[%s | 0x%08X] last operated on time[%ld] expired, cleaned up now\n",
                 (char*)(entry->key), msg_item->reqcmd, msg_time);
             dict_delete_no_free(m_message_dictionary, entry->key, entry->keylen);
             char_dict_release_key((void **)&(entry->key));
@@ -133,7 +133,7 @@ void message_cache::clean_expired_messages(int64_t cur_utc_usec)
     dict_release_iterator(it);
 
     if (del_count > 0)
-        GLOG_INFO("%d expired messages cleaned up\n", del_count);
+        RLOGF(I, "%d expired messages cleaned up\n", del_count);
 }
 
 size_t message_cache::time_consuming_message_count(const char *connection_name) const

@@ -248,13 +248,13 @@ int load_unique_config_node_value(
     if (read_ret <= 0)
     {
         if (!from_common)
-            GQ_LOG_WARN_NS("cafw", "Failed to read nodes with XPath[%s]: %s\n", xpath, calns::what(read_ret).c_str());
+            QLOGF_NS(W, "cafw", "Failed to read nodes with XPath[%s]: %s\n", xpath, calns::what(read_ret).c_str());
         return RET_FAILED;
     }
 
     std::string &value = nodes[0].node_value;
 
-    GQ_LOG_INFO_NS("cafw", "%s: %s\n", xpath, value.c_str());
+    QLOGF_NS(I, "cafw", "%s: %s\n", xpath, value.c_str());
 
     convert(value, result);
 

@@ -55,7 +55,7 @@ int __load_key_value_attributes(
 
     if (read_ret <= 0)
     {
-        GLOG_WARN_NS("cafw", "Failed to read nodes with XPath[%s], or failed to read"
+        LOGF_NS(W, "cafw", "Failed to read nodes with XPath[%s], or failed to read"
             " their attributes with name [%s] or [%s]: %s\n",
             xpath, key_attr, value_attr, calns::what(read_ret).c_str());
         return RET_FAILED;
@@ -75,7 +75,7 @@ int __load_key_value_attributes(
 
         result.insert(std::make_pair(key_converted, value_converted));
 
-        GQ_LOG_INFO_NS("cafw", "%s: %s[%s], %s[%s]\n",
+        QLOGF_NS(I, "cafw", "%s: %s[%s], %s[%s]\n",
             xpath, key_attr, key.c_str(), value_attr, value.c_str());
     }
 
@@ -94,7 +94,7 @@ int get_common_config_filename(const config_file_t *config_file, std::string &re
 
     if (read_ret <= 0)
     {
-        GLOG_ERROR_NS("cafw", "Failed to read node[%s] or its attribute[%s], ret = %d\n",
+        LOGF_NS(E, "cafw", "Failed to read node[%s] or its attribute[%s], ret = %d\n",
             xpath_shared_file, file_link_attr, read_ret);
         return RET_FAILED;
     }
@@ -175,7 +175,7 @@ int load_fixed_common_configs(
     if (NULL == config_file
         || NULL == result)
     {
-        GLOG_ERROR_NS("cafw", "null params\n");
+        LOGF_NS(E, "cafw", "null params\n");
         return RET_FAILED;
     }
 
@@ -196,7 +196,7 @@ int load_fixed_common_configs(
     {
         if (config_items[i].load_function(config_file, config_items[i].holder) < 0)
         {
-            GLOG_ERROR_NS("cafw", "failed to load %s\n", config_items[i].name);
+            LOGF_NS(E, "cafw", "failed to load %s\n", config_items[i].name);
             return RET_FAILED;
         }
     }
@@ -221,11 +221,11 @@ static int __load_timezone(
     {
         if (from_common)
         {
-            GLOG_ERROR_NS("cafw", "can not find time zone setting in common configuration.\n");
+            LOGF_NS(E, "cafw", "can not find time zone setting in common configuration.\n");
             return RET_FAILED;
         }
 
-        GQ_LOG_INFO_NS("cafw", "can not find time zone setting in private configuration,"
+        QLOGF_NS(I, "cafw", "can not find time zone setting in private configuration,"
             " take the value from common configuration.\n");
     }
 
@@ -251,11 +251,11 @@ static int __load_timed_task_unit(
     {
         if (from_common)
         {
-            GLOG_ERROR_NS("cafw", "can not find unit of timed task in common configuration file.\n");
+            LOGF_NS(E, "cafw", "can not find unit of timed task in common configuration file.\n");
             return RET_FAILED;
         }
 
-        GQ_LOG_INFO_NS("cafw", "can not find unit of timed task in private configuration,"
+        QLOGF_NS(I, "cafw", "can not find unit of timed task in private configuration,"
             " take the value from common configuration.\n");
 
         return RET_OK;
@@ -266,12 +266,12 @@ static int __load_timed_task_unit(
 
     if (0 == strcasecmp(unit_text, "millisecond"))
     {
-        GQ_LOG_INFO_NS("cafw", "time unit to be used: %s\n", unit_text);
+        QLOGF_NS(I, "cafw", "time unit to be used: %s\n", unit_text);
         unit = TIME_UNIT_MILLISECOND;
     }
     else
     {
-        GQ_LOG_INFO_NS("cafw", "time unit to be used: %s\n", "second");
+        QLOGF_NS(I, "cafw", "time unit to be used: %s\n", "second");
         unit = TIME_UNIT_SECOND;
     }
 
@@ -292,7 +292,7 @@ static int __load_integer_items(
     if (from_common)
         result.clear();
 
-    //GLOG_INFO_NS("cafw", "items in %s/%s:\n", xpath_prefix, item_parent);
+    //LOGF_NS(I, "cafw", "items in %s/%s:\n", xpath_prefix, item_parent);
     for (int i = 0; NULL != item_names[i]; ++i)
     {
         full_path.clear();
@@ -309,11 +309,11 @@ static int __load_integer_items(
         {
             if (from_common)
             {
-                GLOG_ERROR_NS("cafw", "can not find %s item in common configuration.\n", full_path.c_str());
+                LOGF_NS(E, "cafw", "can not find %s item in common configuration.\n", full_path.c_str());
                 return RET_FAILED;
             }
 
-            GQ_LOG_INFO_NS("cafw", "can not find %s item in private configuration,"
+            QLOGF_NS(I, "cafw", "can not find %s item in private configuration,"
                 " take the value from common configuration.\n", full_path.c_str());
 
             continue;
@@ -321,7 +321,7 @@ static int __load_integer_items(
 
         result[item_names[i]] = value;
 
-        //GLOG_INFO_NS("cafw", "%s = %ld\n", item_names[i], result[item_names[i]]);
+        //LOGF_NS(I, "cafw", "%s = %ld\n", item_names[i], result[item_names[i]]);
     }
 
     return RET_OK;
@@ -443,11 +443,11 @@ static int __load_dispatch_settings(
     {
         if (from_common)
         {
-            GLOG_ERROR_NS("cafw", "can not find %s item in common configuration.\n", xpath.c_str());
+            LOGF_NS(E, "cafw", "can not find %s item in common configuration.\n", xpath.c_str());
             return RET_FAILED;
         }
 
-        GQ_LOG_INFO_NS("cafw", "can not find %s item in private configuration,"
+        QLOGF_NS(I, "cafw", "can not find %s item in private configuration,"
             " take the value from common configuration.\n", xpath.c_str());
 
         return RET_OK;
@@ -462,7 +462,7 @@ static int __load_dispatch_settings(
     else
         result[XNODE_DISPATCH_POLICY] = DISPATCHED_TO_LEAST_LOAD;
 
-    GQ_LOG_INFO_NS("cafw", "%s: original text [%s], converted value [%ld]\n",
+    QLOGF_NS(I, "cafw", "%s: original text [%s], converted value [%ld]\n",
         xpath.c_str(), value_str, result[XNODE_DISPATCH_POLICY]);
 
     return RET_OK;
@@ -478,19 +478,19 @@ int load_mutable_common_configs(
         || NULL == xpath_prefix
         || NULL == result)
     {
-        GLOG_ERROR_NS("cafw", "null params\n");
+        LOGF_NS(E, "cafw", "null params\n");
         return RET_FAILED;
     }
 
     if (__load_timezone(config_file, xpath_prefix, from_common, result->timezone) < 0)
     {
-        GLOG_ERROR_NS("cafw", "failed to load time zone\n");
+        LOGF_NS(E, "cafw", "failed to load time zone\n");
         return RET_FAILED;
     }
 
     if (__load_timed_task_unit(config_file, xpath_prefix, from_common, result->time_unit_of_timed_task) < 0)
     {
-        GLOG_ERROR_NS("cafw", "failed to load timed task unit\n");
+        LOGF_NS(E, "cafw", "failed to load timed task unit\n");
         return RET_FAILED;
     }
 
@@ -512,7 +512,7 @@ int load_mutable_common_configs(
     {
         if (loader_items[i].func(config_file, xpath_prefix, from_common, loader_items[i].holder) < 0)
         {
-            GLOG_ERROR_NS("cafw", "failed to load %s\n", loader_items[i].name);
+            LOGF_NS(E, "cafw", "failed to load %s\n", loader_items[i].name);
             return RET_FAILED;
         }
     }
@@ -529,7 +529,7 @@ int load_common_configurations(
         || NULL == fixed_part
         || NULL == mutable_part)
     {
-        GLOG_ERROR_NS("cafw", "null params\n");
+        LOGF_NS(E, "cafw", "null params\n");
         return RET_FAILED;
     }
 
@@ -538,19 +538,19 @@ int load_common_configurations(
 
     if (!load_ok)
     {
-        GLOG_ERROR_NS("cafw", "failed to load XML: %s\n", config_file);
+        LOGF_NS(E, "cafw", "failed to load XML: %s\n", config_file);
         return RET_FAILED;
     }
 
     if (RET_OK != load_fixed_common_configs(&doc, fixed_part))
     {
-        GLOG_ERROR_NS("cafw", "failed to load fixed part\n");
+        LOGF_NS(E, "cafw", "failed to load fixed part\n");
         return RET_FAILED;
     }
 
     if (RET_OK != load_mutable_common_configs(&doc, XPATH_COMMON_VARIABLES_ROOT, true, mutable_part))
     {
-        GLOG_ERROR_NS("cafw", "failed to load mutable part from common file\n");
+        LOGF_NS(E, "cafw", "failed to load mutable part from common file\n");
         return RET_FAILED;
     }
 

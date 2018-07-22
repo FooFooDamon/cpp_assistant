@@ -159,7 +159,7 @@ int main_app::parse_commandLine(int argc, char **argv)
 
     if (learn_ret < 0)
     {
-        GLOG_ERROR_C("Failed to learn built-in command line options, ret = %d\n", learn_ret);
+        LOGF_C(E, "Failed to learn built-in command line options, ret = %d\n", learn_ret);
         return RET_FAILED;
     }
 
@@ -171,7 +171,7 @@ int main_app::parse_commandLine(int argc, char **argv)
 
         if ((learn_ret = cmdline->learn_options(g_kPrivateOptions, private_option_count)) < 0)
         {
-            GLOG_ERROR_C("Failed to learn private command line options, ret = %d\n", learn_ret);
+            LOGF_C(E, "Failed to learn private command line options, ret = %d\n", learn_ret);
             return RET_FAILED;
         }
     }
@@ -184,7 +184,7 @@ int main_app::parse_commandLine(int argc, char **argv)
 
     if (parse_ret < 0)
     {
-        GLOG_ERROR_C("Failed to parse command line, ret = %d\n", parse_ret);
+        LOGF_C(E, "Failed to parse command line, ret = %d\n", parse_ret);
 
         std::string parsing_result;
 
@@ -246,7 +246,7 @@ int main_app::parse_commandLine(int argc, char **argv)
 
     if (check_private_commandline_options(*cmdline, should_exit) < 0)
     {
-        GLOG_ERROR_C("Failed to check private options\n");
+        LOGF_C(E, "Failed to check private options\n");
         exit(EXIT_FAILURE);
     }
 
@@ -285,18 +285,18 @@ int main_app::load_configurations(void)
 
     if (m_config_manager->open_file(config_file) < 0)
     {
-        GLOG_ERROR_C("failed to open %s\n", config_file);
+        LOGF_C(E, "failed to open %s\n", config_file);
         return RET_FAILED;
     }
 
     if (m_config_manager->load() < 0)
     {
-        GLOG_ERROR_C("failed to load contents from %s\n",
+        LOGF_C(E, "failed to load contents from %s\n",
             m_config_manager->config_content()->config_file_path.c_str());
         return RET_FAILED;
     }
 
-    GQ_LOG_INFO_C("configuration file [%s] was loaded successfully\n", config_file);
+    QLOGF_C(I, "configuration file [%s] was loaded successfully\n", config_file);
 
     m_config_manager->close_file();
 
@@ -313,14 +313,14 @@ int main_app::prepare_resources(void)
 
     if (m_resource_manager->prepare((config_content_t *)config) < 0)
     {
-        GLOG_ERROR_C("ResourceManager::Prepare() failed\n");
+        LOGF_C(E, "ResourceManager::Prepare() failed\n");
         return RET_FAILED;
     }
 
 #ifdef HAS_TCP
     if (m_packet_processor->build_component_map())
     {
-        GLOG_ERROR_C("PacketProcessor::BuildComponentMap() failed\n");
+        LOGF_C(E, "PacketProcessor::BuildComponentMap() failed\n");
         return RET_FAILED;
     }
 #endif
@@ -356,11 +356,11 @@ int main_app::register_signals(void)
 
         if (CA_RET_OK != ret)
         {
-            GLOG_ERROR_C("failed to register %s, ret = %d\n", sig_config.sig_name, ret);
+            LOGF_C(E, "failed to register %s, ret = %d\n", sig_config.sig_name, ret);
             return RET_FAILED;
         }
 
-        GQ_LOG_INFO_C("signal{ name[%s] | num[%d] | exit_after_handling[%d] | handles_now[%d] } registered\n",
+        QLOGF_C(I, "signal{ name[%s] | num[%d] | exit_after_handling[%d] | handles_now[%d] } registered\n",
             sig_config.sig_name, sig_config.sig_num, sig_config.exit_after_handling, sig_config.handles_now);
     }
 
@@ -418,11 +418,11 @@ int main_app::register_timed_tasks(void)
 
                 if (RET_FAILED == time_interval)
                 {
-                    GLOG_WARN_C("can not find interval value for %s\n", TASK_NAME);
+                    LOGF_C(W, "can not find interval value for %s\n", TASK_NAME);
                     if (g_built_in_timed_tasks == task_items[i])
                         return RET_FAILED;
 
-                    GLOG_INFO_C("use the value in the code\n");
+                    LOGF_C(I, "use the value in the code\n");
                 }
                 else
                     task_config.time_interval = time_interval / 1000; // switched to millisecond
@@ -437,7 +437,7 @@ int main_app::register_timed_tasks(void)
             if (m_timed_task_scheduler->register_one(TASK_NAME, task_config) < 0)
                 return RET_FAILED;
 
-            GQ_LOG_INFO_C("timed task{ name[%s] | trigger_type[%s] | event_time/last_op_time[%ld us]"
+            QLOGF_C(I, "timed task{ name[%s] | trigger_type[%s] | event_time/last_op_time[%ld us]"
                 " | time_offset/time_interval[%ld ms] } registered successfully\n",
                 TASK_NAME, timed_task_scheduler::get_trigger_type_description(task_config.trigger_type),
                 task_config.event_time, task_config.time_offset);
@@ -479,7 +479,7 @@ int main_app::run_business(void)
     {
         if (expires())
         {
-            GLOG_ERROR_C("program has expired, exits now\n");
+            LOGF_C(E, "program has expired, exits now\n");
             break;
         }
 
@@ -490,7 +490,7 @@ int main_app::run_business(void)
         calns::sigcap::handle_all(should_exit);
         if (should_exit)
         {
-            GLOG_WARN_C("critical signals captured, process about to exit !!!\n");
+            LOGF_C(W, "critical signals captured, process about to exit !!!\n");
             break;
         }
 
@@ -560,7 +560,7 @@ void main_app::poll_and_process(calns::tcp_base *tcp_manager, bool &should_exit)
 
             if (NULL == tcp_server)
             {
-                GLOG_WARN_C("this connection node is not a server,"
+                LOGF_C(W, "this connection node is not a server,"
                     " can not accept a connection, fd = %d\n", in_fd);
                 continue;
             }
@@ -574,7 +574,7 @@ void main_app::poll_and_process(calns::tcp_base *tcp_manager, bool &should_exit)
 
             if (recv_ret < 0)
             {
-                GLOG_ERROR_C("failed to received packets and put them into connection[%d],"
+                LOGF_C(E, "failed to received packets and put them into connection[%d],"
                     " ret = %d, err = %s\n", conn->fd, recv_ret, calns::what(recv_ret).c_str());
 
                 if (CA_RET(CONNECTION_BROKEN) == recv_ret)
@@ -586,7 +586,7 @@ void main_app::poll_and_process(calns::tcp_base *tcp_manager, bool &should_exit)
             else
             {
                 if (recv_ret > 0)
-                    GLOG_DEBUG("%d bytes received\n", recv_ret);
+                    RLOGF(D, "%d bytes received\n", recv_ret);
             }
 
             if (conn->recv_buf->empty())
@@ -605,7 +605,7 @@ int main_app::accept_new_connection(calns::tcp_server *tcp_server, int send_buf_
 
     if (accfd < 0)
     {
-        GLOG_ERROR_C("failed to accept new connection, ret = %d, err = %s\n", accfd, calns::what(accfd).c_str());
+        LOGF_C(E, "failed to accept new connection, ret = %d, err = %s\n", accfd, calns::what(accfd).c_str());
 
         return RET_FAILED;
     }
@@ -615,7 +615,7 @@ int main_app::accept_new_connection(calns::tcp_server *tcp_server, int send_buf_
 
     snprintf(new_conn->self_name, sizeof(new_conn->self_name), "%s", tcp_server->self_name());
 
-    GLOG_INFO("new connection[%d] arrived: fd[%d] | self_ip[%s] | self_port[%u] | self_name[%s]"
+    RLOGF(I, "new connection[%d] arrived: fd[%d] | self_ip[%s] | self_port[%u] | self_name[%s]"
         " | peer_ip[%s] | peer_port[%u] | peer_name[%s] | status[0x%08X]"
         " | is_blocking[%d] | is_validated[%d] | send_buffer[%d bytes] | recv_buffer[%d bytes]\n",
         accfd, new_conn->fd, new_conn->self_ip, new_conn->self_port, new_conn->self_name,
@@ -627,7 +627,7 @@ int main_app::accept_new_connection(calns::tcp_server *tcp_server, int send_buf_
 
 void main_app::shut_bad_connection(calns::tcp_base *tcp_manager, calns::net_connection *bad_conn)
 {
-    GLOG_WARN_C("peer shut down, fd = %d, name = %s, ip = %s, port = %u\n",
+    LOGF_C(W, "peer shut down, fd = %d, name = %s, ip = %s, port = %u\n",
         bad_conn->fd, bad_conn->peer_name, bad_conn->peer_ip, bad_conn->peer_port);
 
     dict_entry_ptr owner = (dict_entry_ptr)(bad_conn->owner);
@@ -636,14 +636,14 @@ void main_app::shut_bad_connection(calns::tcp_base *tcp_manager, calns::net_conn
     if (NULL != owner
         && NULL != (conn_index = (net_conn_index*)GET_CHAR_DICT_VALUE(owner)))
     {
-        GLOG_INFO("found connection cache info of this node, name is [%s],"
+        RLOGF(I, "found connection cache info of this node, name is [%s],"
             " cleaned up cache info\n", GET_CHAR_DICT_KEY(owner));
         conn_index->fd = calns::INVALID_SOCK_FD;
         conn_index->conn_detail = NULL;
     }
 
     tcp_manager->shutdown_connection(bad_conn);
-    GLOG_INFO("finished releasing connection resource at local end\n");
+    RLOGF(I, "finished releasing connection resource at local end\n");
 }
 
 void main_app::handle_received_packets(calns::net_connection *input_conn, int max_packet_count)
@@ -653,7 +653,7 @@ void main_app::handle_received_packets(calns::net_connection *input_conn, int ma
 
     while (!(in_buf->empty()) && handle_count < max_packet_count)
     {
-        GLOG_DEBUG("handling packets from input connection{ fd[%d] | name[%s] }.recv_buf: %d bytes pending,"
+        RLOGF(D, "handling packets from input connection{ fd[%d] | name[%s] }.recv_buf: %d bytes pending,"
             " current read position = %d, write position = %d\n",
             input_conn->fd, input_conn->peer_name, in_buf->data_size(),
             in_buf->read_position(), in_buf->write_position());
@@ -667,7 +667,7 @@ void main_app::handle_received_packets(calns::net_connection *input_conn, int ma
             || CA_RET(OPERATION_TIMED_OUT) == ret
             || CA_RET(LENGTH_TOO_BIG) == ret)
         {
-            GLOG_WARN_C("packet processing aborted due to abnormal data\n");
+            LOGF_C(W, "packet processing aborted due to abnormal data\n");
             break;
         }
 
@@ -679,7 +679,7 @@ void main_app::handle_received_packets(calns::net_connection *input_conn, int ma
             input_conn->last_op_time = calns::time_util::get_utc_microseconds();
         }
 
-        GLOG_DEBUG("%d bytes input handled, %d bytes output generated\n", bytes_handled, bytes_output);
+        RLOGF(D, "%d bytes input handled, %d bytes output generated\n", bytes_handled, bytes_output);
 
         if (bytes_output <= 0)
             continue;
@@ -690,14 +690,14 @@ void main_app::handle_received_packets(calns::net_connection *input_conn, int ma
         out_buf->move_write_pointer(bytes_output);
         actual_output_conn->last_op_time = calns::time_util::get_utc_microseconds();
 
-        GLOG_DEBUG("loading packets into output connection{ fd[%d] | name[%s] }.send_buf: %d bytes free,"
+        RLOGF(D, "loading packets into output connection{ fd[%d] | name[%s] }.send_buf: %d bytes free,"
             " current read position = %d, write position = %d\n",
             actual_output_conn->fd, actual_output_conn->peer_name, out_buf->free_size(),
             out_buf->read_position(), out_buf->write_position());
     }
 
     if (handle_count > 0)
-        GLOG_DEBUG("%d messages handled during this round\n", handle_count);
+        RLOGF(D, "%d messages handled during this round\n", handle_count);
 }
 
 void main_app::send_result_packets(calns::tcp_base *tcp_manager)
@@ -718,11 +718,11 @@ void main_app::send_result_packets(calns::tcp_base *tcp_manager)
 
         if ((ret = tcp_manager->send_from_connection(conn)) < 0)
         {
-            GLOG_ERROR_C("failed to send contents of connection[%d], ret = %d, err = %s\n",
+            LOGF_C(E, "failed to send contents of connection[%d], ret = %d, err = %s\n",
                 iter->first, ret, calns::what(ret).c_str());
         }
         else
-            GLOG_DEBUG("%d bytes sent\n", ret);
+            RLOGF(D, "%d bytes sent\n", ret);
     }
 }
 

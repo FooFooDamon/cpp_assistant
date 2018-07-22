@@ -52,10 +52,10 @@ resource_manager::~resource_manager()
 }
 
 #define PREPARE_RESOURCE_ITEM(func, name)   if (func(condition) < 0){\
-        GLOG_ERROR_C("failed to prepare %s resources\n", name);\
+        LOGF_C(E, "failed to prepare %s resources\n", name);\
         goto PREPARATION_FAILED;\
     }\
-    GQ_LOG_INFO_C("%s resources prepared successfully\n", name)
+    QLOGF_C(I, "%s resources prepared successfully\n", name)
 
 int resource_manager::prepare(const void *condition)
 {
@@ -97,7 +97,7 @@ int resource_manager::__inner_init(void)
     if ((NULL == m_resource) &&
         (NULL == (m_resource = new resource_t)))
     {
-        GLOG_ERROR_C("Resource structure initialization failed\n");
+        LOGF_C(E, "Resource structure initialization failed\n");
         return RET_FAILED;
     }
     // Do not do this if it contains complex non-pointer objects.
@@ -136,7 +136,7 @@ int resource_manager::__prepare_loggers(const void *condition)
 
     if (level_definitions.end() == level_definitions.find(term_level_str))
     {
-        GLOG_ERROR_C("unknown terminal logger level: %s\n", term_level_str.c_str());
+        LOGF_C(E, "unknown terminal logger level: %s\n", term_level_str.c_str());
         return RET_FAILED;
     }
 
@@ -153,12 +153,12 @@ int resource_manager::__prepare_loggers(const void *condition)
 
         if (level_definitions.end() == level_definitions.find(file_level_str))
         {
-            GLOG_ERROR_C("unknown file logger level: %s\n", file_level_str.c_str());
+            LOGF_C(E, "unknown file logger level: %s\n", file_level_str.c_str());
             return RET_FAILED;
         }
         file_level = level_definitions[file_level_str];
     }
-    GLOG_DEBUG_C("enables_file_logger: %d, log_dir: %s, log_name: %s\n",
+    LOGF_C(D, "enables_file_logger: %d, log_dir: %s, log_name: %s\n",
         enables_file_logger, log_dir, log_name);
 
     return init_logger(term_level, enables_file_logger, file_level, log_dir, log_name);
@@ -210,30 +210,30 @@ int resource_manager::__prepare_network(const void *condition)
 
         if (NULL == (*(mgr_item.pptr) = mgr))
         {
-            GLOG_ERROR_C("%s initialization failed\n", mgr_item.name);
+            LOGF_C(E, "%s initialization failed\n", mgr_item.name);
             goto PREPARATION_FAILED;
         }
 
-        GQ_LOG_INFO_C("%s initialization successful\n", mgr_item.name);
+        QLOGF_C(I, "%s initialization successful\n", mgr_item.name);
     }
 
     client_requester = m_resource->client_requester;
     client_requester->set_self_name(self_node_name);
     if (!is_quiet_mode())
-        GLOG_INFO_C("client requester name set as %s\n", client_requester->self_name());
+        LOGF_C(I, "client requester name set as %s\n", client_requester->self_name());
 
 #if defined(ACCEPTS_CLIENTS)
     server_listener = m_resource->server_listener;
     server_listener->set_self_name(self_node_name);
     if (!is_quiet_mode())
-        GLOG_INFO_C("server listener name set as %s\n", server_listener->self_name());
+        LOGF_C(I, "server listener name set as %s\n", server_listener->self_name());
 
     if ((ret = server_listener->start(self_info.node_ip.c_str(), self_info.node_port)) < 0)
     {
-        GLOG_ERROR_C("failed to start server listener, ret = %d\n", ret);
+        LOGF_C(E, "failed to start server listener, ret = %d\n", ret);
         goto PREPARATION_FAILED;
     }
-    GQ_LOG_INFO_C("server listener has been started successfully, address = %s:%u\n",
+    QLOGF_C(I, "server listener has been started successfully, address = %s:%u\n",
         server_listener->listening_ip(), server_listener->listening_port());
 #endif
 
@@ -244,31 +244,31 @@ int resource_manager::__prepare_network(const void *condition)
         if ((NULL == *(cache_item.pptr)) &&
             (NULL == (*(cache_item.pptr) = new connection_cache)))
         {
-            GLOG_ERROR_C("%s initialization failed\n", cache_item.name);
+            LOGF_C(E, "%s initialization failed\n", cache_item.name);
             goto PREPARATION_FAILED;
         }
 
-        GQ_LOG_INFO_C("%s initialization successful\n", cache_item.name);
+        QLOGF_C(I, "%s initialization successful\n", cache_item.name);
 
         if ((*(cache_item.pptr))->create())
         {
-            GLOG_ERROR_C("%s creation failed\n", cache_item.name);
+            LOGF_C(E, "%s creation failed\n", cache_item.name);
             goto PREPARATION_FAILED;
         }
 
-        GQ_LOG_INFO_C("%s creation successful\n", cache_item.name);
+        QLOGF_C(I, "%s creation successful\n", cache_item.name);
     }
 
     if (NULL == condition)
     {
-        GLOG_INFO_C("no more network resources needed to be initialized\n");
+        LOGF_C(I, "no more network resources needed to be initialized\n");
         return RET_OK;
     }
 
     upstream_server_count = config->private_configs.upstream_servers.size();
 
     if (upstream_server_count > 0 && !is_quiet_mode())
-        GLOG_INFO_C("filling connection cache ...\n");
+        LOGF_C(I, "filling connection cache ...\n");
 
     for (size_t i = 0; i < upstream_server_count; ++i)
     {
@@ -278,7 +278,7 @@ int resource_manager::__prepare_network(const void *condition)
         if ((0 == server.node_ip.compare(server_listener->listening_ip()))
             && server.node_port == server_listener->listening_port())
         {
-            GLOG_WARN_C("node address collides with server listening address, skip it:"
+            LOGF_C(W, "node address collides with server listening address, skip it:"
                 " node name = %s, address = %s:%u\n", name, server.node_ip.c_str(),
                 server.node_port);
             continue;
@@ -290,7 +290,7 @@ int resource_manager::__prepare_network(const void *condition)
         net_conn_index *conn_index = char_dict_alloc_val< net_conn_index >();
         if (NULL == conn_index)
         {
-            GLOG_ERROR_C("char_dict_alloc_val() for %s failed\n", name);
+            LOGF_C(E, "char_dict_alloc_val() for %s failed\n", name);
             return RET_FAILED;
         }
 
@@ -298,7 +298,7 @@ int resource_manager::__prepare_network(const void *condition)
 
         if (connection_cache::string_to_attribute(server.attributes, node_attributes) < 0)
         {
-            GLOG_ERROR_C("invalid attribution[%s] of server[%s]\n", server.attributes.c_str(), name);
+            LOGF_C(E, "invalid attribution[%s] of server[%s]\n", server.attributes.c_str(), name);
             char_dict_release_val(&conn_index);
             return RET_FAILED;
         }
@@ -319,14 +319,14 @@ int resource_manager::__prepare_network(const void *condition)
         server.node_ip.copy(conn_index->peer_ip, sizeof(conn_index->peer_ip));
         conn_index->peer_port = server.node_port;
 
-        //GLOG_INFO_C("node name before ConnectionCache::Add(): %s, name length: %d\n", name, strlen(name));
+        //LOGF_C(I, "node name before ConnectionCache::Add(): %s, name length: %d\n", name, strlen(name));
         if (RET_OK != conn_cache->add(name, strlen(name), conn_index, sizeof(net_conn_index)))
         {
-            GLOG_ERROR_C("ConnectionCache::Add() for %s failed\n", name);
+            LOGF_C(E, "ConnectionCache::Add() for %s failed\n", name);
             char_dict_release_val(&conn_index);
             return RET_FAILED;
         }
-        //GLOG_INFO_C("%s added into connection cache\n", serv_name);
+        //LOGF_C(I, "%s added into connection cache\n", serv_name);
     }
 
     if (!is_quiet_mode())
@@ -335,7 +335,7 @@ int resource_manager::__prepare_network(const void *condition)
         {
             struct ConnCacheInfo &cache_item = conn_cache_items[i];
 
-            GLOG_INFO_C("---- %s:\n", cache_item.name);
+            LOGF_C(I, "---- %s:\n", cache_item.name);
             (*(cache_item.pptr))->profile();
         }
     }
@@ -444,7 +444,7 @@ PREPARATION_FAILED:
     return RET_FAILED;
 #else
     m_resource->db_connection = NULL;
-    GQ_LOG_INFO_C("no database resources\n");
+    QLOGF_C(I, "no database resources\n");
     return RET_OK;
 #endif
 }

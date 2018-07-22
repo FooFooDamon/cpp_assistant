@@ -61,7 +61,7 @@ extern const signal_registration_info g_sig_configs[];
 #define EXTERN_DECLARE_DEFAULT_SIG_HANDLER(name)            extern DECLARE_DEFAULT_SIG_HANDLER(name)
 
 #define DEFINE_DEFAULT_SIG_HANDLER(name)                    int DEFAULT_SIG_HANDLER(name)(int name){\
-    GLOG_INFO("%s captured\n", #name);\
+    RLOGF(I, "%s captured\n", #name);\
     return RET_OK;\
 }
 

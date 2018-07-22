@@ -105,7 +105,7 @@ typedef MinimalBody                     UnifiedBodyPrefix;
 
 #define GLOG_PROTO_FIELD(field_owner, field_name, fmt, ...)                          do{\
     if ((field_owner).has_##field_name()) \
-        GLOG_INFO(fmt, ##__VA_ARGS__); \
+        RLOGF(I, fmt, ##__VA_ARGS__); \
 }while(0)
 
 #else
@@ -148,7 +148,7 @@ typedef Json::Value                     msg_base;
 
 #define GLOG_PROTO_FIELD(field_owner, field_name, fmt, ...)                          do{\
     if (!(field_owner)[#field_name].empty()) \
-        GLOG_INFO(fmt, ##__VA_ARGS__); \
+        RLOGF(I, fmt, ##__VA_ARGS__); \
 }while(0)
 
 #endif // #ifndef USE_JSON_MSG

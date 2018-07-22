@@ -61,14 +61,14 @@ int connection_cache::create(int dict_size)
     if ((NULL == m_connection_dictionary) &&
         (NULL == (m_connection_dictionary = char_dict_create(DEFAULT_DICT_SIZE))))
     {
-        GLOG_ERROR_C("char_dict_create() failed\n");
+        LOGF_C(E, "char_dict_create() failed\n");
         return RET_FAILED;
     }
 
     if ((NULL == m_type_group) &&
         (NULL == (m_type_group = new server_group)))
     {
-        GLOG_ERROR_C("new(ServerGroup) failed\n");
+        LOGF_C(E, "new(ServerGroup) failed\n");
         return RET_FAILED;
     }
 
@@ -100,7 +100,7 @@ int connection_cache::add(
     // note: a new connection must has a different name, otherwise it would not be added successfully
     if (char_dict_add_element(name, name_len, conn, conn_len, m_connection_dictionary) < 0)
     {
-        GLOG_ERROR_C("char_dict_add_element() failed\n");
+        LOGF_C(E, "char_dict_add_element() failed\n");
         return RET_FAILED;
     }
 
@@ -113,7 +113,7 @@ int connection_cache::del(const char *name, const int name_len)
 {
     if (NULL == name || name_len < 0)
     {
-        GLOG_ERROR_C("null name or negative length\n");
+        LOGF_C(E, "null name or negative length\n");
         return RET_FAILED;
     }
 
@@ -150,7 +150,7 @@ net_conn_index* connection_cache::pick_one_connection(const char *type, int poli
 {
     if (NULL == type)
     {
-        GLOG_ERROR_C("null type\n");
+        LOGF_C(E, "null type\n");
         return NULL;
     }
 
@@ -159,7 +159,7 @@ net_conn_index* connection_cache::pick_one_connection(const char *type, int poli
 
     if (0 == node_count)
     {
-        GLOG_ERROR_C("0 nodes of type[%s]\n", type);
+        LOGF_C(E, "0 nodes of type[%s]\n", type);
         return NULL;
     }
 
@@ -187,7 +187,7 @@ SEARCH_CYCLE:
 
         if (NULL == conn_index)
         {
-            GLOG_WARN_C("can not find connection index of server[%s]\n", serv_name);
+            LOGF_C(W, "can not find connection index of server[%s]\n", serv_name);
 
             if (uses_offset)
             {
@@ -200,7 +200,7 @@ SEARCH_CYCLE:
             }
             else
             {
-                GLOG_INFO_C("continue to find next one of the same type ...\n");
+                LOGF_C(I, "continue to find next one of the same type ...\n");
                 continue;
             }
         }
@@ -215,7 +215,7 @@ SEARCH_CYCLE:
 
         if (NULL == conn_detail)
         {
-            GLOG_WARN_C("can not find connection detail of server[%s]\n", serv_name);
+            LOGF_C(W, "can not find connection detail of server[%s]\n", serv_name);
 
             if (uses_offset)
             {
@@ -228,7 +228,7 @@ SEARCH_CYCLE:
             }
             else
             {
-                GLOG_INFO_C("continue to find next one of the same type ...\n");
+                LOGF_C(I, "continue to find next one of the same type ...\n");
                 continue;
             }
         }
@@ -253,7 +253,7 @@ static void __profile_each_connection(char *name, void *conn)
     net_conn_index *conn_index = (net_conn_index *)conn;
     net_conn_attr *attr = &(conn_index->attribute);
 
-    GLOG_INFO("name[%s] | fd[%d] | peer_address[%s:%u]"
+    RLOGF(I, "name[%s] | fd[%d] | peer_address[%s:%u]"
         " | alias[%s] | attributes{ server_type[%s] | is_server[%d] | is_master[%d] }\n",
         name, conn_index->fd, conn_index->peer_ip, conn_index->peer_port,
         conn_index->conn_alias, conn_index->server_type, conn_index->is_server, attr->is_master);
@@ -261,9 +261,9 @@ static void __profile_each_connection(char *name, void *conn)
 
 void connection_cache::profile(void)
 {
-    GLOG_INFO("connection cache profile begin:\n");
+    RLOGF(I, "connection cache profile begin:\n");
     char_dict_batch_operation(m_connection_dictionary, __profile_each_connection);
-    GLOG_INFO("connection cache profile end\n");
+    RLOGF(I, "connection cache profile end\n");
 }
 
 int connection_cache::send_to_connections_by_type(const char *type,
@@ -279,7 +279,7 @@ int connection_cache::send_to_connections_by_type(const char *type,
         NULL == msg ||
         msg_len < 0)
     {
-        GLOG_ERROR_C("invalid params\n");
+        LOGF_C(E, "invalid params\n");
         return RET_FAILED;
     }
 
@@ -289,7 +289,7 @@ int connection_cache::send_to_connections_by_type(const char *type,
 
         if (NULL == target_conn)
         {
-            GLOG_ERROR_C("failed to pick a connection\n");
+            LOGF_C(E, "failed to pick a connection\n");
             return RET_FAILED;
         }
 
@@ -299,11 +299,11 @@ int connection_cache::send_to_connections_by_type(const char *type,
 
         if (ret < 0)
         {
-            GLOG_ERROR_C("failed to send message to node[%s], ret = %d\n", target_server, ret);
+            LOGF_C(E, "failed to send message to node[%s], ret = %d\n", target_server, ret);
             return RET_FAILED;
         }
 
-        GLOG_INFO_C("message sent to a node [name: %s, ip: %s, port: %u, fd: %d] successfully,"
+        LOGF_C(I, "message sent to a node [name: %s, ip: %s, port: %u, fd: %d] successfully,"
             " expected bytes = %d, actual bytes = %d\n",
             target_server, target_conn->peer_ip, target_conn->peer_port, target_fd, msg_len, ret);
 
@@ -316,7 +316,7 @@ int connection_cache::send_to_connections_by_type(const char *type,
     std::string type_str(type);
     std::pair<server_group_iter, server_group_iter> group = m_type_group->equal_range(type_str);
 
-    GLOG_INFO_C("about to send message to servers of type[%s],"
+    LOGF_C(I, "about to send message to servers of type[%s],"
         " max receiver count: %d, to all or not: %d\n", type, max_conn_count, to_all);
 
     for (server_group_iter it = group.first; it != group.second; ++it)
@@ -332,7 +332,7 @@ int connection_cache::send_to_connections_by_type(const char *type,
 
         if (NULL == conn_detail)
         {
-            GLOG_ERROR_C("server[%s] is in an invalid status\n", serv_name);
+            LOGF_C(E, "server[%s] is in an invalid status\n", serv_name);
             continue;
         }
 
@@ -341,12 +341,12 @@ int connection_cache::send_to_connections_by_type(const char *type,
 
         if (ret < 0)
         {
-            GLOG_ERROR_C("failed to send message to node[%s], ret = %d\n", serv_name, ret);
+            LOGF_C(E, "failed to send message to node[%s], ret = %d\n", serv_name, ret);
             continue;
         }
         else
         {
-            GLOG_INFO_C("message sent to node [name: %s, ip: %s, port: %u, fd: %d] successfully,"
+            LOGF_C(I, "message sent to node [name: %s, ip: %s, port: %u, fd: %d] successfully,"
                 " expected bytes = %d, actual bytes = %d\n",
                 serv_name, conn_index->peer_ip, conn_index->peer_port, fd, msg_len, ret);
             ++ok_count;
@@ -358,7 +358,7 @@ int connection_cache::send_to_connections_by_type(const char *type,
 
     if (ok_count <= 0)
     {
-        GLOG_ERROR_C("! ! ! ! ! all servers of type[%s] dead or not found\n", type);
+        LOGF_C(E, "! ! ! ! ! all servers of type[%s] dead or not found\n", type);
         return RET_FAILED;
     }
 
@@ -371,21 +371,21 @@ int connection_cache::send_to_single_connection(const char *name, const void *ms
         NULL == msg ||
         msg_len < 0)
     {
-        GLOG_ERROR_C("invalid params\n");
+        LOGF_C(E, "invalid params\n");
         return RET_FAILED;
     }
 
     net_conn_index *conn_index = return_as_index(name, strlen(name));
     if (NULL == conn_index)
     {
-        GLOG_ERROR_C("server[%s] not found\n", name);
+        LOGF_C(E, "server[%s] not found\n", name);
         return RET_FAILED;
     }
 
     calns::net_connection *conn_detail = conn_index->conn_detail;
     if (NULL == conn_detail)
     {
-        GLOG_ERROR_C("server[%s] is in an invalid status\n", name);
+        LOGF_C(E, "server[%s] is in an invalid status\n", name);
         return RET_FAILED;
     }
 
@@ -393,11 +393,11 @@ int connection_cache::send_to_single_connection(const char *name, const void *ms
     int ret = calns::tcp_base::send_fragment(fd, msg, msg_len);
     if (ret < 0)
     {
-        GLOG_ERROR_C("failed to send message to node[%s], ret = %d\n", name, ret);
+        LOGF_C(E, "failed to send message to node[%s], ret = %d\n", name, ret);
         return RET_FAILED;
     }
 
-    GLOG_INFO_C("message sent to node [name: %s, ip: %s, port: %u, fd: %d] successfully,"
+    LOGF_C(I, "message sent to node [name: %s, ip: %s, port: %u, fd: %d] successfully,"
         " expected bytes = %d, actual bytes = %d\n",
         name, conn_index->peer_ip, conn_index->peer_port, fd, msg_len, ret);
 
@@ -422,7 +422,7 @@ bool connection_cache::is_accessible(const net_conn_attr &target, const net_conn
         (0 == strcasecmp(visitor.exchange, EXCHANGE_TYPE_ALL)) ||
         (0 == strcasecmp(visitor.exchange, target.exchange));
 
-    GLOG_DEBUG_CS(ConnectionCache, "target attribute: %s:%s:%s:%s, visitor attribute: %s:%s:%s:%s, "
+    LOGF_NS(D, ConnectionCache, "target attribute: %s:%s:%s:%s, visitor attribute: %s:%s:%s:%s, "
         "group_checking_passed = %d, env_checking_passed = %d, market_checking_passed = %d, "
         "exchange_checking_passed = %d\n", target.belonging_group, target.environment,
         target.market, target.exchange, visitor.belonging_group, visitor.environment,
@@ -455,7 +455,7 @@ int connection_cache::string_to_attribute(const std::string &str, net_conn_attr 
 {
     /*if (str.empty())
     {
-        GLOG_ERROR_CS(ConnectionCache, "empty source string\n");
+        LOGF_NS(E, ConnectionCache, "empty source string\n");
         return RET_FAILED;
     }
 
@@ -465,7 +465,7 @@ int connection_cache::string_to_attribute(const std::string &str, net_conn_attr 
     if ((split_ret < 0) ||
         (fragments.size() < 4))
     {
-        GLOG_ERROR_CS(ConnectionCache, "calns::StringHelper::Split() failed, or source string is not"
+        LOGF_NS(E, ConnectionCache, "calns::StringHelper::Split() failed, or source string is not"
             " correctly formatted, split ret = %d, source string = %s\n",
             split_ret, str.c_str());
         return RET_FAILED;

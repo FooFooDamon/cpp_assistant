@@ -43,7 +43,7 @@ namespace cafw
         NULL == outbuf)
     {
         retcode = PROTO_RET_UNKNOWN_ERROR;
-        GLOG_ERROR_NS("cafw", "null parameter pointers\n");
+        LOGF_NS(E, "cafw", "null parameter pointers\n");
         return RET_FAILED;
     }
 
@@ -273,7 +273,7 @@ int parse_message(const void* data, const int size, msg_base &result)
 
     if (NULL == reader)
     {
-        GLOG_ERROR_NS("cafw", "Json::CharReaderBuilder::newCharReader() failed\n");
+        LOGF_NS(E, "cafw", "Json::CharReaderBuilder::newCharReader() failed\n");
         return RET_FAILED;
     }
 
@@ -281,7 +281,7 @@ int parse_message(const void* data, const int size, msg_base &result)
     delete reader;
     if (!parse_ok)
     {
-        GLOG_ERROR_NS("cafw", "Json::CharReader::parse() failed\n");
+        LOGF_NS(E, "cafw", "Json::CharReader::parse() failed\n");
         return RET_FAILED;
     }
 
@@ -424,11 +424,11 @@ int send_lite_packet(const char *node_type,
 
     if (ret < 0)
     {
-        GLOG_ERROR_NS("cafw", "failed to send message to node with type[%s], ret = %d\n", node_type, ret);
+        LOGF_NS(E, "cafw", "failed to send message to node with type[%s], ret = %d\n", node_type, ret);
         return RET_FAILED;
     }
 
-    GLOG_DEBUG_NS("cafw", "send done, source single packet length: %d, actual send length: %d\n", data_len, ret);
+    LOGF_NS(D, "cafw", "send done, source single packet length: %d, actual send length: %d\n", data_len, ret);
 
     return ret;
 }
@@ -439,7 +439,7 @@ int send_heartbeat_request(const int fd)
 {
     if (fd < 0)
     {
-        GLOG_ERROR_NS("cafw", "fd < 0\n");
+        LOGF_NS(E, "cafw", "fd < 0\n");
         return RET_FAILED;
     }
 
@@ -450,7 +450,7 @@ int send_identity_report_request(const int fd)
 {
     if (fd < 0)
     {
-        GLOG_ERROR_NS("cafw", "fd < 0\n");
+        LOGF_NS(E, "cafw", "fd < 0\n");
         return RET_FAILED;
     }
 
@@ -472,7 +472,7 @@ int send_identity_report_request(const int fd)
         self_node.node_name.c_str(), self_node.node_ip, self_node.node_port);*/
     snprintf(self_name, sizeof(self_name), "%s", self_node.node_name.c_str());
     msg.set_server_name(self_name);
-    GLOG_INFO_NS("cafw", "0x%08X | %s | %d | %s\n", cmd, msg.session_id().c_str(), msg.server_type(), msg.server_name().c_str());
+    LOGF_NS(I, "cafw", "0x%08X | %s | %d | %s\n", cmd, msg.session_id().c_str(), msg.server_type(), msg.server_name().c_str());
 
 #else
 
@@ -482,7 +482,7 @@ int send_identity_report_request(const int fd)
     msg[SERVER_TYPE_KEY_STR] = self_node.type_value;
     snprintf(self_name, sizeof(self_name), "%s", self_node.node_name.c_str());
     msg[SERVER_NAME_KEY_STR] = self_name;
-    GLOG_INFO_NS("cafw", "0x%08X | %s | %d | %s\n", cmd, msg[SID_KEY_STR].asCString(), msg[SERVER_TYPE_KEY_STR].asInt(), msg[SERVER_NAME_KEY_STR].asCString());
+    LOGF_NS(I, "cafw", "0x%08X | %s | %d | %s\n", cmd, msg[SID_KEY_STR].asCString(), msg[SERVER_TYPE_KEY_STR].asInt(), msg[SERVER_NAME_KEY_STR].asCString());
 
 #endif // #ifndef USE_JSON_MSG
 

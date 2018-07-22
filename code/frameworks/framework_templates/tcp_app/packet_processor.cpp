@@ -111,7 +111,7 @@ int packet_processor::build_component_map(void)
 {
     if (!is_available())
     {
-        GLOG_ERROR_C("processor not initialized yet\n");
+        LOGF_C(E, "processor not initialized yet\n");
         return RET_FAILED;
     }
 
@@ -138,24 +138,24 @@ int packet_processor::build_component_map(void)
 
 #define PACKET_START_FORMAT_LINES(for_heartbeat) if (for_heartbeat) \
     {\
-        GLOG_DEBUG("----\n"); \
-        GLOG_DEBUG("--------\n"); \
+        RLOGF(D, "----\n"); \
+        RLOGF(D, "--------\n"); \
     }\
     else \
     {\
-        GLOG_INFO("----\n"); \
-        GLOG_INFO("--------\n"); \
+        RLOGF(I, "----\n"); \
+        RLOGF(I, "--------\n"); \
     }
 
 #define PACKET_END_FORMAT_LINES(for_heartbeat) if (for_heartbeat) \
     {\
-        GLOG_DEBUG("--------\n"); \
-        GLOG_DEBUG("----\n"); \
+        RLOGF(D, "--------\n"); \
+        RLOGF(D, "----\n"); \
     }\
     else \
     {\
-        GLOG_INFO("--------\n"); \
-        GLOG_INFO("----\n"); \
+        RLOGF(I, "--------\n"); \
+        RLOGF(I, "----\n"); \
     }
 
 int packet_processor::process(const struct calns::net_connection *input_conn,
@@ -174,13 +174,13 @@ int packet_processor::process(const struct calns::net_connection *input_conn,
     if (in_fd < 0 ||
         in_len < 0)
     {
-        GLOG_ERROR_C("invalid params\n");
+        LOGF_C(E, "invalid params\n");
         return RET_FAILED;
     }
 
     if (0 == in_len)
     {
-        GLOG_INFO("no need to handle empty packet\n");
+        RLOGF(I, "no need to handle empty packet\n");
         return RET_OK;
     }
 
@@ -192,7 +192,7 @@ int packet_processor::process(const struct calns::net_connection *input_conn,
 
     if (in_len < length || in_len < (int)PROTO_HEADER_SIZE)
     {
-        GLOG_WARN_C("incomplete packet in recv_buf of connection[fd:%d, name:%s]: expected length = %d, actual length = %d,"
+        LOGF_C(W, "incomplete packet in recv_buf of connection[fd:%d, name:%s]: expected length = %d, actual length = %d,"
             " minimum length = %d, command code = 0x%08X, fd = %d, may need more bytes and handle them later\n",
             in_fd, kConnName, length, in_len,
             (int)PROTO_HEADER_SIZE, command, in_fd);
@@ -214,7 +214,7 @@ int packet_processor::process(const struct calns::net_connection *input_conn,
 
         if (is_timed_out || packet_too_big)
         {
-            GLOG_WARN_C("too many retries or packet too big, recv_buf of connection[fd:%d, name:%s, size: %d]"
+            LOGF_C(W, "too many retries or packet too big, recv_buf of connection[fd:%d, name:%s, size: %d]"
                 " may contains bad data, reset it now\n", in_fd, kConnName, in_buf->total_size());
             in_buf->reset();
             *time_ptr = 0; // DO NOT forget clearing it after error was handled!
@@ -232,7 +232,7 @@ int packet_processor::process(const struct calns::net_connection *input_conn,
 
     if (length <= 0)
     {
-        GLOG_ERROR_C("invalid packet_len[%d], ignore it, and skip %d bytes directly\n",
+        LOGF_C(E, "invalid packet_len[%d], ignore it, and skip %d bytes directly\n",
             length, in_len);
         return RET_FAILED;
     }
@@ -248,7 +248,7 @@ int packet_processor::process(const struct calns::net_connection *input_conn,
 
     if (!is_heartbeat)
     {
-        GLOG_INFO("%d bytes new packet from connection{ fd[%d] | name[%s] | address[%s:%hu] }:"
+        RLOGF(I, "%d bytes new packet from connection{ fd[%d] | name[%s] | address[%s:%hu] }:"
             " header{ length[%d] | route_id[%ld] | command[0x%08X] | flag_bits[0x%04X]"
             " | packet_number[%hd] | error_code[%d] }\n",
             in_len, in_fd, input_conn->peer_name, input_conn->peer_ip, input_conn->peer_port,
@@ -261,7 +261,7 @@ int packet_processor::process(const struct calns::net_connection *input_conn,
     {
         if (!is_heartbeat)
         {
-            GLOG_ERROR_C("this connection has not been validated yet,"
+            LOGF_C(E, "this connection has not been validated yet,"
                 " any packets except [0x%08X] or [0x%08X] will be ignored\n",
                 CMD_IDENTITY_REPORT_REQ, CMD_IDENTITY_REPORT_RESP);
             PACKET_END_FORMAT_LINES(false);
@@ -290,7 +290,7 @@ int packet_processor::process(const struct calns::net_connection *input_conn,
     component_map::iterator it = m_component_map->find(command);
     if (m_component_map->end() == it)
     {
-        GLOG_ERROR_C("unknown command code 0x%08X, packet discarded, fd = %d\n", command, in_fd);
+        LOGF_C(E, "unknown command code 0x%08X, packet discarded, fd = %d\n", command, in_fd);
         ret = RET_FAILED;
         goto RETURN;
     }
@@ -302,13 +302,13 @@ int packet_processor::process(const struct calns::net_connection *input_conn,
     {
         if (is_req)
         {
-            GLOG_INFO("session[%s] had been handled and saved in database,"
+            RLOGF(I, "session[%s] had been handled and saved in database,"
                 " use this info for fast reply\n", sid);
             ret = fetch_session_info(sid, out_data_ptr, output_len);
         }
         else
         {
-            GLOG_INFO("there's no need to handle response of session[%s], unless it is"
+            RLOGF(I, "there's no need to handle response of session[%s], unless it is"
                 " part of a multi-step process which has to be carefully dealt with\n", sid);
             ret = RET_OK;
         }
@@ -372,7 +372,7 @@ int packet_processor::single_operator_general_flow(const struct calns::net_conne
     bool has_done_business = false;
 
 #define STAT_TIME_CONSUMPTION(op_literal) cur_step_time = calns::time_util::get_utc_microseconds(); \
-    GLOG_INFO("[cmd:0x%08X] [" op_literal "] done, time spent: %ld us\n", command, cur_step_time - last_step_time); \
+    RLOGF(I, "[cmd:0x%08X] [" op_literal "] done, time spent: %ld us\n", command, cur_step_time - last_step_time); \
     last_step_time = cur_step_time
 
     if (NULL != out_body)
@@ -392,19 +392,19 @@ int packet_processor::single_operator_general_flow(const struct calns::net_conne
     if (!all_parsed_ok)
     {
 #ifndef USE_JSON_MSG
-        GLOG_ERROR_C("protocol parse function failed\n");
+        LOGF_C(E, "protocol parse function failed\n");
 #else
         char *failed_msg = (char *)calloc(body_len + 1, sizeof(char));
 
         if (NULL != failed_msg)
         {
             memcpy(failed_msg, GET_BODY_ADDR(in_data_ptr), body_len);
-            GLOG_ERROR_C("protocol parse function failed, message parsed unsuccessfully: %s\n",
+            LOGF_C(E, "protocol parse function failed, message parsed unsuccessfully: %s\n",
                 (NULL != failed_msg) ? failed_msg : "");
             free(failed_msg);
         }
         else
-            GLOG_ERROR_C("protocol parse function failed\n");
+            LOGF_C(E, "protocol parse function failed\n");
 #endif // #ifndef USE_JSON_MSG
 
         return RET_FAILED;
@@ -422,7 +422,7 @@ int packet_processor::single_operator_general_flow(const struct calns::net_conne
 #ifndef USE_JSON_MSG
     // Why do we has to do a partial parse again? Because msg_base is a base class and has no member named session_id.
     prefix_parsed_ok = body_prefix.ParseFromArray(GET_BODY_ADDR(in_data_ptr), get_unified_proto_prefix_length());
-    //GLOG_DEBUG_C("prefix_parsed_ok = %d\n", prefix_parsed_ok);
+    //LOGF_C(D, "prefix_parsed_ok = %d\n", prefix_parsed_ok);
     sid = body_prefix.session_id().c_str();
 #else
     if (!(*actual_body_for_parsing)[SID_KEY_STR].empty())
@@ -436,13 +436,13 @@ int packet_processor::single_operator_general_flow(const struct calns::net_conne
 
     if (component.has_multi_fragments)
     {
-        /*GLOG_DEBUG("has_multi_fragments = %d, whole_in_body will be assigned with value found"
+        /*RLOGF(D, "has_multi_fragments = %d, whole_in_body will be assigned with value found"
             " from cache\n",handler.has_multi_fragments);*/
         if (NULL == (msg_cache_item = (msg_cache_value*)m_message_cache->find(sid, sid_len)))
         {
             if (1 != packet_num)
             {
-                GLOG_ERROR_C("message[%s] not found, packet num = %d\n", sid, packet_num);
+                LOGF_C(E, "message[%s] not found, packet num = %d\n", sid, packet_num);
                 m_message_cache->print();
                 return RET_FAILED;
             }
@@ -455,28 +455,28 @@ int packet_processor::single_operator_general_flow(const struct calns::net_conne
             msg_cache_item->contents = whole_in_body;
             if (RET_FAILED == m_message_cache->add(sid, sid_len, msg_cache_item, sizeof(msg_cache_item)))
             {
-                GLOG_ERROR_C("failed to add message[%s] into cache, packet num = %d\n",
+                LOGF_C(E, "failed to add message[%s] into cache, packet num = %d\n",
                     sid, packet_num);
                 m_message_cache->print();
                 delete whole_in_body;
                 char_dict_release_val< msg_cache_value >(&msg_cache_item);
                 return RET_FAILED;
             }
-            GLOG_INFO("message[%s] added into cache, packet num = %d, address of message = %p, "
+            RLOGF(I, "message[%s] added into cache, packet num = %d, address of message = %p, "
                 "address of cache VALUE = %p\n", sid, packet_num, whole_in_body, &whole_in_body);
         }
-        GLOG_INFO("message[%s] found from cache, packet num = %d, address of message = %p, "
+        RLOGF(I, "message[%s] found from cache, packet num = %d, address of message = %p, "
             "address of cache VALUE = %p\n", sid, packet_num, msg_cache_item, &msg_cache_item);
 
         whole_in_body = (msg_base *)(msg_cache_item->contents);
 
         if (RET_FAILED == component.group_fragments(partial_in_body, whole_in_body))
         {
-            GLOG_ERROR_C("failed to group fragment, SID = %s, packet num = %d\n",
+            LOGF_C(E, "failed to group fragment, SID = %s, packet num = %d\n",
                 sid, packet_num);
             return RET_FAILED;
         }
-        GLOG_INFO("fragment[%d] grouped into cached packet\n", packet_num);
+        RLOGF(I, "fragment[%d] grouped into cached packet\n", packet_num);
 
         msg_cache_item->last_op_time = calns::time_util::get_utc_microseconds();
         STAT_TIME_CONSUMPTION("fragment grouping");
@@ -485,13 +485,13 @@ int packet_processor::single_operator_general_flow(const struct calns::net_conne
 
         if (is_end)
         {
-            GLOG_INFO("part[%d] of packet(%s) received, expected total len = %d, actual buffer len = %d, "
+            RLOGF(I, "part[%d] of packet(%s) received, expected total len = %d, actual buffer len = %d, "
                 "bodylen = %d, and END flag found, starting detail process ...\n",
                 packet_num, sid, total_len, input_len, partial_in_body_len);
         }
         else
         {
-            GLOG_INFO("part[%d] of packet(%s) received, expected total len = %d, actual buffer len = %d, "
+            RLOGF(I, "part[%d] of packet(%s) received, expected total len = %d, actual buffer len = %d, "
                 "bodylen = %d, waiting for more parts to complete the process ...\n",
                 packet_num, sid, total_len, input_len, partial_in_body_len);
             return RET_OK;
@@ -499,7 +499,7 @@ int packet_processor::single_operator_general_flow(const struct calns::net_conne
     } // end if (component.has_multi_fragments)
 
     strncpy(body_container_type, typeid(*whole_in_body).name(), sizeof(body_container_type));
-    GLOG_INFO("%s was parsed successfully, cmd = 0x%08X, desc = %s,"
+    RLOGF(I, "%s was parsed successfully, cmd = 0x%08X, desc = %s,"
         " sid = %s, total bodylen = %d, in_fd = %d\n",
         body_container_type, command, component.description,
         sid, get_message_length(*whole_in_body), input_conn->fd);
@@ -510,7 +510,7 @@ int packet_processor::single_operator_general_flow(const struct calns::net_conne
 
     if (NULL != component.in_packet_is_ok && !component.in_packet_is_ok(whole_in_body, retcode))
     {
-        GLOG_ERROR_C("input packet validation failed\n");
+        LOGF_C(E, "input packet validation failed\n");
         goto OUTPUT;
     }
     STAT_TIME_CONSUMPTION("input packet validation");
@@ -522,7 +522,7 @@ int packet_processor::single_operator_general_flow(const struct calns::net_conne
     has_done_business = true;
     if (RET_OK != component.do_business(input_conn, whole_in_body, mutable_output_conn, out_body, retcode))
     {
-        GLOG_ERROR_C("core business operation failed\n");
+        LOGF_C(E, "core business operation failed\n");
         goto OUTPUT;
     }
     STAT_TIME_CONSUMPTION("business operation");
@@ -536,23 +536,23 @@ OUTPUT:
         if (PROTO_RET_SUCCESS == retcode)
         {
             if (NULL == component.commit_database_modification)
-                GLOG_INFO("business finished successfully without database modifications,"
+                RLOGF(I, "business finished successfully without database modifications,"
                     " or with database committing inside the business handler.\n");
             else
             {
                 component.commit_database_modification(-1);
-                GLOG_INFO("business finished successfully, commit database modifications now\n");
+                RLOGF(I, "business finished successfully, commit database modifications now\n");
             }
         }
         else
         {
             if (NULL == component.rollback_database_modification)
-                GLOG_WARN("business is not ok, but no database roll-back is needed,"
+                RLOGF(W, "business is not ok, but no database roll-back is needed,"
                     " or the roll-back is inside the business handler.\n");
             else
             {
                 component.rollback_database_modification(-1);
-                GLOG_WARN("business is not ok, roll back database modifications now\n");
+                RLOGF(W, "business is not ok, roll back database modifications now\n");
             }
         }
         STAT_TIME_CONSUMPTION("database commit or roll-back");
@@ -581,7 +581,7 @@ OUTPUT:
 
         if (no_enough_space)
         {
-            GLOG_WARN("send_buf of connection[%d|%s] has little space left, trying to adjust it ...\n",
+            RLOGF(W, "send_buf of connection[%d|%s] has little space left, trying to adjust it ...\n",
                 output_conn->fd, output_conn->peer_name);
             calns::tcp_base::send_from_connection(output_conn);
         }
@@ -593,19 +593,19 @@ OUTPUT:
             || available_buf_len > out_buf->total_size() );
         if (no_enough_space)
         {
-            GLOG_ERROR("still can not get enough space to hold the output, discard it\n");
+            RLOGF(E, "still can not get enough space to hold the output, discard it\n");
             return RET_FAILED;
         }
 
         if (serialize_to_buffer(component.out_cmd, out_body, in_data_ptr, out_data_ptr, output_len, retcode) < 0)
         {
-            GLOG_ERROR_C("serialize_to_buffer() failed\n");
+            LOGF_C(E, "serialize_to_buffer() failed\n");
             return RET_FAILED;
         }
         STAT_TIME_CONSUMPTION("output data serialization");
         update_max_packet_length(output_len);
 
-        GLOG_INFO("%d bytes output packet generated and loaded into send buffer"
+        RLOGF(I, "%d bytes output packet generated and loaded into send buffer"
             " of connection{ fd[%d] | name[%s] | address[%s:%u] }\n",
             output_len, output_conn->fd, output_conn->peer_name, output_conn->peer_ip, output_conn->peer_port);
     }
@@ -616,10 +616,10 @@ OUTPUT:
         m_message_cache->del(sid, sid_len);
 #endif
     if (PROTO_RET_SUCCESS == retcode)
-        GLOG_INFO("~ ~ ~ ~ ~ ~ ~ ~ ~ ~ %s::%s() for [ 0x%08X | %s | %s ] successful, total time spent: %ld us\n",
+        RLOGF(I, "~ ~ ~ ~ ~ ~ ~ ~ ~ ~ %s::%s() for [ 0x%08X | %s | %s ] successful, total time spent: %ld us\n",
             typeid(*this).name(), __FUNC__, command, component.description, sid, calns::time_util::get_utc_microseconds() - start_time);
     else
-        GLOG_ERROR("! ! ! ! ! ! ! ! ! ! %s::%s() for [ 0x%08X | %s | %s ] failed,"
+        RLOGF(E, "! ! ! ! ! ! ! ! ! ! %s::%s() for [ 0x%08X | %s | %s ] failed,"
             " ret = %d, desc = %s, total time spent: %ld us\n",
             typeid(*this).name(), __FUNC__, command, component.description, sid,
             retcode, get_return_code_description(retcode), calns::time_util::get_utc_microseconds() - start_time);
@@ -874,7 +874,7 @@ static int general_heartbeat_handling(
         peer_name = connection->peer_name;
     }
 
-    GLOG_DEBUG("^~^~^~^~ heart beat %s: fd[%d], name[%s]\n",
+    RLOGF(D, "^~^~^~^~ heart beat %s: fd[%d], name[%s]\n",
         heartbeat_type, fd, peer_name);
 #if 0 // TODO
     if (NULL != out_body)
@@ -918,14 +918,14 @@ DECLARE_BUSINESS_FUNC(identity_report_request_handling)
 #endif
     calns::tcp_server *listener = calns::singleton<resource_manager>::get_instance()->resource()->server_listener;
 
-    GLOG_INFO("identity report request contents: session_id[%s] | server_type[%d] | server_name[%s]\n", sid, server_type, client_name);
+    RLOGF(I, "identity report request contents: session_id[%s] | server_type[%d] | server_name[%s]\n", sid, server_type, client_name);
 
     retcode = PROTO_RET_SUCCESS;
 
     connection = listener->find_peer(fd);
     if (NULL == connection)
     {
-        GLOG_WARN_NS("cafw", "peer node with fd[%d] is not a client, ignore this request\n", fd);
+        LOGF_NS(W, "cafw", "peer node with fd[%d] is not a client, ignore this request\n", fd);
         return RET_FAILED;
     }
 
@@ -942,16 +942,16 @@ DECLARE_BUSINESS_FUNC(identity_report_request_handling)
     const std::map<std::string, int> &conf_server_types = conf_contents->fixed_common_configs.server_types;
 
     snprintf(connection->peer_name, sizeof(connection->peer_name), "%s", client_name);
-    GLOG_INFO("client name set to %s\n", connection->peer_name);
+    RLOGF(I, "client name set to %s\n", connection->peer_name);
 
     if (NULL == conn_index)
     {
-        GLOG_INFO("this request is from a new client, adding the client into connection cache ...\n");
+        RLOGF(I, "this request is from a new client, adding the client into connection cache ...\n");
 
         conn_index = char_dict_alloc_val< net_conn_index >();
         if (NULL == conn_index)
         {
-            GLOG_ERROR_NS("cafw", "char_dict_alloc_val() for %s failed\n", client_name);
+            LOGF_NS(E, "cafw", "char_dict_alloc_val() for %s failed\n", client_name);
             return RET_FAILED;
         }
 
@@ -977,12 +977,12 @@ DECLARE_BUSINESS_FUNC(identity_report_request_handling)
 
         if (conn_cache->add(client_name, name_len, conn_index, sizeof(net_conn_index)) < 0)
         {
-            GLOG_ERROR_NS("cafw", "ConnectionCache::Add() for %s failed\n", client_name);
+            LOGF_NS(E, "cafw", "ConnectionCache::Add() for %s failed\n", client_name);
             char_dict_release_val(&conn_index);
             return RET_FAILED;
         }
 
-        GLOG_INFO("client{ conn_alias[%s] | fd[%d] | address[%s:%u]"
+        RLOGF(I, "client{ conn_alias[%s] | fd[%d] | address[%s:%u]"
             " | server_type[%s] | is_server[%d] } added successfully\n",
             conn_index->conn_alias, conn_index->fd, conn_index->peer_ip, conn_index->peer_port,
             conn_index->server_type, conn_index->is_server);
@@ -991,12 +991,12 @@ DECLARE_BUSINESS_FUNC(identity_report_request_handling)
     {
         if (NULL != conn_index->conn_detail)
         {
-            GLOG_ERROR_NS("cafw", "found an active client with the same name[%s] in connection cache,"
+            LOGF_NS(E, "cafw", "found an active client with the same name[%s] in connection cache,"
                 " current client is ignored\n", client_name);
             return RET_FAILED;
         }
 
-        GLOG_INFO("this request is from an old client which disconnected and reconnected again,"
+        RLOGF(I, "this request is from an old client which disconnected and reconnected again,"
             " updating the its info in connection cache ...\n");
 
         memset(conn_index->peer_ip, 0, sizeof(conn_index->peer_ip));
@@ -1005,7 +1005,7 @@ DECLARE_BUSINESS_FUNC(identity_report_request_handling)
         conn_index->fd = fd;
         conn_index->conn_detail = connection;
 
-        GLOG_INFO("connection cache info of client[%s] partially updated: fd[%d],"
+        RLOGF(I, "connection cache info of client[%s] partially updated: fd[%d],"
             " address[%s:%u], conn_detail[%p]\n", client_name, conn_index->fd,
             conn_index->peer_ip, conn_index->peer_port, conn_index->conn_detail);
     }
@@ -1014,14 +1014,14 @@ DECLARE_BUSINESS_FUNC(identity_report_request_handling)
 
     if (NULL == owner_ptr)
     {
-        GLOG_ERROR_NS("cafw", "can not find iterator of connection cache item with name[%s]\n", client_name);
+        LOGF_NS(E, "cafw", "can not find iterator of connection cache item with name[%s]\n", client_name);
         return RET_FAILED;
     }
     connection->owner = owner_ptr;
-    GLOG_INFO("finished updating owner info for this client\n");
+    RLOGF(I, "finished updating owner info for this client\n");
 
     connection->is_validated = true;
-    GLOG_INFO("validation status set to %d, will return %d\n", connection->is_validated, retcode);
+    RLOGF(I, "validation status set to %d, will return %d\n", connection->is_validated, retcode);
 
     return RET_OK;
 }
@@ -1040,17 +1040,17 @@ DECLARE_BUSINESS_FUNC(identity_report_response_handling)
 #endif
     calns::tcp_client *requester = calns::singleton<resource_manager>::get_instance()->resource()->client_requester;
 
-    GLOG_INFO("identity report response contents: error_code[%d] | session_id[%s]\n", retcode, sid);
+    RLOGF(I, "identity report response contents: error_code[%d] | session_id[%s]\n", retcode, sid);
 
     connection = requester->find_peer(fd);
     if (NULL == connection)
     {
-        GLOG_WARN_NS("cafw", "peer node with fd[%d] is not a server, ignore this response\n", fd);
+        LOGF_NS(W, "cafw", "peer node with fd[%d] is not a server, ignore this response\n", fd);
         return RET_FAILED;
     }
 
     connection->is_validated = true;
-    GLOG_INFO("validation status set to %d\n", connection->is_validated);
+    RLOGF(I, "validation status set to %d\n", connection->is_validated);
 
     return RET_OK;
 }
@@ -1105,13 +1105,13 @@ int packet_processor::diagnose_connection(const struct calns::net_connection *in
         break;
 
     default:
-        GLOG_WARN_C("command code 0x%X is not connection relative\n", command);
+        LOGF_C(W, "command code 0x%X is not connection relative\n", command);
         return RET_FAILED;
     }
 
     if (NULL != in_body && parse_message(GET_BODY_ADDR(in_data_ptr), body_len, *in_body) < 0)
     {
-        GLOG_ERROR_C("protocol parse function failed\n");
+        LOGF_C(E, "protocol parse function failed\n");
         return RET_FAILED;
     }
 
@@ -1120,7 +1120,7 @@ int packet_processor::diagnose_connection(const struct calns::net_connection *in
 
     business_ret = business_op(input_conn, in_body, mutable_output_conn, out_body, retcode);
     if (!proto_is_heartbeat(command))
-        GLOG_INFO_C("finished diagnosing the current connection\n");
+        LOGF_C(I, "finished diagnosing the current connection\n");
 
     if (0 == out_cmd)
         return business_ret;
@@ -1181,21 +1181,21 @@ int packet_processor::__inner_init(void)
     if ((NULL == m_message_cache) &&
         (NULL == (m_message_cache = new message_cache(message_cache::DEFAULT_DICT_SIZE))))
     {
-        GLOG_ERROR_C("MessageCache structure initialization failed\n");
+        LOGF_C(E, "MessageCache structure initialization failed\n");
         return RET_FAILED;
     }
 
     if ((NULL == m_component_map) &&
         (NULL == (m_component_map = new component_map)))
     {
-        GLOG_ERROR_C("ComponentMap structure initialization failed\n");
+        LOGF_C(E, "ComponentMap structure initialization failed\n");
         return RET_FAILED;
     }
 
     if ((NULL == m_timestamps_when_pkts_incomplete) &&
         (NULL == (m_timestamps_when_pkts_incomplete = new std::map<std::string, int64_t>)))
     {
-        GLOG_ERROR_C("m_error_timestamps structure initialization failed\n");
+        LOGF_C(E, "m_error_timestamps structure initialization failed\n");
         return RET_FAILED;
     }
 

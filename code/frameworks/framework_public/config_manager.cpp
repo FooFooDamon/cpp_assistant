@@ -40,10 +40,10 @@ namespace cafw
 {
 
 #define LOAD_PRIVATE_CFG_ITEM(func, name)   if (func() < 0){\
-        GLOG_ERROR_C("failed to load %s configurations\n", name);\
+        LOGF_C(E, "failed to load %s configurations\n", name);\
         return RET_FAILED;\
     }\
-    GQ_LOG_INFO_C("%s configurations was loaded successfully\n", name)
+    QLOGF_C(I, "%s configurations was loaded successfully\n", name)
 
 config_manager::config_manager()
     : m_config_content(NULL),
@@ -79,21 +79,21 @@ int config_manager::open_file(const char *config_file)
 
     if (NULL == config_file)
     {
-        GLOG_ERROR_C("null config_file pointer\n");
+        LOGF_C(E, "null config_file pointer\n");
         return RET_FAILED;
     }
 
     if ((!is_available()) &&
         (__inner_init() < 0))
     {
-        GLOG_ERROR_C("inner initialization failed\n");
+        LOGF_C(E, "inner initialization failed\n");
         return RET_FAILED;
     }
 
     m_config_content->config_file_ptr = new TiXmlDocument(config_file);
     if (NULL == m_config_content->config_file_ptr)
     {
-        GLOG_ERROR_C("new TiXmlDocument(%s) failed\n", config_file);
+        LOGF_C(E, "new TiXmlDocument(%s) failed\n", config_file);
         return RET_FAILED;
     }
 
@@ -101,14 +101,14 @@ int config_manager::open_file(const char *config_file)
 
     if (!load_ok)
     {
-        GLOG_ERROR_C("failed to load xml file: %s\n", config_file);
+        LOGF_C(E, "failed to load xml file: %s\n", config_file);
         close_file();
         return RET_FAILED;
     }
 
     m_config_content->config_file_path.assign(config_file);
     m_file_is_open = true;
-    GQ_LOG_INFO_C("configuration file [%s] opened successfully\n", config_file);
+    QLOGF_C(I, "configuration file [%s] opened successfully\n", config_file);
 
     return RET_OK;
 }
@@ -119,7 +119,7 @@ void config_manager::close_file(void)
     {
         delete (TiXmlDocument *)m_config_content->config_file_ptr;
         m_config_content->config_file_ptr = NULL;
-        GQ_LOG_INFO_C("%s closed\n", m_config_content->config_file_path.c_str());
+        QLOGF_C(I, "%s closed\n", m_config_content->config_file_path.c_str());
     }
 }
 
@@ -127,7 +127,7 @@ int config_manager::load(void)
 {
     if (!file_is_open())
     {
-        GLOG_ERROR_C("config file not open yet\n");
+        LOGF_C(E, "config file not open yet\n");
         return RET_FAILED;
     }
 
@@ -136,38 +136,38 @@ int config_manager::load(void)
 
     if (get_common_config_filename(private_config, common_config) < 0)
     {
-        GLOG_ERROR_C("failed to get common configuration file name\n");
+        LOGF_C(E, "failed to get common configuration file name\n");
         return RET_FAILED;
     }
 
-    GQ_LOG_INFO_C("common configuration file: %s\n", common_config.c_str());
+    QLOGF_C(I, "common configuration file: %s\n", common_config.c_str());
 
     fixed_common_config *fixed_common_config = &(m_config_content->fixed_common_configs);
     mutable_common_config *mutable_common_config = &(m_config_content->mutable_common_configs);
 
     if (load_common_configurations(common_config.c_str(), fixed_common_config, mutable_common_config) < 0)
     {
-        GLOG_ERROR_C("failed to load common configurations\n");
+        LOGF_C(E, "failed to load common configurations\n");
         return RET_FAILED;
     }
 
-    GQ_LOG_INFO_C("common configurations was loaded successfully\n");
+    QLOGF_C(I, "common configurations was loaded successfully\n");
 
     if (load_mutable_common_configs(private_config, XPATH_PRIVATE_CONFIG_ROOT, false, mutable_common_config) < 0)
     {
-        GLOG_ERROR_C("failed to load private part of mutable common configurations\n");
+        LOGF_C(E, "failed to load private part of mutable common configurations\n");
         return RET_FAILED;
     }
 
-    GQ_LOG_INFO_C("private part of mutable common configurations was loaded successfully\n");
+    QLOGF_C(I, "private part of mutable common configurations was loaded successfully\n");
 
     if (load_private_config() < 0)
     {
-        GLOG_ERROR_C("failed to load private configurations\n");
+        LOGF_C(E, "failed to load private configurations\n");
         return RET_FAILED;
     }
 
-    GQ_LOG_INFO_C("private configurations was loaded successfully\n");
+    QLOGF_C(I, "private configurations was loaded successfully\n");
 
     return RET_OK;
 }
@@ -179,7 +179,7 @@ int config_manager::reload_partial(void)
 
     if (!load_ok)
     {
-        GLOG_ERROR_C("failed to reload private configuration\n");
+        LOGF_C(E, "failed to reload private configuration\n");
         return RET_FAILED;
     }
 
@@ -232,7 +232,7 @@ int config_manager::__inner_init(void)
     if ((NULL == m_config_content) &&
         (NULL == (m_config_content = new config_content_t)))
     {
-        GLOG_ERROR_C("ConfigContent structure initialization failed\n");
+        LOGF_C(E, "ConfigContent structure initialization failed\n");
         return RET_FAILED;
     }
     m_config_content->config_file_ptr = NULL;
@@ -276,13 +276,13 @@ int config_manager::load_private_config(void)
     if (NULL == m_config_content->private_configs.extra_items
         && init_extra_config(&(m_config_content->private_configs.extra_items)) < 0)
     {
-        GLOG_ERROR_C("failed to initialize extra configuration structure\n");
+        LOGF_C(E, "failed to initialize extra configuration structure\n");
         return RET_FAILED;
     }
 
     if (load_extra_config(m_config_content->private_configs.extra_items) < 0)
     {
-        GLOG_ERROR_C("failed to load extra configurations\n");
+        LOGF_C(E, "failed to load extra configurations\n");
         return RET_FAILED;
     }
 
@@ -297,7 +297,7 @@ int config_manager::__load_log_config(void)
     if (load_unique_config_node_value(file, XPATH_LOG_CONFIG_ROOT"/terminal-logger/level",
         false, private_config.terminal_log_level) < 0)
     {
-        GLOG_ERROR_C("failed to load terminal logger level setting\n");
+        LOGF_C(E, "failed to load terminal logger level setting\n");
         return RET_FAILED;
     }
 
@@ -307,7 +307,7 @@ int config_manager::__load_log_config(void)
 
     if (read_ret <= 0)
     {
-        GLOG_ERROR_C("failed to load file log enable attribute\n");
+        LOGF_C(E, "failed to load file log enable attribute\n");
         return RET_FAILED;
     }
 
@@ -322,22 +322,22 @@ int config_manager::__load_log_config(void)
     if (load_unique_config_node_value(file, XPATH_LOG_CONFIG_ROOT"/file-logger/level",
         false, private_config.file_log_level) < 0)
     {
-        GLOG_ERROR_C("failed to load file logger level setting\n");
+        LOGF_C(E, "failed to load file logger level setting\n");
         return RET_FAILED;
     }
 
     if (load_unique_config_node_value(file, XPATH_LOG_CONFIG_ROOT"/file-logger/directory",
         false, private_config.log_directory) < 0)
     {
-        GLOG_ERROR_C("failed to load file logger directory setting\n");
+        LOGF_C(E, "failed to load file logger directory setting\n");
         return RET_FAILED;
     }
-    //GLOG_DEBUG_C("private_config.log_directory: %s\n", private_config.log_directory.c_str());
+    //LOGF_C(D, "private_config.log_directory: %s\n", private_config.log_directory.c_str());
 
     if (load_unique_config_node_value(file, XPATH_LOG_CONFIG_ROOT"/file-logger/basename",
         false, private_config.basic_log_name) < 0)
     {
-        GLOG_ERROR_C("failed to load file logger basename setting\n");
+        LOGF_C(E, "failed to load file logger basename setting\n");
         return RET_FAILED;
     }
 
@@ -349,7 +349,7 @@ int config_manager::__load_identity_config(void)
 #ifdef ACCEPTS_CLIENTS
     return __load_network_nodes("identities");
 #else
-    GLOG_INFO_C("This is a TCP client which needs no listening address, skip\n");
+    LOGF_C(I, "This is a TCP client which needs no listening address, skip\n");
     return RET_OK;
 #endif
 }
@@ -359,7 +359,7 @@ int config_manager::__load_upstream_server_config(void)
 #ifdef HAS_UPSTREAM_SERVERS
     return __load_network_nodes("upstream-servers");
 #else
-    GLOG_INFO_C("no upstream servers needed, skip\n");
+    LOGF_C(I, "no upstream servers needed, skip\n");
     return RET_OK;
 #endif
 }
@@ -375,7 +375,7 @@ int config_manager::__load_database_config(void)
     calns::XmlHelper::FindNodesByPath(xpath_db_node, *file, db_nodes);
     if (1 != db_nodes.size())
     {
-        GLOG_ERROR_C("0 or multiple %s items found\n", xpath_db_node);
+        LOGF_C(E, "0 or multiple %s items found\n", xpath_db_node);
         return RET_FAILED;
     }
 
@@ -394,17 +394,17 @@ int config_manager::__load_database_config(void)
     if (NULL == owner_ptr ||
         NULL == enc_dsn_ptr)
     {
-        GLOG_ERROR_C("null %s or %s dsn\n", owner_attr, enc_dsn_attr);
+        LOGF_C(E, "null %s or %s dsn\n", owner_attr, enc_dsn_attr);
         return RET_FAILED;
     }
 
     m_config_content->private_configs.db_owner = owner_ptr;
     m_config_content->private_configs.db_dsn = enc_dsn_ptr;
-    GLOG_INFO_C("%s configurations was loaded successfully\n", db_type);
+    LOGF_C(I, "%s configurations was loaded successfully\n", db_type);
 
     return RET_OK;
 #else
-    GQ_LOG_INFO_C("no database needed, skip\n");
+    QLOGF_C(I, "no database needed, skip\n");
     return RET_OK;
 #endif
 }
@@ -419,11 +419,11 @@ int config_manager::__load_time_consuming_messages(void)
     calns::XmlHelper::FindNodesByPath(xpath_msg, *file, msg_nodes);
     if (0 == msg_nodes.size())
     {
-        GLOG_INFO_C("no [%s] items\n", xpath_msg);
+        LOGF_C(I, "no [%s] items\n", xpath_msg);
         return RET_OK;
     }
 
-    GLOG_INFO_C("parsing %s ...\n", xpath_msg);
+    LOGF_C(I, "parsing %s ...\n", xpath_msg);
 
     std::set<uint32_t> &msg_cmd = m_config_content->private_configs.time_consuming_cmd;
     const char *cmd_attr = "command-code";
@@ -434,7 +434,7 @@ int config_manager::__load_time_consuming_messages(void)
 
         if (NULL == cmd_ptr)
         {
-            GLOG_ERROR_C("attribute[%s] not found, i = %d\n", cmd_attr, i);
+            LOGF_C(E, "attribute[%s] not found, i = %d\n", cmd_attr, i);
             return RET_FAILED;
         }
 
@@ -447,15 +447,15 @@ int config_manager::__load_time_consuming_messages(void)
 
         if (!insert_ok)
         {
-            GLOG_ERROR_C("failed to cache time-consuming command code due to STL exception,"
+            LOGF_C(E, "failed to cache time-consuming command code due to STL exception,"
                 " i = %d, command code = 0x%08X\n", i, cmd_value);
             return RET_FAILED;
         }
 
-        GLOG_INFO_C("time-consuming command code 0x%08X cached, i = %d\n", cmd_value, i);
+        LOGF_C(I, "time-consuming command code 0x%08X cached, i = %d\n", cmd_value, i);
     }
 
-    GLOG_INFO_C("%d time-consuming message items in total\n", msg_cmd.size());
+    LOGF_C(I, "%d time-consuming message items in total\n", msg_cmd.size());
 */
     return RET_OK;
 }
@@ -467,7 +467,7 @@ int config_manager::__load_network_nodes(const char *type)
     std::string xpath(XPATH_PRIVATE_CONFIG_ROOT"/");
 
     xpath.append(type).append("/item");
-    GQ_LOG_INFO_C("Reading nodes with XPath[%s] ...\n", xpath.c_str());
+    QLOGF_C(I, "Reading nodes with XPath[%s] ...\n", xpath.c_str());
 
     bool is_self_info = (0 == strcmp(type, "identities"));
     std::vector<calns::xml::node_t> net_nodes;
@@ -483,7 +483,7 @@ int config_manager::__load_network_nodes(const char *type)
 #endif
 
 #if defined(ACCEPTS_CLIENTS)
-        GLOG_ERROR_C("failed to load %s settings, ret = %d\n", type, read_ret);
+        LOGF_C(E, "failed to load %s settings, ret = %d\n", type, read_ret);
         return RET_FAILED;
 #else
         return RET_OK;
@@ -522,7 +522,7 @@ int config_manager::__load_network_nodes(const char *type)
 
         if (node.attributes.end() == (attr_it = node.attributes.find("address")))
         {
-            GLOG_ERROR_C("address missing in node[%lu]\n", i);
+            LOGF_C(E, "address missing in node[%lu]\n", i);
             return RET_FAILED;
         }
 
@@ -531,7 +531,7 @@ int config_manager::__load_network_nodes(const char *type)
         if (calns::str::split(address.c_str(), address.length(), ":", str_fragments) < 0
             || str_fragments.size() < 0)
         {
-            GLOG_ERROR_C("invalid format or contents of address[%s], i = %lu\n", address.c_str(), i);
+            LOGF_C(E, "invalid format or contents of address[%s], i = %lu\n", address.c_str(), i);
             return RET_FAILED;
         }
 
@@ -541,11 +541,11 @@ int config_manager::__load_network_nodes(const char *type)
         {
             if (!calns::tcp_server::can_be_listened(node_ptr->node_ip.c_str(), node_ptr->node_port))
             {
-                GLOG_WARN_C("address of this node is already used, continue to try next one\n");
+                LOGF_C(W, "address of this node is already used, continue to try next one\n");
                 continue;
             }
 
-            GQ_LOG_INFO_C("address available, take contents of this item as the server info\n");
+            QLOGF_C(I, "address available, take contents of this item as the server info\n");
         }
         found_target = true;
 
@@ -553,7 +553,7 @@ int config_manager::__load_network_nodes(const char *type)
         {
             if (!is_self_info)
             {
-                GLOG_ERROR_C("can not find server type attribute, i = %lu\n", i);
+                LOGF_C(E, "can not find server type attribute, i = %lu\n", i);
                 return RET_FAILED;
             }
 
@@ -564,14 +564,14 @@ int config_manager::__load_network_nodes(const char *type)
 
         if (server_type_map.end() == server_type_map.find(node_ptr->type_name))
         {
-            GLOG_ERROR_C("unknown server type %s, i = %lu\n", node_ptr->type_name.c_str(), i);
+            LOGF_C(E, "unknown server type %s, i = %lu\n", node_ptr->type_name.c_str(), i);
             return RET_FAILED;
         }
         node_ptr->type_value = server_type_map[node_ptr->type_name];
 
         if (node.attributes.end() == (attr_it = node.attributes.find("name")))
         {
-            GLOG_ERROR_C("node name missing, i = %lu\n", i);
+            LOGF_C(E, "node name missing, i = %lu\n", i);
             return RET_FAILED;
         }
         node_ptr->node_name = attr_it->second;
@@ -584,7 +584,7 @@ int config_manager::__load_network_nodes(const char *type)
         if (node.attributes.end() != (attr_it = node.attributes.find("attributes")))
             node_ptr->attributes = attr_it->second;
 
-        GQ_LOG_INFO_C("%s[%lu]: type = %s(value after conversion: %d),"
+        QLOGF_C(I, "%s[%lu]: type = %s(value after conversion: %d),"
             " basic name = %s, alias = %s,"
             " address = %s:%u, attributes = %s\n",
             type, i, node_ptr->type_name.c_str(), node_ptr->type_value,
@@ -599,7 +599,7 @@ int config_manager::__load_network_nodes(const char *type)
 
     if (!found_target)
     {
-        GLOG_ERROR_C("no available connections found\n");
+        LOGF_C(E, "no available connections found\n");
         return RET_FAILED;
     }
 
@@ -617,7 +617,7 @@ int config_manager::__load_expiration(void)
     calns::XmlHelper::FindNodesByPath(xpath_expiration, *file, expiration_nodes);
     if (1 != expiration_nodes.size())
     {
-        GLOG_ERROR_C("0 or multiple %s items found\n", xpath_expiration);
+        LOGF_C(E, "0 or multiple %s items found\n", xpath_expiration);
         return RET_FAILED;
     }
 
@@ -628,17 +628,17 @@ int config_manager::__load_expiration(void)
 
     if (ts_db_dec(expiration_str, encryed_len, decrypted_exp_str, &decrypted_len) < 0)
     {
-        GLOG_ERROR_C("failed to decrypt expiration info\n");
+        LOGF_C(E, "failed to decrypt expiration info\n");
         return RET_FAILED;
     }
-    //GLOG_INFO_C("expiration info decrypted successfully: %s\n", decrypted_exp_str);
+    //LOGF_C(I, "expiration info decrypted successfully: %s\n", decrypted_exp_str);
 
     std::vector<std::string> date_fragments;
 
     if (CA_RET_OK != calns::StringHelper::Split(decrypted_exp_str, decrypted_len, "|", date_fragments)
         || date_fragments.size() < 6)
     {
-        GLOG_ERROR_C("unknown decrypted expiration info: %s\n", decrypted_exp_str);
+        LOGF_C(E, "unknown decrypted expiration info: %s\n", decrypted_exp_str);
         return RET_FAILED;
     }
 
@@ -657,7 +657,7 @@ int config_manager::__load_expiration(void)
     calendar_secs = mktime(&datetime_tm);
 
     m_config_content->private_configs.expiration = (int64_t)(calendar_secs + kSecsFrom1900To1970) * 1000000;
-    GLOG_INFO_C("expiration info parsed successfully, program will keep running"
+    LOGF_C(I, "expiration info parsed successfully, program will keep running"
         " until %s-%s-%s %s:%s:%s (or UTC microseconds %ld)\n",
         date_fragments[0].c_str(), date_fragments[1].c_str(), date_fragments[2].c_str(),
         date_fragments[3].c_str(), date_fragments[4].c_str(), date_fragments[5].c_str(),

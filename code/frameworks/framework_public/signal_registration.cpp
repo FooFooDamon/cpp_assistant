@@ -42,7 +42,7 @@ namespace cafw
 
 DECLARE_DEFAULT_SIG_HANDLER(sigusr2)
 {
-    GLOG_INFO("sigusr2 received, flushing log ...\n");
+    RLOGF(I, "sigusr2 received, flushing log ...\n");
     default_log_flushing_timed_task();
     return RET_OK;
 }
@@ -50,18 +50,18 @@ DECLARE_DEFAULT_SIG_HANDLER(sigusr2)
 DECLARE_DEFAULT_SIG_HANDLER(sighup)
 {
 #ifdef HAS_CONFIG_FILES
-    GLOG_INFO("sighup received, reloading partial configurations ...\n");
+    RLOGF(I, "sighup received, reloading partial configurations ...\n");
     return calns::singleton<config_manager>::get_instance()->reload_partial();
 #else
-    GLOG_INFO("sighup received, do nothing\n");
+    RLOGF(I, "sighup received, do nothing\n");
     return RET_OK;
 #endif
 }
 
 DECLARE_DEFAULT_SIG_HANDLER(sigusr1)
 {
-    GLOG_INFO("sigusr1 received, outputing some debug info ...\n");
-    GLOG_INFO("debug info begins ==========================================>\n");
+    RLOGF(I, "sigusr1 received, outputing some debug info ...\n");
+    RLOGF(I, "debug info begins ==========================================>\n");
 
 #ifdef HAS_TCP
     const resource_t *resource = calns::singleton<resource_manager>::get_instance()->resource();
@@ -80,7 +80,7 @@ DECLARE_DEFAULT_SIG_HANDLER(sigusr1)
      */
     for (size_t i = 0; i < sizeof(conn_cache_items) / sizeof(struct conn_cache_info); ++i)
     {
-        GLOG_INFO("---- %s:\n", conn_cache_items[i].name);
+        RLOGF(I, "---- %s:\n", conn_cache_items[i].name);
         conn_cache_items[i].ptr->profile();
     }
 
@@ -104,16 +104,16 @@ DECLARE_DEFAULT_SIG_HANDLER(sigusr1)
     {
         manager_info[i].tcp_manager->has_what(&conn_info);
         info_stream.str(conn_info);
-        GLOG_INFO("---- details of %s:\n", manager_info[i].manager_name);
+        RLOGF(I, "---- details of %s:\n", manager_info[i].manager_name);
         while (std::getline(info_stream, line))
         {
-            GLOG_INFO("%s\n", line.c_str());
+            RLOGF(I, "%s\n", line.c_str());
         }
         info_stream.clear(); // TODO: clears and refreshes some inner flags relative to conn_info ??
     }
 #endif
 
-    GLOG_INFO("<========================================== debug info ends\n");
+    RLOGF(I, "<========================================== debug info ends\n");
 
     /*
      * flushes info above immediately
@@ -125,8 +125,8 @@ DECLARE_DEFAULT_SIG_HANDLER(sigusr1)
 
 DECLARE_DEFAULT_SIG_HANDLER(sigsegv)
 {
-    GLOG_WARN("sigsegv received, flushing log ...\n");
-    GLOG_WARN("Program will exit abnormally and generate a core file containing crash info!!!\n");
+    RLOGF(W, "sigsegv received, flushing log ...\n");
+    RLOGF(W, "Program will exit abnormally and generate a core file containing crash info!!!\n");
     LOG_FLUSH();
     // TODO: notify worker threads
     calns::sigcap::unregister(SIGSEGV);

@@ -76,51 +76,6 @@ namespace calns = CA_LIB_NAMESPACE;
     LOGF_BASE_V(log_level, class_str, ns_delim, fmt, ##__VA_ARGS__); \
 }while(0)
 
-#define GLOG_DEBUG(fmt, ...)                        LOGF_BASE(calns::LOG_LEVEL_DEBUG, fmt, ##__VA_ARGS__)
-#define GQ_LOG_DEBUG(fmt, ...)                      QLOGF_BASE(calns::LOG_LEVEL_DEBUG, fmt, ##__VA_ARGS__)
-#define GLOG_DEBUG_C(fmt, ...)                      LOGF_BASE_V(calns::LOG_LEVEL_DEBUG, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define GQ_LOG_DEBUG_C(fmt, ...)                    QLOGF_BASE_V(calns::LOG_LEVEL_DEBUG, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define GLOG_DEBUG_CS(_class_, fmt, ...)            LOGF_BASE_V(calns::LOG_LEVEL_DEBUG, _class_::class_name(), "::", fmt, ##__VA_ARGS__)
-#define GQ_LOG_DEBUG_CS(_class_, fmt, ...)          QLOGF_BASE_V(calns::LOG_LEVEL_DEBUG, _class_::class_name(), "::", fmt, ##__VA_ARGS__)
-#define GLOG_DEBUG_NS(ns_str, fmt, ...)             LOGF_BASE_V(calns::LOG_LEVEL_DEBUG, ns_str, "::", fmt, ##__VA_ARGS__)
-#define GQ_LOG_DEBUG_NS(ns_str, fmt, ...)           QLOGF_BASE_V(calns::LOG_LEVEL_DEBUG, ns_str, "::", fmt, ##__VA_ARGS__)
-
-#define GLOG_INFO(fmt, ...)                         LOGF_BASE(calns::LOG_LEVEL_INFO, fmt, ##__VA_ARGS__)
-#define GQ_LOG_INFO(fmt, ...)                       QLOGF_BASE(calns::LOG_LEVEL_INFO, fmt, ##__VA_ARGS__)
-#define GLOG_INFO_C(fmt, ...)                       LOGF_BASE_V(calns::LOG_LEVEL_INFO, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define GQ_LOG_INFO_C(fmt, ...)                     QLOGF_BASE_V(calns::LOG_LEVEL_INFO, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define GLOG_INFO_CS(_class_, fmt, ...)             LOGF_BASE_V(calns::LOG_LEVEL_INFO, _class_::class_name(), "::", fmt, ##__VA_ARGS__)
-#define GQ_LOG_INFO_CS(_class_, fmt, ...)           QLOGF_BASE_V(calns::LOG_LEVEL_INFO, _class_::class_name(), "::", fmt, ##__VA_ARGS__)
-#define GLOG_INFO_NS(ns_str, fmt, ...)              LOGF_BASE_V(calns::LOG_LEVEL_INFO, ns_str, "::", fmt, ##__VA_ARGS__)
-#define GQ_LOG_INFO_NS(ns_str, fmt, ...)            QLOGF_BASE_V(calns::LOG_LEVEL_INFO, ns_str, "::", fmt, ##__VA_ARGS__)
-
-#define GLOG_WARN(fmt, ...)                         LOGF_BASE(calns::LOG_LEVEL_WARNING, fmt, ##__VA_ARGS__)
-#define GQ_LOG_WARN(fmt, ...)                       QLOGF_BASE(calns::LOG_LEVEL_WARNING, fmt, ##__VA_ARGS__)
-#define GLOG_WARN_C(fmt, ...)                       LOGF_BASE_V(calns::LOG_LEVEL_WARNING, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define GQ_LOG_WARN_C(fmt, ...)                     QLOGF_BASE_V(calns::LOG_LEVEL_WARNING, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define GLOG_WARN_CS(_class_, fmt, ...)             LOGF_BASE_V(calns::LOG_LEVEL_WARNING, _class_::class_name(), "::", fmt, ##__VA_ARGS__)
-#define GQ_LOG_WARN_CS(_class_, fmt, ...)           QLOGF_BASE_V(calns::LOG_LEVEL_WARNING, _class_::class_name(), "::", fmt, ##__VA_ARGS__)
-#define GLOG_WARN_NS(ns_str, fmt, ...)              LOGF_BASE_V(calns::LOG_LEVEL_WARNING, ns_str, "::", fmt, ##__VA_ARGS__)
-#define GQ_LOG_WARN_NS(ns_str, fmt, ...)            QLOGF_BASE_V(calns::LOG_LEVEL_WARNING, ns_str, "::", fmt, ##__VA_ARGS__)
-
-#define GLOG_ERROR(fmt, ...)                        LOGF_BASE(calns::LOG_LEVEL_ERROR, fmt, ##__VA_ARGS__)
-#define GQ_LOG_ERROR(fmt, ...)                      QLOGF_BASE(calns::LOG_LEVEL_ERROR, fmt, ##__VA_ARGS__)
-#define GLOG_ERROR_C(fmt, ...)                      LOGF_BASE_V(calns::LOG_LEVEL_ERROR, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define GQ_LOG_ERROR_C(fmt, ...)                    QLOGF_BASE_V(calns::LOG_LEVEL_ERROR, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define GLOG_ERROR_CS(_class_, fmt, ...)            LOGF_BASE_V(calns::LOG_LEVEL_ERROR, _class_::class_name(), "::", fmt, ##__VA_ARGS__)
-#define GQ_LOG_ERROR_CS(_class_, fmt, ...)          QLOGF_BASE_V(calns::LOG_LEVEL_ERROR, _class_::class_name(), "::", fmt, ##__VA_ARGS__)
-#define GLOG_ERROR_NS(ns_str, fmt, ...)             LOGF_BASE_V(calns::LOG_LEVEL_ERROR, ns_str, "::", fmt, ##__VA_ARGS__)
-#define GQ_LOG_ERROR_NS(ns_str, fmt, ...)           QLOGF_BASE_V(calns::LOG_LEVEL_ERROR, ns_str, "::", fmt, ##__VA_ARGS__)
-
-#define GLOG_CRITICAL(fmt, ...)                     LOGF_BASE(calns::LOG_LEVEL_CRITICAL, fmt, ##__VA_ARGS__)
-#define GQ_LOG_CRITICAL(fmt, ...)                   QLOGF_BASE(calns::LOG_LEVEL_CRITICAL, fmt, ##__VA_ARGS__)
-#define GLOG_CRITICAL_C(fmt, ...)                   LOGF_BASE_V(calns::LOG_LEVEL_CRITICAL, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define GQ_LOG_CRITICAL_C(fmt, ...)                 QLOGF_BASE_V(calns::LOG_LEVEL_CRITICAL, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define GLOG_CRITICAL_CS(_class_, fmt, ...)         LOGF_BASE_V(calns::LOG_LEVEL_CRITICAL, _class_::class_name(), "::", fmt, ##__VA_ARGS__)
-#define GQ_LOG_CRITICAL_CS(_class_, fmt, ...)       QLOGF_BASE_V(calns::LOG_LEVEL_CRITICAL, _class_::class_name(), "::", fmt, ##__VA_ARGS__)
-#define GLOG_CRITICAL_NS(ns_str, fmt, ...)          LOGF_BASE_V(calns::LOG_LEVEL_CRITICAL, ns_str, "::", fmt, ##__VA_ARGS__)
-#define GQ_LOG_CRITICAL_NS(ns_str, fmt, ...)        QLOGF_BASE_V(calns::LOG_LEVEL_CRITICAL, ns_str, "::", fmt, ##__VA_ARGS__)
-
 #define LOG_FLUSH()                                 do{\
     if (NULL != g_file_logger) \
         g_file_logger->flush(); \
@@ -148,7 +103,7 @@ namespace calns = CA_LIB_NAMESPACE;
 
 // NS is short for namespace, which means outputting the current namespace.
 #undef LOGF_NS
-#define LOGF_NS(_namespace_, fmt, ...)              LOGF_BASE_V(calns::LOG_LEVEL_##x, #_namespace_, "::", fmt, ##__VA_ARGS__)
+#define LOGF_NS(x, _namespace_, fmt, ...)           LOGF_BASE_V(calns::LOG_LEVEL_##x, #_namespace_, "::", fmt, ##__VA_ARGS__)
 
 #ifdef QLOGF
 #undef QLOGF
@@ -163,7 +118,7 @@ namespace calns = CA_LIB_NAMESPACE;
 #ifdef QLOGF_NS
 #undef QLOGF_NS
 #endif
-#define QLOGF_NS(_namespace_, fmt, ...)             QLOGF_BASE_V(calns::LOG_LEVEL_##x, #_namespace_, "::", fmt, ##__VA_ARGS__)
+#define QLOGF_NS(x, _namespace_, fmt, ...)          QLOGF_BASE_V(calns::LOG_LEVEL_##x, #_namespace_, "::", fmt, ##__VA_ARGS__)
 
 extern bool g_is_quiet_mode;
 extern calns::screen_logger *g_screen_logger;
