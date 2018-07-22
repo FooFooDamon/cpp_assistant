@@ -49,6 +49,7 @@ namespace calns = CA_LIB_NAMESPACE;
 
 #define __FUNC__                                    __FUNCTION__
 
+#undef LOGF_BASE
 #define LOGF_BASE(log_level, fmt, ...)              do{\
     g_screen_logger->output(calns::HAS_LOG_PREFIX, log_level, fmt, ##__VA_ARGS__); \
     if (NULL != g_file_logger) \
@@ -61,11 +62,11 @@ namespace calns = CA_LIB_NAMESPACE;
     LOGF_BASE(log_level, fmt, ##__VA_ARGS__); \
 }while(0)
 
-#ifdef LOG_HAS_PID
-#define LOGF_BASE_V(log_level, class_str, ns_delim, fmt, ...)   LOGF_BASE(log_level, "[PID:%d, TID:%d] %s#%d, %s%s%s(): " fmt, \
-    getpid(), pthread_self(), __FILE__, __LINE__, class_str, ns_delim, __FUNC__, ##__VA_ARGS__)
+#ifdef MULTI_THREADING
+#define LOGF_BASE_V(log_level, class_str, ns_delim, fmt, ...)   LOGF_BASE(log_level, "[%d#%d] %s:%d, %s%s%s(): " fmt, \
+    getpid(), CA_LIB_NAMESPACE::gettid(), __FILE__, __LINE__, class_str, ns_delim, __FUNC__, ##__VA_ARGS__)
 #else
-#define LOGF_BASE_V(log_level, class_str, ns_delim, fmt, ...)   LOGF_BASE(log_level, "%s#%d, %s%s%s(): " fmt, \
+#define LOGF_BASE_V(log_level, class_str, ns_delim, fmt, ...)   LOGF_BASE(log_level, "%s:%d, %s%s%s(): " fmt, \
     __FILE__, __LINE__, class_str, ns_delim, __FUNC__, ##__VA_ARGS__)
 #endif
 
