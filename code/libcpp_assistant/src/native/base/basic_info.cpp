@@ -41,11 +41,11 @@ CA_LIB_NAMESPACE_BEGIN
 #define CPP_ASSISTANT_START_DATE    "20170910"
 
 #ifndef CA_NEWEST_MOD_DATE
-#define CA_NEWEST_MOD_DATE          "20180714"
+#define CA_NEWEST_MOD_DATE          "20180722"
 #endif
 
 #ifndef CA_NEWEST_MAIN_VER
-#define CA_NEWEST_MAIN_VER          "0.03.01"
+#define CA_NEWEST_MAIN_VER          "0.04.01"
 #endif
 
 #ifdef CA_SVN_VER

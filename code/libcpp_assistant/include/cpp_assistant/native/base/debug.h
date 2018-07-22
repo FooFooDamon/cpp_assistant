@@ -71,8 +71,8 @@
 #ifdef MULTI_THREADING
 
 #define LOGF_BASE(x, class_str, ns_delim, fmt, ...)     do {\
-	CA_LIB_NAMESPACE::lock_guard<CA_LIB_NAMESPACE::mutex> lock(*CA_LIB_NAMESPACE::singleton<CA_LIB_NAMESPACE::mutex>::get_instance()); \
-	RLOGF(x, "[%d#%d] %s:%d, %s%s%s(): " fmt, getpid(), CA_LIB_NAMESPACE::gettid(), __FILE__, __LINE__, class_str, ns_delim, __FUNCTION__, ##__VA_ARGS__); \
+    CA_LIB_NAMESPACE::lock_guard<CA_LIB_NAMESPACE::mutex> lock(*CA_LIB_NAMESPACE::singleton<CA_LIB_NAMESPACE::mutex>::get_instance()); \
+    RLOGF(x, "[%d#%d] %s:%d, %s%s%s(): " fmt, getpid(), CA_LIB_NAMESPACE::gettid(), __FILE__, __LINE__, class_str, ns_delim, __FUNCTION__, ##__VA_ARGS__); \
 } while(0)
 
 #else
@@ -96,7 +96,7 @@
 #ifdef LOGF_NS
 #undef LOGF_NS
 #endif
-#define LOGF_NS(_namespace_, fmt, ...)                  LOGF_BASE(x, #_namespace_, "::", fmt, ##__VA_ARGS__)
+#define LOGF_NS(x, _namespace_, fmt, ...)               LOGF_BASE(x, #_namespace_, "::", fmt, ##__VA_ARGS__)
 
 /*
  * [S]tream-style logging macros. Value of x is the same as formatted logging.
@@ -127,7 +127,7 @@
 #ifdef LOGS_NS
 #undef LOGS_NS
 #endif
-#define LOGS_NS(_namespace_)                            RLOGS(x) << __FILE__ << ":" << __LINE__ << ", " << #_namespace_ << "::" << __FUNCTION__ << "(): "
+#define LOGS_NS(x, _namespace_)                         RLOGS(x) << __FILE__ << ":" << __LINE__ << ", " << #_namespace_ << "::" << __FUNCTION__ << "(): "
 
 CA_LIB_NAMESPACE_BEGIN
 
