@@ -41,64 +41,17 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <sys/types.h>
 #include <sys/time.h>
 #include <time.h>
 
 #include "ca_inner_necessities.h"
 #include "platforms/threading.h"
 
-#define CA_GET_CONST_DEBUG_OUTPUT_HOLDER()      CA_LIB_NAMESPACE::debug::get_debug_output_holder()
-#define CA_GET_MUTABLE_DEBUG_OUTPUT_HOLDER()    const_cast<FILE*>(CA_GET_CONST_DEBUG_OUTPUT_HOLDER())
-
-#define CA_GET_CONST_ERROR_OUTPUT_HOLDER()      CA_LIB_NAMESPACE::debug::get_error_output_holder()
-#define CA_GET_MUTABLE_ERROR_OUTPUT_HOLDER()    const_cast<FILE*>(CA_GET_CONST_ERROR_OUTPUT_HOLDER())
-
-#define CA_OUTPUT_RAW(dev, fmt, ...)            fprintf(dev, fmt, ##__VA_ARGS__)
-
-#define CA_OUTPUT_BASE(dev, preamble, type_str, class_str, ns_delim, fmt, ...) do{ \
-    struct timeval __tv; \
-    gettimeofday(&__tv, nullptr); \
-    ::fprintf(dev, "[PID:%d, TID:0x%lx][Time:%ld.%ld] " preamble " " type_str " %s, %s%s%s(): Line %d: " fmt, \
-        getpid(), pthread_self(), __tv.tv_sec, __tv.tv_usec, __FILE__, class_str, ns_delim, __FUNCTION__, __LINE__, ##__VA_ARGS__); \
-}while(0)
-
-#define CA_DEBUG_BASE(preamble, class_str, ns_delim, fmt, ...)      CA_OUTPUT_BASE(CA_GET_MUTABLE_DEBUG_OUTPUT_HOLDER(), preamble, "DEBUG:", class_str, ns_delim, fmt, ##__VA_ARGS__)
-#define CA_INFO_BASE(preamble, class_str, ns_delim, fmt, ...)       CA_OUTPUT_BASE(CA_GET_MUTABLE_DEBUG_OUTPUT_HOLDER(), preamble, "", class_str, ns_delim, fmt, ##__VA_ARGS__)
-#define CA_WARN_BASE(preamble, class_str, ns_delim, fmt, ...)       CA_OUTPUT_BASE(CA_GET_MUTABLE_ERROR_OUTPUT_HOLDER(), preamble, "** WARNING:", class_str, ns_delim, fmt, ##__VA_ARGS__)
-#define CA_ERROR_BASE(preamble, class_str, ns_delim, fmt, ...)      CA_OUTPUT_BASE(CA_GET_MUTABLE_ERROR_OUTPUT_HOLDER(), preamble, "**** ERROR:", class_str, ns_delim, fmt, ##__VA_ARGS__)
-#define CA_CRITICAL_BASE(preamble, class_str, ns_delim, fmt, ...)   CA_OUTPUT_BASE(CA_GET_MUTABLE_ERROR_OUTPUT_HOLDER(), preamble, "**** CRITICAL:", class_str, ns_delim, fmt, ##__VA_ARGS__)
-
-#if defined(DEBUG)
-#define CA_RAW_DEBUG(fmt, ...)                  CA_OUTPUT_RAW(CA_GET_MUTABLE_DEBUG_OUTPUT_HOLDER(), fmt, ##__VA_ARGS__)
-#define CA_DEBUG(fmt, ...)                      CA_DEBUG_BASE("", "", "", fmt, ##__VA_ARGS__)
-#define CA_DEBUG_C(fmt, ...)                    CA_DEBUG_BASE("", typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define CA_DEBUG_NS(_namespace_, fmt, ...)      CA_DEBUG_BASE("", #_namespace_, "::", fmt, ##__VA_ARGS__)
-#else
-#define CA_RAW_DEBUG(fmt, ...)                  do{;}while(0)
-#define CA_DEBUG(fmt, ...)                      do{;}while(0)
-#define CA_DEBUG_C(fmt, ...)                    do{;}while(0)
-#define CA_DEBUG_NS(_namespace_, fmt, ...)      do{;}while(0)
-#endif
-
-#define CA_RAW_INFO(fmt, ...)                   CA_OUTPUT_RAW(CA_GET_MUTABLE_DEBUG_OUTPUT_HOLDER(), fmt, ##__VA_ARGS__)
-#define CA_INFO(fmt, ...)                       CA_INFO_BASE("", "", "", fmt, ##__VA_ARGS__)
-#define CA_INFO_C(fmt, ...)                     CA_INFO_BASE("", typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define CA_INFO_NS(_namespace_, fmt, ...)       CA_INFO_BASE("", #_namespace_, "::", fmt, ##__VA_ARGS__)
-
-#define CA_RAW_WARN(fmt, ...)                   CA_OUTPUT_RAW(CA_GET_MUTABLE_ERROR_OUTPUT_HOLDER(), fmt, ##__VA_ARGS__)
-#define CA_WARN(fmt, ...)                       CA_WARN_BASE("", "", "", fmt, ##__VA_ARGS__)
-#define CA_WARN_C(fmt, ...)                     CA_WARN_BASE("", typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define CA_WARN_NS(_namespace_, fmt, ...)       CA_WARN_BASE("", #_namespace_, "::", fmt, ##__VA_ARGS__)
-
-#define CA_RAW_ERROR(fmt, ...)                  CA_OUTPUT_RAW(CA_GET_MUTABLE_ERROR_OUTPUT_HOLDER(), fmt, ##__VA_ARGS__)
-#define CA_ERROR(fmt, ...)                      CA_ERROR_BASE("", "", "", fmt, ##__VA_ARGS__)
-#define CA_ERROR_C(fmt, ...)                    CA_ERROR_BASE("", typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define CA_ERROR_NS(_namespace_, fmt, ...)      CA_ERROR_BASE("", #_namespace_, "::", fmt, ##__VA_ARGS__)
-
-#define CA_RAW_CRITICAL(fmt, ...)               CA_OUTPUT_RAW(CA_GET_MUTABLE_ERROR_OUTPUT_HOLDER(), fmt, ##__VA_ARGS__)
-#define CA_CRITICAL(fmt, ...)                   CA_CRITICAL_BASE("", "", "", fmt, ##__VA_ARGS__)
-#define CA_CRITICAL_C(fmt, ...)                 CA_CRITICAL_BASE("", typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define CA_CRITICAL_NS(_namespace_, fmt, ...)   CA_CRITICAL_BASE("", #_namespace_, "::", fmt, ##__VA_ARGS__)
+/*
+ * NOTE: The logging macros below are convenient to use when writing simple programs,
+ * but you probably need to redefine them in your own file when writing complex programs and needing high performance.
+ */
 
 /*
  * [F]ormatted logging macros. x could be:
@@ -109,18 +62,72 @@
  *     c, critical, C, CRITICAL.
  */
 
-#define LOGF(x, fmt, ...)                       CA_##x##_BASE("", "", "", fmt, ##__VA_ARGS__)
-#define LOGF_C(x, fmt, ...)                     CA_##x##_BASE("", typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
-#define LOGF_NS(_namespace_, fmt, ...)          CA_##x##_BASE("", #_namespace_, "::", fmt, ##__VA_ARGS__)
+// R is short for raw, which means outputting log contents as little as possible.
+#ifdef RLOGF
+#undef RLOGF
+#endif
+#define RLOGF(x, fmt, ...)                              CA_LIB_NAMESPACE::singleton<CA_LIB_NAMESPACE::screen_logger>::get_instance()->x(fmt, ##__VA_ARGS__)
+
+#ifdef MULTI_THREADING
+
+#define LOGF_BASE(x, class_str, ns_delim, fmt, ...)     do {\
+	CA_LIB_NAMESPACE::lock_guard<CA_LIB_NAMESPACE::mutex> lock(*CA_LIB_NAMESPACE::singleton<CA_LIB_NAMESPACE::mutex>::get_instance()); \
+	RLOGF(x, "[%d#%d] %s:%d, %s%s%s(): " fmt, getpid(), CA_LIB_NAMESPACE::gettid(), __FILE__, __LINE__, class_str, ns_delim, __FUNCTION__, ##__VA_ARGS__); \
+} while(0)
+
+#else
+
+#define LOGF_BASE(x, class_str, ns_delim, fmt, ...)     RLOGF(x, "%s:%d, %s%s%s(): " fmt, __FILE__, __LINE__, class_str, ns_delim, __FUNCTION__, ##__VA_ARGS__)
+
+#endif
+
+#ifdef LOGF
+#undef LOGF
+#endif
+#define LOGF(x, fmt, ...)                               LOGF_BASE(x, "", "", fmt, ##__VA_ARGS__)
+
+// C is short for class, which means outputting name of the class calling this logging function.
+#ifdef LOGF_C
+#undef LOGF_C
+#endif
+#define LOGF_C(x, fmt, ...)                             LOGF_BASE(x, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
+
+// NS is short for namespace, which means outputting the current namespace.
+#ifdef LOGF_NS
+#undef LOGF_NS
+#endif
+#define LOGF_NS(_namespace_, fmt, ...)                  LOGF_BASE(x, #_namespace_, "::", fmt, ##__VA_ARGS__)
 
 /*
  * [S]tream-style logging macros. Value of x is the same as formatted logging.
- * TODO: Not finished yet ...
  */
 
-#define LOGS(x)
-#define LOGS_C(x)
-#define LOGS_NS(_namespace_)
+// R means the the same as the one in the formatted logging above.
+#ifdef RLOGS
+#undef RLOGS
+#endif
+#ifdef MULTI_THREADING // TODO: has not supported multi-threading so far, because locking is not easy.
+#define RLOGS(x)
+#else
+#define RLOGS(x)                                        CA_LIB_NAMESPACE::singleton<CA_LIB_NAMESPACE::screen_logger>::get_instance()->get_stream(x)
+#endif
+
+#ifdef LOGS
+#undef LOGS
+#endif
+#define LOGS(x)                                         RLOGS(x) << __FILE__ << ":" << __LINE__ << ", " << __FUNCTION__ << "(): "
+
+// C means the the same as the one in the formatted logging above.
+#ifdef LOGS_C
+#undef LOGS_C
+#endif
+#define LOGS_C(x)                                       RLOGS(x) << __FILE__ << ":" << __LINE__ << ", " << typeid(*this).name() << "::" << __FUNCTION__ << "(): "
+
+// NS means the the same as the one in the formatted logging above.
+#ifdef LOGS_NS
+#undef LOGS_NS
+#endif
+#define LOGS_NS(_namespace_)                            RLOGS(x) << __FILE__ << ":" << __LINE__ << ", " << #_namespace_ << "::" << __FUNCTION__ << "(): "
 
 CA_LIB_NAMESPACE_BEGIN
 
