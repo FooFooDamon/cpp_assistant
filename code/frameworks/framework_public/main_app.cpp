@@ -96,7 +96,7 @@ int main_app::prepare_prerequisites(void)
     }
     catch(std::bad_alloc &ex)
     {
-        CA_ERROR_C("Failed to create g_screen_logger instance: %s\n", ex.what());
+        LOGF_C(E, "Failed to create g_screen_logger instance: %s\n", ex.what());
         return RET_FAILED;
     }
 
@@ -191,7 +191,7 @@ int main_app::parse_commandLine(int argc, char **argv)
         cmdline->get_parsing_result(&parsing_result);
         fprintf(stderr, "%s\n", parsing_result.c_str());
 
-        CA_RAW_WARN("See the usage below for reference:\n");
+        RLOGF(W, "See the usage below for reference:\n");
         cmdline->usage(&usage_str);
         fprintf(stderr, "%s\n", usage_str.c_str());
 

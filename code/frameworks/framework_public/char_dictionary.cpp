@@ -55,7 +55,7 @@ dict *char_dict_create(int dict_size)
 
     if (NULL == (d = (dict *)dict_create(NULL)))
     {
-        CA_ERROR("dict_create() failed\n");
+        LOGF(E, "dict_create() failed\n");
         return NULL;
     }
 
@@ -119,14 +119,14 @@ int char_dict_add_element(
         keylen <= 0 ||
         vallen <= 0)
     {
-        CA_ERROR("invalid dict, key or value pointer, or invalid key or value length\n");
+        LOGF(E, "invalid dict, key or value pointer, or invalid key or value length\n");
         return RET_FAILED;
     }
 
     char *_key = (char *)char_dict_alloc_key(keylen + 1); // one more byte for '\0'
     if (NULL == _key)
     {
-        CA_ERROR("char_dict_alloc_key() failed\n");
+        LOGF(E, "char_dict_alloc_key() failed\n");
         return RET_FAILED;
     }
     memcpy(_key, key, keylen);
@@ -135,7 +135,7 @@ int char_dict_add_element(
 
     if (DICT_OK != ret)
     {
-        CA_ERROR("dict_add() failed\n");
+        LOGF(E, "dict_add() failed\n");
         char_dict_release_key((void **)&_key);
         return RET_FAILED;
     }
@@ -153,14 +153,14 @@ int char_dict_delete_element(
 {
     if (NULL == key || NULL == dict)
     {
-        CA_ERROR("null key or dict\n");
+        LOGF(E, "null key or dict\n");
         return RET_FAILED;
     }
 
     dict_entry *entry = dict_find(dict, key, keylen);
     if (NULL == entry)
     {
-        CA_ERROR("message with key[%s] not found\n", key);
+        LOGF(E, "message with key[%s] not found\n", key);
         return RET_FAILED;
     }
 
@@ -177,7 +177,7 @@ void *char_dict_find_iterator(const char *key, const int keylen, dict *dict)
 {
     if (NULL == key || NULL == dict)
     {
-        CA_ERROR("null key or dict\n");
+        LOGF(E, "null key or dict\n");
         return NULL;
     }
 
@@ -198,29 +198,29 @@ void char_dict_print(const dict *dict)
 {
     dict_entry *entry = NULL;
 
-    CA_INFO("Dictionary report:\n");
-    CA_RAW_INFO("rehashidx = %d\n", dict->rehashidx);
-    CA_RAW_INFO("iterators = %d\n", dict->iterators);
+    LOGF(I, "Dictionary report:\n");
+    RLOGF(I, "rehashidx = %d\n", dict->rehashidx);
+    RLOGF(I, "iterators = %d\n", dict->iterators);
     for (int i = 0; i <= 1; ++i)
     {
-        CA_RAW_INFO("ht[%d]:\n", i);
-        CA_RAW_INFO("\tsize = %ld\n", dict->ht[i].size);
-        CA_RAW_INFO("\tsizemask = 0x%lX\n", dict->ht[i].sizemask);
-        CA_RAW_INFO("\tused = %ld\n", dict->ht[i].used);
+        RLOGF(I, "ht[%d]:\n", i);
+        RLOGF(I, "\tsize = %ld\n", dict->ht[i].size);
+        RLOGF(I, "\tsizemask = 0x%lX\n", dict->ht[i].sizemask);
+        RLOGF(I, "\tused = %ld\n", dict->ht[i].used);
         for (int j = 0; j < (int)dict->ht[i].size; ++j)
         {
             entry = dict->ht[i].table[j];
-            CA_RAW_INFO("\ttable[%d]:\n", j);
+            RLOGF(I, "\ttable[%d]:\n", j);
 
             if (NULL == entry)
             {
-                CA_RAW_INFO("\t\tNULL\n");
+                RLOGF(I, "\t\tNULL\n");
                 continue;
             }
 
             while (NULL != entry)
             {
-                CA_RAW_INFO("\t\t%s | %d | %p | %d\n", (char*)entry->key, entry->keylen, entry->val, entry->vallen);
+                RLOGF(I, "\t\t%s | %d | %p | %d\n", (char*)entry->key, entry->keylen, entry->val, entry->vallen);
                 entry = entry->next;
             }
         }
@@ -289,14 +289,14 @@ int char_dict_add_element(
         keylen <= 0 ||
         vallen <= 0)
     {
-        CA_ERROR("invalid dict, key or value pointer, or invalid key or value length\n");
+        LOGF(E, "invalid dict, key or value pointer, or invalid key or value length\n");
         return RET_FAILED;
     }
 
     dict::iterator it = dict->find((char*)key);
     if (dict->end() != it)
     {
-        CA_ERROR("message with key[%s] already existed\n", key);
+        LOGF(E, "message with key[%s] already existed\n", key);
         return RET_FAILED;
     }
 
@@ -307,7 +307,7 @@ int char_dict_add_element(
 
     if (NULL == _key)
     {
-        CA_ERROR("calloc() for key failed\n");
+        LOGF(E, "calloc() for key failed\n");
         return RET_FAILED;
     }
 
@@ -322,7 +322,7 @@ int char_dict_add_element(
     }
     catch(std::exception &e)
     {
-        CA_ERROR("insert() failed: %s\n", e.what());
+        LOGF(E, "insert() failed: %s\n", e.what());
 //#if HASH_OPTION == HASH_OPTION_STL_MAP
 #if 1
         char_dict_release_key((void **)&_key);
@@ -343,14 +343,14 @@ int char_dict_delete_element(
 {
     if (NULL == key || NULL == dict)
     {
-        CA_ERROR("null key or dict\n");
+        LOGF(E, "null key or dict\n");
         return RET_FAILED;
     }
 
     dict::iterator it = dict->find((char*)key);
     if (dict->end() == it)
     {
-        CA_ERROR("message with key[%s] not found\n", key);
+        LOGF(E, "message with key[%s] not found\n", key);
         return RET_FAILED;
     }
 
@@ -370,7 +370,7 @@ void *char_dict_find_iterator(const char *key, const int keylen, dict *dict)
 {
     if (NULL == key || NULL == dict)
     {
-        CA_ERROR("null key or dict\n");
+        LOGF(E, "null key or dict\n");
         return NULL;
     }
 
@@ -400,7 +400,7 @@ void char_dict_print(const dict *dict)
     CA_RAW_INFO_V("Dictionary report:\n");
     for (dict::const_iterator it = begin; it != end; ++it)
     {
-        CA_RAW_INFO("element[%d]: %s | %d | %p | %d\n", element_count, (char*)it->first, -1, it->second, -1);
+        RLOGF(I, "element[%d]: %s | %d | %p | %d\n", element_count, (char*)it->first, -1, it->second, -1);
         ++element_count;
     }
 }
