@@ -55,7 +55,7 @@
 #error "A complex application requires the HAS_CONFIG_FILES macro and operations for configuration file(s)!"
 #endif
 
-extern const cal::command_line::user_option *g_kPrivateOptions;
+extern const calns::command_line::user_option *g_kPrivateOptions;
 
 EXTERN_DECLARE_ALL_CUSTOMIZED_SIG_HANDLER_VARS();
 
@@ -63,16 +63,16 @@ namespace cafw
 {
 
 main_app::main_app()
-    : m_cmdline(cal::singleton<cal::command_line>::get_instance())
+    : m_cmdline(calns::singleton<calns::command_line>::get_instance())
 #if defined(HAS_CONFIG_FILES)
-    , m_config_manager(cal::singleton<config_manager>::get_instance())
+    , m_config_manager(calns::singleton<config_manager>::get_instance())
 #else
     , m_config_manager(NULL)
 #endif
-    , m_resource_manager(cal::singleton<resource_manager>::get_instance())
-    , m_timed_task_scheduler(cal::singleton<timed_task_scheduler>::get_instance())
+    , m_resource_manager(calns::singleton<resource_manager>::get_instance())
+    , m_timed_task_scheduler(calns::singleton<timed_task_scheduler>::get_instance())
 #if defined(HAS_TCP)
-    , m_packet_processor(cal::singleton<packet_processor>::get_instance())
+    , m_packet_processor(calns::singleton<packet_processor>::get_instance())
 #else
     , m_packet_processor(NULL)
 #endif
@@ -92,7 +92,7 @@ int main_app::prepare_prerequisites(void)
 
     try
     {
-        g_screen_logger = new cal::screen_logger;
+        g_screen_logger = new calns::screen_logger;
     }
     catch(std::bad_alloc &ex)
     {
@@ -105,8 +105,8 @@ int main_app::prepare_prerequisites(void)
 
 int main_app::parse_commandLine(int argc, char **argv)
 {
-    cal::command_line *cmdline = m_cmdline;
-    cal::command_line::user_option builtin_options[] = {
+    calns::command_line *cmdline = m_cmdline;
+    calns::command_line::user_option builtin_options[] = {
         {
             /* .full_name = */"h,help",
             /* .description = */HELP_DESC,
@@ -154,7 +154,7 @@ int main_app::parse_commandLine(int argc, char **argv)
             /* .default_values = */NULL
         }
     };
-    int builtin_option_count = sizeof(builtin_options) / sizeof(cal::command_line::user_option);
+    int builtin_option_count = sizeof(builtin_options) / sizeof(calns::command_line::user_option);
     int learn_ret = cmdline->learn_options(builtin_options, builtin_option_count);
 
     if (learn_ret < 0)
@@ -198,7 +198,7 @@ int main_app::parse_commandLine(int argc, char **argv)
         return RET_FAILED;
     }
 
-    const cal::command_line::option_value_t *opt_entry = NULL;
+    const calns::command_line::option_value_t *opt_entry = NULL;
 
     opt_entry = cmdline->get_option_value("help");
     if (opt_entry->is_specified)
@@ -213,7 +213,7 @@ int main_app::parse_commandLine(int argc, char **argv)
     {
         printf("%s version: %s\n", cmdline->program_name(), MODULE_VERSION);
         printf("%s version: %s\n", CASDK_FRAMEWORK_NAME, CASDK_FRAMEWORK_VERSION);
-        printf(CPP_ASSISTANT_NAME" library version: %s\n", cal::get_library_version());
+        printf(CPP_ASSISTANT_NAME" library version: %s\n", calns::get_library_version());
 #ifdef HAS_PROTOBUF
         printf("Protocol buffer version: v%d.%d.%d\n", GOOGLE_PROTOBUF_VERSION / 1000000,
             (GOOGLE_PROTOBUF_VERSION % 1000000) / 1000, GOOGLE_PROTOBUF_VERSION % 1000);
@@ -272,7 +272,7 @@ int main_app::parse_commandLine(int argc, char **argv)
         //
         //google::protobuf::ShutdownProtobufLibrary();
 
-        cal::daemon::daemonize();
+        calns::daemon::daemonize();
     }
 
     return RET_OK;
@@ -347,18 +347,18 @@ const signal_registration_info g_sig_configs[] = {
     { SIGALRM, "SIGALRM", CUSTOMIZED_SIG_HANDLER(sigalarm), false, false },
     { SIGTRAP, "SIGTRAP", CUSTOMIZED_SIG_HANDLER(sigtrap), false, false },
     { SIGSEGV, "SIGSEGV", CUSTOMIZED_SIG_HANDLER(sigsegv), true, true },
-    { cal::INVALID_SIGNAL_NUM, /* The leftover members are not cared."INVALID_SIGNUM", NULL, false, false*/ }
+    { calns::INVALID_SIGNAL_NUM, /* The leftover members are not cared."INVALID_SIGNUM", NULL, false, false*/ }
 };
 
 int main_app::register_signals(void)
 {
     int ret = CA_RET_GENERAL_FAILURE;
 
-    for (int i = 0; cal::INVALID_SIGNAL_NUM != g_sig_configs[i].sig_num; ++i)
+    for (int i = 0; calns::INVALID_SIGNAL_NUM != g_sig_configs[i].sig_num; ++i)
     {
         const signal_registration_info &sig_config = g_sig_configs[i];
 
-        ret = cal::sigcap::register_one(sig_config.sig_num,
+        ret = calns::sigcap::register_one(sig_config.sig_num,
             sig_config.sig_func, sig_config.exit_after_handling,
             sig_config.handles_now);
 
@@ -497,11 +497,11 @@ int main_app::run_business(void)
 #if defined(HAS_TCP)
 
 #if defined(HAS_UPSTREAM_SERVERS)
-    cal::tcp_client *client_requester = m_resource_manager->resource()->client_requester;
+    calns::tcp_client *client_requester = m_resource_manager->resource()->client_requester;
 #endif
 
 #if defined(ACCEPTS_CLIENTS)
-    cal::tcp_server *server_listener = m_resource_manager->resource()->server_listener;
+    calns::tcp_server *server_listener = m_resource_manager->resource()->server_listener;
 #endif // defined(ACCEPTS_CLIENTS)
 
 #endif // defined(HAS_TCP)
@@ -521,7 +521,7 @@ int main_app::run_business(void)
 
         bool should_exit = false;
 
-        cal::sigcap::handle_all(should_exit);
+        calns::sigcap::handle_all(should_exit);
         if (should_exit)
         {
             GLOG_WARN_C("critical signals captured, process about to exit !!!\n");
@@ -570,7 +570,7 @@ void main_app::release_resources(void)
 bool main_app::expires(void)
 {
 #ifdef CHECKS_EXPIRATION
-    int64_t cur_time = cal::TimeHelper::GetUtcMicroseconds();
+    int64_t cur_time = calns::TimeHelper::GetUtcMicroseconds();
 
     return (cur_time >= m_config_manager->config_entries()->private_configs.expiration);
 #else
@@ -580,21 +580,21 @@ bool main_app::expires(void)
 
 #if defined(HAS_TCP)
 
-void main_app::poll_and_process(cal::tcp_base *tcp_manager, bool &should_exit)
+void main_app::poll_and_process(calns::tcp_base *tcp_manager, bool &should_exit)
 {
     int active_peer_count = tcp_manager->poll();
-    cal::tcp_base::conn_info_array *active_peer_array = &(tcp_manager->get_active_peers());
+    calns::tcp_base::conn_info_array *active_peer_array = &(tcp_manager->get_active_peers());
     const int kMaxHandleCountPerCycle = CFG_GET_COUNTER(XNODE_MSG_PROCESS_COUNT_PER_ROUND);
     const int kSendBufSize = CFG_GET_BUF_SIZE(XNODE_TCP_SEND_BUF);
     const int kRecvBufSize = CFG_GET_BUF_SIZE(XNODE_TCP_RECV_BUF);
 
     for (int i = 0; i < active_peer_count; ++i)
     {
-        int in_fd = ((cal::net_connection*)(active_peer_array->elements[i].data.ptr))->fd;
+        int in_fd = ((calns::net_connection*)(active_peer_array->elements[i].data.ptr))->fd;
 
         if (tcp_manager->listening_fd() == in_fd)
         {
-            cal::tcp_server *tcp_server = dynamic_cast<cal::tcp_server *>(tcp_manager);
+            calns::tcp_server *tcp_server = dynamic_cast<calns::tcp_server *>(tcp_manager);
 
             if (NULL == tcp_server)
             {
@@ -607,13 +607,13 @@ void main_app::poll_and_process(cal::tcp_base *tcp_manager, bool &should_exit)
         }
         else
         {
-            cal::net_connection *conn = (cal::net_connection*)(active_peer_array->elements[i].data.ptr);
+            calns::net_connection *conn = (calns::net_connection*)(active_peer_array->elements[i].data.ptr);
             int recv_ret = tcp_manager->recv_to_connection(conn);
 
             if (recv_ret < 0)
             {
                 GLOG_ERROR_C("failed to received packets and put them into connection[%d],"
-                    " ret = %d, err = %s\n", conn->fd, recv_ret, cal::what(recv_ret).c_str());
+                    " ret = %d, err = %s\n", conn->fd, recv_ret, calns::what(recv_ret).c_str());
 
                 if (CA_RET(CONNECTION_BROKEN) == recv_ret)
                 {
@@ -637,19 +637,19 @@ void main_app::poll_and_process(cal::tcp_base *tcp_manager, bool &should_exit)
     send_result_packets(tcp_manager);
 }
 
-int main_app::accept_new_connection(cal::tcp_server *tcp_server, int send_buf_size, int recv_buf_size)
+int main_app::accept_new_connection(calns::tcp_server *tcp_server, int send_buf_size, int recv_buf_size)
 {
     int accfd = tcp_server->accept_new_connection(send_buf_size, recv_buf_size);
 
     if (accfd < 0)
     {
-        GLOG_ERROR_C("failed to accept new connection, ret = %d, err = %s\n", accfd, cal::what(accfd).c_str());
+        GLOG_ERROR_C("failed to accept new connection, ret = %d, err = %s\n", accfd, calns::what(accfd).c_str());
 
         return RET_FAILED;
     }
 
-    cal::tcp_base::conn_map *all_peers = tcp_server->peers();
-    cal::net_connection *new_conn = (*all_peers)[accfd];
+    calns::tcp_base::conn_map *all_peers = tcp_server->peers();
+    calns::net_connection *new_conn = (*all_peers)[accfd];
 
     snprintf(new_conn->self_name, sizeof(new_conn->self_name), "%s", tcp_server->self_name());
 
@@ -663,7 +663,7 @@ int main_app::accept_new_connection(cal::tcp_server *tcp_server, int send_buf_si
     return RET_OK;
 }
 
-void main_app::shut_bad_connection(cal::tcp_base *tcp_manager, cal::net_connection *bad_conn)
+void main_app::shut_bad_connection(calns::tcp_base *tcp_manager, calns::net_connection *bad_conn)
 {
     GLOG_WARN_C("peer shut down, fd = %d, name = %s, ip = %s, port = %u\n",
         bad_conn->fd, bad_conn->peer_name, bad_conn->peer_ip, bad_conn->peer_port);
@@ -676,7 +676,7 @@ void main_app::shut_bad_connection(cal::tcp_base *tcp_manager, cal::net_connecti
     {
         GLOG_INFO("found connection cache info of this node, name is [%s],"
             " cleaned up cache info\n", GET_CHAR_DICT_KEY(owner));
-        conn_index->fd = cal::INVALID_SOCK_FD;
+        conn_index->fd = calns::INVALID_SOCK_FD;
         conn_index->conn_detail = NULL;
     }
 
@@ -684,9 +684,9 @@ void main_app::shut_bad_connection(cal::tcp_base *tcp_manager, cal::net_connecti
     GLOG_INFO("finished releasing connection resource at local end\n");
 }
 
-void main_app::handle_received_packets(cal::net_connection *input_conn, int max_packet_count)
+void main_app::handle_received_packets(calns::net_connection *input_conn, int max_packet_count)
 {
-    cal::buffer *in_buf = input_conn->recv_buf;
+    calns::buffer *in_buf = input_conn->recv_buf;
     int handle_count = 0;
 
     while (!(in_buf->empty()) && handle_count < max_packet_count)
@@ -698,7 +698,7 @@ void main_app::handle_received_packets(cal::net_connection *input_conn, int max_
 
         int bytes_handled = 0;
         int bytes_output = 0;
-        cal::net_connection **mutable_output_conn = &(input_conn);
+        calns::net_connection **mutable_output_conn = &(input_conn);
         int ret = m_packet_processor->process(input_conn, bytes_handled, mutable_output_conn, bytes_output);
 
         if (CA_RET(RESOURCE_NOT_AVAILABLE) == ret
@@ -714,7 +714,7 @@ void main_app::handle_received_packets(cal::net_connection *input_conn, int max_
         if (bytes_handled > 0)
         {
             in_buf->move_read_pointer(bytes_handled);
-            input_conn->last_op_time = cal::time_util::get_utc_microseconds();
+            input_conn->last_op_time = calns::time_util::get_utc_microseconds();
         }
 
         GLOG_DEBUG("%d bytes input handled, %d bytes output generated\n", bytes_handled, bytes_output);
@@ -722,11 +722,11 @@ void main_app::handle_received_packets(cal::net_connection *input_conn, int max_
         if (bytes_output <= 0)
             continue;
 
-        cal::net_connection *actual_output_conn = (*mutable_output_conn);
-        cal::buffer *out_buf = actual_output_conn->send_buf;
+        calns::net_connection *actual_output_conn = (*mutable_output_conn);
+        calns::buffer *out_buf = actual_output_conn->send_buf;
 
         out_buf->move_write_pointer(bytes_output);
-        actual_output_conn->last_op_time = cal::time_util::get_utc_microseconds();
+        actual_output_conn->last_op_time = calns::time_util::get_utc_microseconds();
 
         GLOG_DEBUG("loading packets into output connection{ fd[%d] | name[%s] }.send_buf: %d bytes free,"
             " current read position = %d, write position = %d\n",
@@ -738,13 +738,13 @@ void main_app::handle_received_packets(cal::net_connection *input_conn, int max_
         GLOG_DEBUG("%d messages handled during this round\n", handle_count);
 }
 
-void main_app::send_result_packets(cal::tcp_base *tcp_manager)
+void main_app::send_result_packets(calns::tcp_base *tcp_manager)
 {
-    cal::tcp_base::conn_map *all_peers = tcp_manager->peers();
+    calns::tcp_base::conn_map *all_peers = tcp_manager->peers();
 
-    for (cal::tcp_base::conn_map::iterator iter = all_peers->begin(); iter != all_peers->end(); ++iter)
+    for (calns::tcp_base::conn_map::iterator iter = all_peers->begin(); iter != all_peers->end(); ++iter)
     {
-        cal::net_connection *conn = iter->second;
+        calns::net_connection *conn = iter->second;
 
         if (NULL == conn)
             continue;
@@ -757,7 +757,7 @@ void main_app::send_result_packets(cal::tcp_base *tcp_manager)
         if ((ret = tcp_manager->send_from_connection(conn)) < 0)
         {
             GLOG_ERROR_C("failed to send contents of connection[%d], ret = %d, err = %s\n",
-                iter->first, ret, cal::what(ret).c_str());
+                iter->first, ret, calns::what(ret).c_str());
         }
         else
             GLOG_DEBUG("%d bytes sent\n", ret);

@@ -211,7 +211,7 @@ SEARCH_CYCLE:
             break;
         }
 
-        cal::net_connection *conn_detail = conn_index->conn_detail;
+        calns::net_connection *conn_detail = conn_index->conn_detail;
 
         if (NULL == conn_detail)
         {
@@ -295,7 +295,7 @@ int connection_cache::send_to_connections_by_type(const char *type,
 
         const char *target_server = target_conn->conn_detail->peer_name;
         int target_fd = target_conn->conn_detail->fd;
-        int ret = cal::tcp_base::send_fragment(target_fd, msg, msg_len);
+        int ret = calns::tcp_base::send_fragment(target_fd, msg, msg_len);
 
         if (ret < 0)
         {
@@ -328,7 +328,7 @@ int connection_cache::send_to_connections_by_type(const char *type,
         if (NULL == conn_index)
             continue;
 
-        cal::net_connection *conn_detail = conn_index->conn_detail;
+        calns::net_connection *conn_detail = conn_index->conn_detail;
 
         if (NULL == conn_detail)
         {
@@ -337,7 +337,7 @@ int connection_cache::send_to_connections_by_type(const char *type,
         }
 
         int fd = conn_detail->fd;
-        int ret = cal::tcp_base::send_fragment(fd, msg, msg_len);
+        int ret = calns::tcp_base::send_fragment(fd, msg, msg_len);
 
         if (ret < 0)
         {
@@ -382,7 +382,7 @@ int connection_cache::send_to_single_connection(const char *name, const void *ms
         return RET_FAILED;
     }
 
-    cal::net_connection *conn_detail = conn_index->conn_detail;
+    calns::net_connection *conn_detail = conn_index->conn_detail;
     if (NULL == conn_detail)
     {
         GLOG_ERROR_C("server[%s] is in an invalid status\n", name);
@@ -390,7 +390,7 @@ int connection_cache::send_to_single_connection(const char *name, const void *ms
     }
 
     int fd = conn_detail->fd;
-    int ret = cal::tcp_base::send_fragment(fd, msg, msg_len);
+    int ret = calns::tcp_base::send_fragment(fd, msg, msg_len);
     if (ret < 0)
     {
         GLOG_ERROR_C("failed to send message to node[%s], ret = %d\n", name, ret);
@@ -460,12 +460,12 @@ int connection_cache::string_to_attribute(const std::string &str, net_conn_attr 
     }
 
     std::vector<std::string> fragments;
-    int split_ret = cal::str::split(str.c_str(), str.length(), ":", fragments);
+    int split_ret = calns::str::split(str.c_str(), str.length(), ":", fragments);
 
     if ((split_ret < 0) ||
         (fragments.size() < 4))
     {
-        GLOG_ERROR_CS(ConnectionCache, "cal::StringHelper::Split() failed, or source string is not"
+        GLOG_ERROR_CS(ConnectionCache, "calns::StringHelper::Split() failed, or source string is not"
             " correctly formatted, split ret = %d, source string = %s\n",
             split_ret, str.c_str());
         return RET_FAILED;

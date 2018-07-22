@@ -46,7 +46,7 @@ typedef struct signal_registration_info
 {
     int sig_num;
     const char *sig_name;
-    cal::singal_handler sig_func;
+    calns::singal_handler sig_func;
     bool exit_after_handling;
     bool handles_now;
 }signal_registration_info;
@@ -67,7 +67,7 @@ extern const signal_registration_info g_sig_configs[];
 \
     bool should_exit = false; \
 \
-    for (int i = 0; cal::INVALID_SIGNAL_NUM != g_sig_configs[i].sig_num; ++i) \
+    for (int i = 0; calns::INVALID_SIGNAL_NUM != g_sig_configs[i].sig_num; ++i) \
     {\
         if (name == g_sig_configs[i].sig_num) \
         {\
@@ -104,28 +104,28 @@ extern const signal_registration_info g_sig_configs[];
 #define EXTERN_DECLARE_CUSTOMIZED_SIG_HANDLER(name)         extern DECLARE_CUSTOMIZED_SIG_HANDLER(name)
 
 #define EXTERN_DECLARE_ALL_CUSTOMIZED_SIG_HANDLER_VARS()    \
-    extern cal::singal_handler CUSTOMIZED_SIG_HANDLER(sigusr2); \
-    extern cal::singal_handler CUSTOMIZED_SIG_HANDLER(sighup); \
-    extern cal::singal_handler CUSTOMIZED_SIG_HANDLER(sigterm); \
-    extern cal::singal_handler CUSTOMIZED_SIG_HANDLER(sigint); \
-    extern cal::singal_handler CUSTOMIZED_SIG_HANDLER(sigpipe); \
-    extern cal::singal_handler CUSTOMIZED_SIG_HANDLER(sigusr1); \
-    extern cal::singal_handler CUSTOMIZED_SIG_HANDLER(sigchild); \
-    extern cal::singal_handler CUSTOMIZED_SIG_HANDLER(sigalarm); \
-    extern cal::singal_handler CUSTOMIZED_SIG_HANDLER(sigtrap); \
-    extern cal::singal_handler CUSTOMIZED_SIG_HANDLER(sigsegv)
+    extern calns::singal_handler CUSTOMIZED_SIG_HANDLER(sigusr2); \
+    extern calns::singal_handler CUSTOMIZED_SIG_HANDLER(sighup); \
+    extern calns::singal_handler CUSTOMIZED_SIG_HANDLER(sigterm); \
+    extern calns::singal_handler CUSTOMIZED_SIG_HANDLER(sigint); \
+    extern calns::singal_handler CUSTOMIZED_SIG_HANDLER(sigpipe); \
+    extern calns::singal_handler CUSTOMIZED_SIG_HANDLER(sigusr1); \
+    extern calns::singal_handler CUSTOMIZED_SIG_HANDLER(sigchild); \
+    extern calns::singal_handler CUSTOMIZED_SIG_HANDLER(sigalarm); \
+    extern calns::singal_handler CUSTOMIZED_SIG_HANDLER(sigtrap); \
+    extern calns::singal_handler CUSTOMIZED_SIG_HANDLER(sigsegv)
 
 #define SET_ALL_CUSTOMIZED_SIG_HANDLERS_TO_DEFAULT()        \
-    cal::singal_handler CUSTOMIZED_SIG_HANDLER(sigusr2) = cafw::DEFAULT_SIG_HANDLER(sigusr2); \
-    cal::singal_handler CUSTOMIZED_SIG_HANDLER(sighup) = cafw::DEFAULT_SIG_HANDLER(sighup); \
-    cal::singal_handler CUSTOMIZED_SIG_HANDLER(sigterm) = cafw::DEFAULT_SIG_HANDLER(sigterm); \
-    cal::singal_handler CUSTOMIZED_SIG_HANDLER(sigint) = cafw::DEFAULT_SIG_HANDLER(sigint); \
-    cal::singal_handler CUSTOMIZED_SIG_HANDLER(sigpipe) = cafw::DEFAULT_SIG_HANDLER(sigpipe); \
-    cal::singal_handler CUSTOMIZED_SIG_HANDLER(sigusr1) = cafw::DEFAULT_SIG_HANDLER(sigusr1); \
-    cal::singal_handler CUSTOMIZED_SIG_HANDLER(sigchild) = cafw::DEFAULT_SIG_HANDLER(sigchild); \
-    cal::singal_handler CUSTOMIZED_SIG_HANDLER(sigalarm) = cafw::DEFAULT_SIG_HANDLER(sigalarm); \
-    cal::singal_handler CUSTOMIZED_SIG_HANDLER(sigtrap) = cafw::DEFAULT_SIG_HANDLER(sigtrap); \
-    cal::singal_handler CUSTOMIZED_SIG_HANDLER(sigsegv) = cafw::DEFAULT_SIG_HANDLER(sigsegv)
+    calns::singal_handler CUSTOMIZED_SIG_HANDLER(sigusr2) = cafw::DEFAULT_SIG_HANDLER(sigusr2); \
+    calns::singal_handler CUSTOMIZED_SIG_HANDLER(sighup) = cafw::DEFAULT_SIG_HANDLER(sighup); \
+    calns::singal_handler CUSTOMIZED_SIG_HANDLER(sigterm) = cafw::DEFAULT_SIG_HANDLER(sigterm); \
+    calns::singal_handler CUSTOMIZED_SIG_HANDLER(sigint) = cafw::DEFAULT_SIG_HANDLER(sigint); \
+    calns::singal_handler CUSTOMIZED_SIG_HANDLER(sigpipe) = cafw::DEFAULT_SIG_HANDLER(sigpipe); \
+    calns::singal_handler CUSTOMIZED_SIG_HANDLER(sigusr1) = cafw::DEFAULT_SIG_HANDLER(sigusr1); \
+    calns::singal_handler CUSTOMIZED_SIG_HANDLER(sigchild) = cafw::DEFAULT_SIG_HANDLER(sigchild); \
+    calns::singal_handler CUSTOMIZED_SIG_HANDLER(sigalarm) = cafw::DEFAULT_SIG_HANDLER(sigalarm); \
+    calns::singal_handler CUSTOMIZED_SIG_HANDLER(sigtrap) = cafw::DEFAULT_SIG_HANDLER(sigtrap); \
+    calns::singal_handler CUSTOMIZED_SIG_HANDLER(sigsegv) = cafw::DEFAULT_SIG_HANDLER(sigsegv)
 
 DECLARE_DEFAULT_SIG_HANDLER(sigusr2);
 DECLARE_DEFAULT_SIG_HANDLER(sighup);

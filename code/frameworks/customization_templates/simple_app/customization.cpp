@@ -36,8 +36,8 @@
 #include "framework_public/timed_task_scheduler.h"
 #include "framework_public/customization.h"
 
-static const cal::command_line::user_option s_kPrivateOptions[]
-/*const cal::command_line::user_option g_kPrivateOptions[]*/ = {
+static const calns::command_line::user_option s_kPrivateOptions[]
+/*const calns::command_line::user_option g_kPrivateOptions[]*/ = {
     {
         /* .full_name = */"x,extended-option",
         /* .desc = */"扩展选项。",
@@ -50,12 +50,12 @@ static const cal::command_line::user_option s_kPrivateOptions[]
     { NULL }
 };
 
-const cal::command_line::user_option *g_kPrivateOptions = s_kPrivateOptions;
+const calns::command_line::user_option *g_kPrivateOptions = s_kPrivateOptions;
 const std::vector<std::string> *g_extended_params = NULL;
 
-int check_private_commandline_options(cal::command_line &cmdline, bool &should_exit)
+int check_private_commandline_options(calns::command_line &cmdline, bool &should_exit)
 {
-    const cal::command_line::option_value_t *op_val = NULL;
+    const calns::command_line::option_value_t *op_val = NULL;
 
     op_val = cmdline.get_option_value("extended-option");
     if (op_val->is_specified)

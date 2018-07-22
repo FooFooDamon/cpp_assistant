@@ -82,7 +82,7 @@ int parse_header(const void *inbuf, proto_header_t *result)/*  CA_NOTNULL(1,2) *
     result->length = ntohl(value_int32);
 
     memcpy(&value_int64, (char *)inbuf + HEADER_OFFSET_ROUTE_ID, sizeof(uint64_t));
-    result->route_id = cal::sys::ntohl64(value_int64);
+    result->route_id = calns::sys::ntohl64(value_int64);
 
     memcpy(&value_int32, (char *)inbuf + HEADER_OFFSET_COMMAND, sizeof(uint32_t));
     result->command = ntohl(value_int32);
@@ -116,7 +116,7 @@ int assemble_header(const proto_header_t *src, void *outbuf)/*  CA_NOTNULL(1,2) 
     value_int32 = htonl(src->length);
     memcpy((char *)outbuf + HEADER_OFFSET_LENGTH, &value_int32, sizeof(uint32_t));
 
-    value_int64 = cal::sys::htonl64(src->route_id);
+    value_int64 = calns::sys::htonl64(src->route_id);
     memcpy((char *)outbuf + HEADER_OFFSET_ROUTE_ID, &value_int64, sizeof(uint64_t));
 
     value_int32 = htonl(src->command);
@@ -364,7 +364,7 @@ int send_lite_packet(const int fd,
     fill_proto_header(header, body_len, cmd, errcode, route_id, packet_num, is_final_fragment);
     assemble_header(&header, data);
 
-    return cal::tcp_base::send_fragment(fd, data, header.length);
+    return calns::tcp_base::send_fragment(fd, data, header.length);
 }
 
 int send_lite_packet(const char *node_type,
@@ -397,7 +397,7 @@ int send_lite_packet(const char *node_type,
     assemble_header(&header, data);
 
     int data_len = header.length;
-    const resource_t *res = cal::singleton<resource_manager>::get_instance()->resource();
+    const resource_t *res = calns::singleton<resource_manager>::get_instance()->resource();
     connection_cache *conn_caches[] = {
         res->master_connection_cache,
         res->slave_connection_cache
@@ -456,8 +456,8 @@ int send_identity_report_request(const int fd)
 
     const int64_t kRouteId = 0;
     char sid[SID_LEN + 1] = {0};
-    const net_node_config &self_node = cal::singleton<config_manager>::get_instance()->config_content()->private_configs.self;
-    char self_name[cal::MAX_CONNECTION_NAME_LEN + 1] = {0};
+    const net_node_config &self_node = calns::singleton<config_manager>::get_instance()->config_content()->private_configs.self;
+    char self_name[calns::MAX_CONNECTION_NAME_LEN + 1] = {0};
     int32_t cmd = CMD_IDENTITY_REPORT_REQ;
 
     make_session_id(&kRouteId, sizeof(sid), sid);

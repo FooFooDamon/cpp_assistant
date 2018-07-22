@@ -51,7 +51,7 @@ DECLARE_DEFAULT_SIG_HANDLER(sighup)
 {
 #ifdef HAS_CONFIG_FILES
     GLOG_INFO("sighup received, reloading partial configurations ...\n");
-    return cal::singleton<config_manager>::get_instance()->reload_partial();
+    return calns::singleton<config_manager>::get_instance()->reload_partial();
 #else
     GLOG_INFO("sighup received, do nothing\n");
     return RET_OK;
@@ -64,7 +64,7 @@ DECLARE_DEFAULT_SIG_HANDLER(sigusr1)
     GLOG_INFO("debug info begins ==========================================>\n");
 
 #ifdef HAS_TCP
-    const resource_t *resource = cal::singleton<resource_manager>::get_instance()->resource();
+    const resource_t *resource = calns::singleton<resource_manager>::get_instance()->resource();
 
     struct conn_cache_info
     {
@@ -93,7 +93,7 @@ DECLARE_DEFAULT_SIG_HANDLER(sigusr1)
     std::string line;
     struct mgrinfo
     {
-        cal::tcp_base *tcp_manager;
+        calns::tcp_base *tcp_manager;
         const char *manager_name;
     } manager_info[] = {
         { resource->server_listener, "server listener" },
@@ -129,7 +129,7 @@ DECLARE_DEFAULT_SIG_HANDLER(sigsegv)
     GLOG_WARN("Program will exit abnormally and generate a core file containing crash info!!!\n");
     GLOG_FLUSH();
     // TODO: notify worker threads
-    cal::sigcap::unregister(SIGSEGV);
+    calns::sigcap::unregister(SIGSEGV);
     //signal(SIGSEGV, SIG_DFL); // the simpler but unsafe method of canceling registration
     raise(SIGSEGV);
     return RET_OK;

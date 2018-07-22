@@ -47,7 +47,7 @@ class resource_manager;
 class timed_task_scheduler;
 class packet_processor;
 
-class main_app : public cal::singleton<main_app>
+class main_app : public calns::singleton<main_app>
 {
 /* ===================================
  * constructors:
@@ -72,7 +72,7 @@ public:
  * types:
  * =================================== */
 public:
-    friend class cal::singleton<main_app>;
+    friend class calns::singleton<main_app>;
 
 /* ===================================
  * abilities:
@@ -113,18 +113,18 @@ public:
  * =================================== */
 protected:
 #if defined(HAS_TCP)
-    void poll_and_process(cal::tcp_base *tcp_manager, bool &should_exit);
-    int accept_new_connection(cal::tcp_server *tcp_server, int send_buf_size, int recv_buf_size);
-    void shut_bad_connection(cal::tcp_base *tcp_manager, cal::net_connection *bad_conn);
-    void handle_received_packets(cal::net_connection *input_conn, int max_packet_count);
-    void send_result_packets(cal::tcp_base *tcp_manager);
+    void poll_and_process(calns::tcp_base *tcp_manager, bool &should_exit);
+    int accept_new_connection(calns::tcp_server *tcp_server, int send_buf_size, int recv_buf_size);
+    void shut_bad_connection(calns::tcp_base *tcp_manager, calns::net_connection *bad_conn);
+    void handle_received_packets(calns::net_connection *input_conn, int max_packet_count);
+    void send_result_packets(calns::tcp_base *tcp_manager);
 #endif
 
 /* ===================================
  * data:
  * =================================== */
 private:
-    cal::command_line *m_cmdline;
+    calns::command_line *m_cmdline;
     config_manager *m_config_manager;
     resource_manager *m_resource_manager;
     timed_task_scheduler *m_timed_task_scheduler;

@@ -218,7 +218,7 @@ typedef struct mutable_common_config
 template<typename T>
 int convert(const std::string &original, T &result)
 {
-    return cal::str::from_string(original, result);
+    return calns::str::from_string(original, result);
 }
 
 template<>
@@ -242,13 +242,13 @@ int load_unique_config_node_value(
     const bool from_common,
     Value &result)
 {
-    std::vector<cal::xml::node_t> nodes;
-    int read_ret = cal::xml::find_and_parse_nodes(*config_file, xpath, 1, nodes);
+    std::vector<calns::xml::node_t> nodes;
+    int read_ret = calns::xml::find_and_parse_nodes(*config_file, xpath, 1, nodes);
 
     if (read_ret <= 0)
     {
         if (!from_common)
-            GQ_LOG_WARN_NS("cafw", "Failed to read nodes with XPath[%s]: %s\n", xpath, cal::what(read_ret).c_str());
+            GQ_LOG_WARN_NS("cafw", "Failed to read nodes with XPath[%s]: %s\n", xpath, calns::what(read_ret).c_str());
         return RET_FAILED;
     }
 

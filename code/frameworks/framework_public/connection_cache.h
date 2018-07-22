@@ -62,10 +62,10 @@ typedef struct net_conn_index
 {
     char server_type[64];
     bool is_server;
-    char conn_alias[cal::MAX_CONNECTION_NAME_LEN + 1];
-    char peer_ip[cal::IPV4_LEN];
+    char conn_alias[calns::MAX_CONNECTION_NAME_LEN + 1];
+    char peer_ip[calns::IPV4_LEN];
     uint16_t peer_port;
-    cal::net_connection *conn_detail;
+    calns::net_connection *conn_detail;
     int fd;
     net_conn_attr attribute;
 }net_conn_index;

@@ -163,7 +163,7 @@ void timed_task_scheduler::check_and_execute(void)
 
     timed_task_map::iterator begin = m_tasks->begin();
     timed_task_map::iterator end = m_tasks->end();
-    int64_t cur_time = cal::time_util::get_utc_microseconds();
+    int64_t cur_time = calns::time_util::get_utc_microseconds();
 
     for (timed_task_map::iterator it = begin; end != it; ++it)
     {
@@ -180,7 +180,7 @@ void timed_task_scheduler::check_and_execute(void)
 
         if (cur_time >= trigger_time)
         {
-            int64_t start_time = cal::time_util::get_utc_microseconds();
+            int64_t start_time = calns::time_util::get_utc_microseconds();
 
             if (timed_task_config::TRIGGERED_PERIODICALLY == task_info.trigger_type)
             {
@@ -197,9 +197,9 @@ void timed_task_scheduler::check_and_execute(void)
             }
 
             GLOG_INFO_C("one round of [%s] done, time spent: %ld us\n",
-                it->first.c_str(), cal::time_util::get_utc_microseconds() - start_time);
+                it->first.c_str(), calns::time_util::get_utc_microseconds() - start_time);
         }
-        cur_time = cal::time_util::get_utc_microseconds();
+        cur_time = calns::time_util::get_utc_microseconds();
     }
 }
 
@@ -268,9 +268,9 @@ bool timed_task_scheduler::__task_info_is_ok(const timed_task_config &info)
 
 void default_message_clean_timed_task(void)
 {
-    /*MessageCache *msg_cache = cal::SingletonT<PacketProcessor>::instance()->message_cache();
+    /*MessageCache *msg_cache = calns::SingletonT<PacketProcessor>::instance()->message_cache();
 
-    msg_cache->CleanExpiredMessages(cal::TimeHelper::GetUtcMicroseconds());*/
+    msg_cache->CleanExpiredMessages(calns::TimeHelper::GetUtcMicroseconds());*/
 }
 
 void default_session_clean_timed_task(void)
@@ -282,7 +282,7 @@ void default_session_clean_timed_task(void)
 // this function may do a lot of searches, execute it when it has to.
 static bool has_time_consuming_messages(const char *conn_name)
 {
-    /*MessageCache *msg_cache = cal::SingletonT<PacketProcessor>::instance()->message_cache();
+    /*MessageCache *msg_cache = calns::SingletonT<PacketProcessor>::instance()->message_cache();
 
     return (msg_cache->TimeConsumingMessageCount(conn_name) > 0);*/
     return false;
@@ -310,9 +310,9 @@ static void update_connection_status(char *name, void *conn)
         return;
     }
 
-    cal::tcp_client *client = cal::singleton<resource_manager>::get_instance()->resource()->client_requester;
-    cal::net_connection *conn_found = client->find_peer(peer_index->fd);
-    int64_t cur_time = cal::time_util::get_utc_microseconds();
+    calns::tcp_client *client = calns::singleton<resource_manager>::get_instance()->resource()->client_requester;
+    calns::net_connection *conn_found = client->find_peer(peer_index->fd);
+    int64_t cur_time = calns::time_util::get_utc_microseconds();
 
     bool has_no_detail = (NULL == peer_index->conn_detail);
     bool conn_not_in_client_requester = (NULL == conn_found);
@@ -360,7 +360,7 @@ SEND_HEARTBEAT:
 DISCONNECT:
 
         client->disconnect_server(conn_found);
-        peer_index->fd = cal::INVALID_SOCK_FD;
+        peer_index->fd = calns::INVALID_SOCK_FD;
         peer_index->conn_detail = NULL;
         GLOG_ERROR("no heart beat response for too long, detached from server %s\n",
             conn_found->peer_name);
@@ -375,15 +375,15 @@ DISCONNECT:
     if (ret < 0)
     {
         GLOG_ERROR("! ! ! ! ! connection to [%s][%s:%u] failed, ret = %d, msg = %s\n",
-            peer_index->conn_alias, peer_index->peer_ip, peer_index->peer_port, ret, cal::what(ret).c_str());
-        peer_index->fd = cal::INVALID_SOCK_FD;
+            peer_index->conn_alias, peer_index->peer_ip, peer_index->peer_port, ret, calns::what(ret).c_str());
+        peer_index->fd = calns::INVALID_SOCK_FD;
         peer_index->conn_detail = NULL;
         return;
     }
 
     int fd = ret;
 
-    cal::net_connection *detail = (*(client->peers()))[fd];
+    calns::net_connection *detail = (*(client->peers()))[fd];
 
     GLOG_INFO("~ ~ ~ ~ ~ connection to [%s][%s:%u] successful, fd = %d, local address = [%s:%u]\n",
         peer_index->conn_alias, peer_index->peer_ip, peer_index->peer_port, fd, detail->self_ip, detail->self_port);
@@ -402,8 +402,8 @@ DISCONNECT:
     if (NULL != name)
     {
         connection_cache *conn_cache = (peer_index->attribute.is_master)
-            ? cal::singleton<resource_manager>::get_instance()->resource()->master_connection_cache
-            : cal::singleton<resource_manager>::get_instance()->resource()->slave_connection_cache;
+            ? calns::singleton<resource_manager>::get_instance()->resource()->master_connection_cache
+            : calns::singleton<resource_manager>::get_instance()->resource()->slave_connection_cache;
         dict_entry_ptr owner_ptr = conn_cache->return_as_entry(name, strlen(name));
 
         if (NULL != owner_ptr)
@@ -412,7 +412,7 @@ DISCONNECT:
             GLOG_WARN_NS("", "can not find connection cache item with name[%s]|is_master[%d],"
                 " owner info not set\n", name, peer_index->attribute.is_master);
 
-        strncpy(detail->peer_name, name, cal::MAX_CONNECTION_NAME_LEN);
+        strncpy(detail->peer_name, name, calns::MAX_CONNECTION_NAME_LEN);
     }
 }
 #endif
@@ -420,8 +420,8 @@ DISCONNECT:
 void default_heartbeat_timed_task(void)
 {
 #if defined(HAS_TCP)
-    connection_cache *master_conn_cache = cal::singleton<resource_manager>::get_instance()->resource()->master_connection_cache;
-    connection_cache *slave_conn_cache = cal::singleton<resource_manager>::get_instance()->resource()->slave_connection_cache;
+    connection_cache *master_conn_cache = calns::singleton<resource_manager>::get_instance()->resource()->master_connection_cache;
+    connection_cache *slave_conn_cache = calns::singleton<resource_manager>::get_instance()->resource()->slave_connection_cache;
 
     master_conn_cache->do_batch_operation(update_connection_status);
     slave_conn_cache->do_batch_operation(update_connection_status);
@@ -436,7 +436,7 @@ void default_heartbeat_timed_task(void)
     }
 #ifdef MULTI_THREADING
     const int kThreadCount = CFG_GET_COUNTER(XNODE_WORKER_THREAD);
-    int64_t cur_time = cal::Time::GetUtcMicroseconds();
+    int64_t cur_time = calns::Time::GetUtcMicroseconds();
 
     for (int i = 0; i < kThreadCount; ++i)
     {
@@ -458,7 +458,7 @@ void default_log_flushing_timed_task(void)
     GLOG_FLUSH();
 #ifdef MULTI_THREADING
     const int kThreadCount = CFG_GET_COUNTER(XNODE_WORKER_THREAD);
-    int64_t cur_time = cal::time_util::GetUtcMicroseconds();
+    int64_t cur_time = calns::time_util::GetUtcMicroseconds();
 
     for (int i = 0; i < kThreadCount; ++i)
     {

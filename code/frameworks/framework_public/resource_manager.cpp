@@ -151,7 +151,7 @@ int resource_manager::__prepare_loggers(const void *condition)
     const char *log_dir = private_configs.log_directory.c_str();
     const char *log_name = private_configs.basic_log_name.c_str();
 
-    if (cal::daemon::is_daemonized() || enables_file_logger)
+    if (calns::daemon::is_daemonized() || enables_file_logger)
     {
         std::string &file_level_str = private_configs.file_log_level;
 
@@ -165,7 +165,7 @@ int resource_manager::__prepare_loggers(const void *condition)
     GLOG_DEBUG_C("enables_file_logger: %d, log_dir: %s, log_name: %s\n",
         enables_file_logger, log_dir, log_name);
 
-    return init_global_logger(term_level, enables_file_logger, file_level, log_dir, log_name);
+    return init_logger(term_level, enables_file_logger, file_level, log_dir, log_name);
 }
 
 int resource_manager::__prepare_network(const void *condition)
@@ -177,17 +177,17 @@ int resource_manager::__prepare_network(const void *condition)
     const net_node_config &self_info = config->private_configs.self;
     const char *self_node_name = self_info.node_name.c_str();
 
-    cal::tcp_client *client_requester = NULL;
-    cal::tcp_server *server_listener = NULL;
+    calns::tcp_client *client_requester = NULL;
+    calns::tcp_server *server_listener = NULL;
 
     struct TcpManagerInfo
     {
-        cal::tcp_base **pptr;
+        calns::tcp_base **pptr;
         bool is_server;
         const char *name;
     } tcp_mgr_item[] = {
-        { (cal::tcp_base **)&(m_resource->server_listener), true, "server listener" },
-        { (cal::tcp_base **)&(m_resource->client_requester), false, "client requester" }
+        { (calns::tcp_base **)&(m_resource->server_listener), true, "server listener" },
+        { (calns::tcp_base **)&(m_resource->client_requester), false, "client requester" }
     };
 
     struct ConnCacheInfo
@@ -208,9 +208,9 @@ int resource_manager::__prepare_network(const void *condition)
         if (NULL != *(mgr_item.pptr))
             continue;
 
-        cal::tcp_base *mgr = mgr_item.is_server
-            ? ((cal::tcp_base *)(new cal::tcp_server))
-            : ((cal::tcp_base *)(new cal::tcp_client));
+        calns::tcp_base *mgr = mgr_item.is_server
+            ? ((calns::tcp_base *)(new calns::tcp_server))
+            : ((calns::tcp_base *)(new calns::tcp_client));
 
         if (NULL == (*(mgr_item.pptr) = mgr))
         {
@@ -311,7 +311,7 @@ int resource_manager::__prepare_network(const void *condition)
         connection_cache *conn_cache = node_attributes.is_master ? *(conn_cache_items[0].pptr) : *(conn_cache_items[1].pptr);
 
         conn_index->is_server = true;
-        conn_index->fd = cal::INVALID_SOCK_FD;
+        conn_index->fd = calns::INVALID_SOCK_FD;
         conn_index->conn_detail = NULL;
         memset(conn_index->server_type, 0, sizeof(conn_index->server_type));
         strncpy(conn_index->server_type, type, sizeof(conn_index->server_type) - 1);
@@ -355,15 +355,15 @@ PREPARATION_FAILED:
 
 void resource_manager::__release_network(void)
 {
-    cal::tcp_base **tcp_managers[] = {
-        (cal::tcp_base **)&(m_resource->server_listener),
-        (cal::tcp_base **)&(m_resource->client_requester)
+    calns::tcp_base **tcp_managers[] = {
+        (calns::tcp_base **)&(m_resource->server_listener),
+        (calns::tcp_base **)&(m_resource->client_requester)
     };
 
     if (NULL != m_resource->server_listener)
         m_resource->server_listener->end();
 
-    for (size_t i = 0; i < sizeof(tcp_managers) / sizeof(cal::tcp_base**); ++i)
+    for (size_t i = 0; i < sizeof(tcp_managers) / sizeof(calns::tcp_base**); ++i)
     {
         if (NULL != *(tcp_managers[i]))
         {
@@ -508,8 +508,8 @@ int prepare_thread_resource(void)
         ctx.status = thread_context::STATUS_BASIC_PART_INITIALIZED;
         ctx.should_exit = false;
         memset(&(ctx.timed_task_refresh_times), 0, sizeof(ctx.timed_task_refresh_times));
-        ctx.input_packet_cache = new cal::buffer(kInputBufSize);
-        ctx.output_packet_cache = new cal::buffer(kOutputBufSize);
+        ctx.input_packet_cache = new calns::buffer(kInputBufSize);
+        ctx.output_packet_cache = new calns::buffer(kOutputBufSize);
 
 #ifdef HAS_DATABASE
         // TODO: ctx.resource.db_connection;

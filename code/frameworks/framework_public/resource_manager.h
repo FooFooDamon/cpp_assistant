@@ -50,8 +50,8 @@ class connection_cache;
 
 typedef struct resource_t
 {
-    cal::tcp_server *server_listener;
-    cal::tcp_client *client_requester;
+    calns::tcp_server *server_listener;
+    calns::tcp_client *client_requester;
     connection_cache *master_connection_cache;
     connection_cache *slave_connection_cache;
     void *db_connection;
@@ -172,14 +172,14 @@ typedef struct thread_context
     int type;
     std::string name;
     pthread_mutex_t lock;
-    cal::screen_logger screen_logger;
-    cal::file_logger file_logger;
+    calns::screen_logger screen_logger;
+    calns::file_logger file_logger;
     int status;
     bool should_exit;
     // int load_count; // for load balancing
     int64_t timed_task_refresh_times[WORKER_TASK_COUNT];
-    cal::buffer *input_packet_cache;
-    cal::buffer *output_packet_cache;
+    calns::buffer *input_packet_cache;
+    calns::buffer *output_packet_cache;
     resource_t resource;
 }thread_context;
 

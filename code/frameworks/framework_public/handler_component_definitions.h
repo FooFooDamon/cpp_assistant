@@ -53,9 +53,9 @@ typedef int (*group_fragment_func)(const msg_base *fragment, msg_base *whole);
 typedef bool (*validate_input_packet_func)(thread_context *ctx, msg_base *parsed_body, int &retcode);
 
 typedef int (*business_func)(
-    const cal::net_connection *in_conn,
+    const calns::net_connection *in_conn,
     const cafw::msg_base* in_body,
-    cal::net_connection **out_conn,
+    calns::net_connection **out_conn,
     cafw::msg_base* out_body,
     int &retcode);
 
@@ -160,8 +160,8 @@ void assemble_minimal_out_packet(const void *original_msg, int retcode, msg_base
 
 #define DECLARE_VALIDATE_FUNC(name)             bool VALIDATE_PACKET_FUNC(name)(cafw::msg_base *parsed_body, int &retcode)
 
-#define DECLARE_BUSINESS_FUNC(name)             int BUSINESS_FUNC(name)(const cal::net_connection *in_conn, const cafw::msg_base* in_body, \
-    cal::net_connection **out_conn, cafw::msg_base* out_body, int &retcode)
+#define DECLARE_BUSINESS_FUNC(name)             int BUSINESS_FUNC(name)(const calns::net_connection *in_conn, const cafw::msg_base* in_body, \
+    calns::net_connection **out_conn, cafw::msg_base* out_body, int &retcode)
 
 #define DECLARE_ALLOC_FUNC(name)                cafw::msg_base* ALLOC_PACKET_CONTAINER_FUNC(name)(void)
 

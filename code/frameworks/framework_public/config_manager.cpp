@@ -301,8 +301,8 @@ int config_manager::__load_log_config(void)
         return RET_FAILED;
     }
 
-    std::vector<cal::xml::node_t> file_log_node;
-    int read_ret = cal::xml::find_and_parse_nodes(*file, XPATH_LOG_CONFIG_ROOT"/file-logger", 1,
+    std::vector<calns::xml::node_t> file_log_node;
+    int read_ret = calns::xml::find_and_parse_nodes(*file, XPATH_LOG_CONFIG_ROOT"/file-logger", 1,
         file_log_node, false, "enabled", NULL);
 
     if (read_ret <= 0)
@@ -372,7 +372,7 @@ int config_manager::__load_database_config(void)
     const char *xpath_db_node = XPATH_DB_CONNECTION_ITEM;
     std::vector<TiXmlElement> db_nodes;
 
-    cal::XmlHelper::FindNodesByPath(xpath_db_node, *file, db_nodes);
+    calns::XmlHelper::FindNodesByPath(xpath_db_node, *file, db_nodes);
     if (1 != db_nodes.size())
     {
         GLOG_ERROR_C("0 or multiple %s items found\n", xpath_db_node);
@@ -416,7 +416,7 @@ int config_manager::__load_time_consuming_messages(void)
     const char *xpath_msg = XPATH_PRIVATE_CONFIG_ROOT"/message-settings/time-consuming-messages/item";
     std::vector<TiXmlElement> msg_nodes;
 
-    cal::XmlHelper::FindNodesByPath(xpath_msg, *file, msg_nodes);
+    calns::XmlHelper::FindNodesByPath(xpath_msg, *file, msg_nodes);
     if (0 == msg_nodes.size())
     {
         GLOG_INFO_C("no [%s] items\n", xpath_msg);
@@ -470,8 +470,8 @@ int config_manager::__load_network_nodes(const char *type)
     GQ_LOG_INFO_C("Reading nodes with XPath[%s] ...\n", xpath.c_str());
 
     bool is_self_info = (0 == strcmp(type, "identities"));
-    std::vector<cal::xml::node_t> net_nodes;
-    int read_ret = cal::xml::find_and_parse_nodes(*file, xpath.c_str(), 100, net_nodes, true,
+    std::vector<calns::xml::node_t> net_nodes;
+    int read_ret = calns::xml::find_and_parse_nodes(*file, xpath.c_str(), 100, net_nodes, true,
         "enabled", "type", "name", "alias", "address", "attributes", NULL);
 
     if (read_ret <= 0)
@@ -503,7 +503,7 @@ int config_manager::__load_network_nodes(const char *type)
 
     for (size_t i = 0; i < net_nodes.size(); ++i)
     {
-        cal::xml::node_t &node = net_nodes[i];
+        calns::xml::node_t &node = net_nodes[i];
 
         attr_it = node.attributes.find("enabled");
 
@@ -528,7 +528,7 @@ int config_manager::__load_network_nodes(const char *type)
 
         std::string &address = attr_it->second;
 
-        if (cal::str::split(address.c_str(), address.length(), ":", str_fragments) < 0
+        if (calns::str::split(address.c_str(), address.length(), ":", str_fragments) < 0
             || str_fragments.size() < 0)
         {
             GLOG_ERROR_C("invalid format or contents of address[%s], i = %lu\n", address.c_str(), i);
@@ -539,7 +539,7 @@ int config_manager::__load_network_nodes(const char *type)
         node_ptr->node_port = static_cast<uint16_t>(atoi(str_fragments[1].c_str()));
         if (is_self_info)
         {
-            if (!cal::tcp_server::can_be_listened(node_ptr->node_ip.c_str(), node_ptr->node_port))
+            if (!calns::tcp_server::can_be_listened(node_ptr->node_ip.c_str(), node_ptr->node_port))
             {
                 GLOG_WARN_C("address of this node is already used, continue to try next one\n");
                 continue;
@@ -614,7 +614,7 @@ int config_manager::__load_expiration(void)
     const char *xpath_expiration = XPATH_EXPIRATION;
     std::vector<TiXmlElement> expiration_nodes;
 
-    cal::XmlHelper::FindNodesByPath(xpath_expiration, *file, expiration_nodes);
+    calns::XmlHelper::FindNodesByPath(xpath_expiration, *file, expiration_nodes);
     if (1 != expiration_nodes.size())
     {
         GLOG_ERROR_C("0 or multiple %s items found\n", xpath_expiration);
@@ -635,7 +635,7 @@ int config_manager::__load_expiration(void)
 
     std::vector<std::string> date_fragments;
 
-    if (CA_RET_OK != cal::StringHelper::Split(decrypted_exp_str, decrypted_len, "|", date_fragments)
+    if (CA_RET_OK != calns::StringHelper::Split(decrypted_exp_str, decrypted_len, "|", date_fragments)
         || date_fragments.size() < 6)
     {
         GLOG_ERROR_C("unknown decrypted expiration info: %s\n", decrypted_exp_str);
@@ -644,7 +644,7 @@ int config_manager::__load_expiration(void)
 
     struct tm datetime_tm;
     time_t calendar_secs = 0;
-    const int64_t kSecsFrom1900To1970 = cal::TimeHelper::GetSecondsFrom1900To1970();
+    const int64_t kSecsFrom1900To1970 = calns::TimeHelper::GetSecondsFrom1900To1970();
 
     memset(&datetime_tm, 0, sizeof(struct tm));
     datetime_tm.tm_year = atoi(date_fragments[0].c_str()) - 1900;

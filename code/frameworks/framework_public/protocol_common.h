@@ -316,7 +316,7 @@ static Int get_proto_header_field(const void *raw_buf,
     else if (sizeof(int32_t) == value_size)
         return (Int)ntohl(value);
     else
-        return (Int)cal::sys::ntohl64(value);
+        return (Int)calns::sys::ntohl64(value);
 }
 
 template <typename Int>
@@ -337,7 +337,7 @@ static void set_proto_header_field(const int field_offset,
     else if (sizeof(int32_t) == value_size)
         *serialized_value_ptr = htonl(field_value);
     else
-        *serialized_value_ptr = cal::sys::htonl64(field_value);
+        *serialized_value_ptr = calns::sys::htonl64(field_value);
 }
 
 int32_t get_proto_length(const void *raw_buf) CA_NOTNULL(1);
@@ -552,8 +552,8 @@ extern int make_session_id(const void *condition, const int sid_holder_size, cha
 
 extern bool session_exists(const char *sid);
 extern int fetch_session_info(const char *sid, void* outbuf, int &outlen);
-extern int save_session_info(const struct cal::net_connection *src_conn, const void* buf, int buflen, bool commit_now = false);
-extern int save_session_info(const struct cal::net_connection *src_conn, const cafw::msg_base *body, const cafw::proto_header_t &header, bool commit_now = false);
+extern int save_session_info(const struct calns::net_connection *src_conn, const void* buf, int buflen, bool commit_now = false);
+extern int save_session_info(const struct calns::net_connection *src_conn, const cafw::msg_base *body, const cafw::proto_header_t &header, bool commit_now = false);
 extern int update_session_info(const void *buf, int buflen, bool commit_now = false);
 extern int update_session_info(const cafw::msg_base *body, const cafw::proto_header_t &header, bool commit_now = false);
 extern void clean_expired_sessions(void);

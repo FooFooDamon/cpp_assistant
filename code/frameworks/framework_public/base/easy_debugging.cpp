@@ -33,13 +33,13 @@
 #include "basic_types.h"
 
 bool g_is_quiet_mode = false;
-cal::screen_logger *g_screen_logger = NULL;
-cal::file_logger *g_file_logger = NULL;
+calns::screen_logger *g_screen_logger = NULL;
+calns::file_logger *g_file_logger = NULL;
 
 namespace cafw
 {
 
-int init_global_logger(
+int init_logger(
     const int terminal_level,
     const bool enables_file_logger,
     const int file_level,
@@ -55,7 +55,7 @@ int init_global_logger(
         }
 
         if (NULL == g_file_logger
-            && NULL == (g_file_logger = new cal::file_logger))
+            && NULL == (g_file_logger = new calns::file_logger))
         {
             GLOG_ERROR_NS("cafw", "failed to allocate memory for g_file_logger\n");
             return RET_FAILED;
@@ -63,23 +63,23 @@ int init_global_logger(
         // Note: g_screen_logger was created at the beginning.
     }
 
-    cal::logger *loggers[] = {
+    calns::logger *loggers[] = {
         g_screen_logger,
         g_file_logger
     };
 
-    for (size_t i = 0; i < sizeof(loggers) / sizeof(cal::logger*); ++i)
+    for (size_t i = 0; i < sizeof(loggers) / sizeof(calns::logger*); ++i)
     {
-        cal::logger *logger = loggers[i];
+        calns::logger *logger = loggers[i];
 
         if (NULL == logger)
             continue;
 
-        bool is_terminal_logger = (typeid(cal::screen_logger) == typeid(*logger));
+        bool is_terminal_logger = (typeid(calns::screen_logger) == typeid(*logger));
         int log_level = is_terminal_logger ? terminal_level : file_level;
         int ret = CA_RET_GENERAL_FAILURE;
 
-        logger->set_log_level((cal::enum_log_level)log_level);
+        logger->set_log_level((calns::enum_log_level)log_level);
 
         //GLOG_DEBUG_NS("cafw", "log_dir: %s\n", log_dir);
         if ((ret = logger->set_log_directory(log_dir)) < 0)
@@ -108,7 +108,7 @@ int init_global_logger(
      * but make sure you do this after other resource.
      */
 
-    if (0 != atexit(clear_global_logger))
+    if (0 != atexit(clear_logger))
     {
         fprintf(stderr, "atexit() failed\n");
         goto LOG_INIT_FAILED;
@@ -122,11 +122,11 @@ int init_global_logger(
 
 LOG_INIT_FAILED:
 
-    clear_global_logger();
+    clear_logger();
     return RET_FAILED;
 }
 
-void clear_global_logger(void)
+void clear_logger(void)
 {
     if (NULL != g_file_logger)
     {

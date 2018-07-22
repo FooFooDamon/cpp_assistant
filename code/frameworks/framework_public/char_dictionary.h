@@ -63,13 +63,13 @@ enum
 
 #if HASH_OPTION == HASH_OPTION_STL_UNORDERED_MAP
 #include <unordered_map>
-typedef std::unordered_map<char*, void*, std::hash<char*>, cal::char_eq_op > dict;
+typedef std::unordered_map<char*, void*, std::hash<char*>, calns::char_eq_op > dict;
 #elif HASH_OPTION == HASH_OPTION_STL_MAP
 #include <map>
-typedef std::map<char*, void*, cal::char_lt_op > dict;
+typedef std::map<char*, void*, calns::char_lt_op > dict;
 #elif HASH_OPTION == HASH_OPTION_STL_HASH_MAP
 #include <hash_map>
-typedef __gnu_cxx::hash_map<char*, void*, __gnu_cxx::hash<char*>, cal::char_eq_op > dict;
+typedef __gnu_cxx::hash_map<char*, void*, __gnu_cxx::hash<char*>, calns::char_eq_op > dict;
 #else
 //typedef dict dict;
 #endif

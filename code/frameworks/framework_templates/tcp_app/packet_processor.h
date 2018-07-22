@@ -76,9 +76,9 @@ public:
 public:
     int build_component_map(void);
 
-    int process(const struct cal::net_connection *input_conn,
+    int process(const struct calns::net_connection *input_conn,
         int &handled_len,
-        struct cal::net_connection **mutable_output_conn,
+        struct calns::net_connection **mutable_output_conn,
         int &output_len);
 
     static void print_supported_commands(void);
@@ -117,20 +117,20 @@ protected:
     int __inner_init(void);
     void __clear(void);
 
-    int single_operator_general_flow(const struct cal::net_connection *input_conn,
+    int single_operator_general_flow(const struct calns::net_connection *input_conn,
         const int input_len,
         handler_component &component,
-        struct cal::net_connection **mutable_output_conn,
+        struct calns::net_connection **mutable_output_conn,
         int &output_len);
 
-    int dispacher_general_flow(const struct cal::net_connection *input_conn,
+    int dispacher_general_flow(const struct calns::net_connection *input_conn,
         const int input_len,
-        struct cal::net_connection **mutable_output_conn,
+        struct calns::net_connection **mutable_output_conn,
         int &output_len);
 
-    int diagnose_connection(const struct cal::net_connection *input_conn,
+    int diagnose_connection(const struct calns::net_connection *input_conn,
         const int input_len,
-        struct cal::net_connection **mutable_output_conn,
+        struct calns::net_connection **mutable_output_conn,
         int &output_len);
 
 /* ===================================

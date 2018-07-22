@@ -128,7 +128,7 @@ CA_LIB_NAMESPACE_END
 #endif
 #endif
 
-extern int check_private_commandline_options(cal::command_line &cmdline, bool &should_exit);
+extern int check_private_commandline_options(calns::command_line &cmdline, bool &should_exit);
 
 extern int init_extra_config(struct extra_config_t **extra_items);
 extern int destroy_extra_config(struct extra_config_t **extra_items);

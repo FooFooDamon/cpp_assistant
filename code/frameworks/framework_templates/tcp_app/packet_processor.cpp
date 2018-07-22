@@ -158,15 +158,15 @@ int packet_processor::build_component_map(void)
         GLOG_INFO("----\n"); \
     }
 
-int packet_processor::process(const struct cal::net_connection *input_conn,
+int packet_processor::process(const struct calns::net_connection *input_conn,
     int &handled_len,
-    struct cal::net_connection **mutable_output_conn,
+    struct calns::net_connection **mutable_output_conn,
     int &output_len)
 {
     handled_len = 0;
     output_len = 0;
 
-    cal::buffer *in_buf = input_conn->recv_buf;
+    calns::buffer *in_buf = input_conn->recv_buf;
     void *in_data = in_buf->get_read_pointer();
     int in_fd = input_conn->fd;
     int in_len = in_buf->data_size();
@@ -187,7 +187,7 @@ int packet_processor::process(const struct cal::net_connection *input_conn,
     int32_t length = get_proto_length(in_data);
     int32_t command = get_proto_command(in_data);
     const int kMaxErrorSeconds = 5; // TODO: How about take it from the configuration file?
-    const int64_t kCurUtcSecs = cal::time_util::get_utc_seconds();
+    const int64_t kCurUtcSecs = calns::time_util::get_utc_seconds();
     const char *kConnName = input_conn->peer_name;
 
     if (in_len < length || in_len < (int)PROTO_HEADER_SIZE)
@@ -334,10 +334,10 @@ RETURN:
     return ret;
 }
 
-int packet_processor::single_operator_general_flow(const struct cal::net_connection *input_conn,
+int packet_processor::single_operator_general_flow(const struct calns::net_connection *input_conn,
     const int input_len,
     handler_component &component,
-    struct cal::net_connection **mutable_output_conn,
+    struct calns::net_connection **mutable_output_conn,
     int &output_len)
 {
     output_len = 0;
@@ -359,7 +359,7 @@ int packet_processor::single_operator_general_flow(const struct cal::net_connect
     const char *sid = "see_sid_in_other_places";
     const int sid_len = SID_LEN;
     int16_t packet_num = 1;
-    int64_t start_time = cal::time_util::get_utc_microseconds();
+    int64_t start_time = calns::time_util::get_utc_microseconds();
     int64_t last_step_time = start_time;
     int64_t cur_step_time = start_time;
     bool all_parsed_ok = false;
@@ -371,7 +371,7 @@ int packet_processor::single_operator_general_flow(const struct cal::net_connect
 #endif
     bool has_done_business = false;
 
-#define STAT_TIME_CONSUMPTION(op_literal) cur_step_time = cal::time_util::get_utc_microseconds(); \
+#define STAT_TIME_CONSUMPTION(op_literal) cur_step_time = calns::time_util::get_utc_microseconds(); \
     GLOG_INFO("[cmd:0x%08X] [" op_literal "] done, time spent: %ld us\n", command, cur_step_time - last_step_time); \
     last_step_time = cur_step_time
 
@@ -478,7 +478,7 @@ int packet_processor::single_operator_general_flow(const struct cal::net_connect
         }
         GLOG_INFO("fragment[%d] grouped into cached packet\n", packet_num);
 
-        msg_cache_item->last_op_time = cal::time_util::get_utc_microseconds();
+        msg_cache_item->last_op_time = calns::time_util::get_utc_microseconds();
         STAT_TIME_CONSUMPTION("fragment grouping");
 
         bool is_end = is_final_packet(in_data_ptr);
@@ -572,8 +572,8 @@ OUTPUT:
      */
     if (NULL != out_body && get_message_length(*out_body) > 0)
     {
-        cal::net_connection *output_conn = *(mutable_output_conn);
-        cal::buffer *out_buf = output_conn->send_buf;
+        calns::net_connection *output_conn = *(mutable_output_conn);
+        calns::buffer *out_buf = output_conn->send_buf;
         void* out_data_ptr = out_buf->get_write_pointer();
         int available_buf_len = out_buf->total_size() - out_buf->write_position();
         bool no_enough_space = ( available_buf_len < 2 * get_current_max_packet_length()
@@ -583,7 +583,7 @@ OUTPUT:
         {
             GLOG_WARN("send_buf of connection[%d|%s] has little space left, trying to adjust it ...\n",
                 output_conn->fd, output_conn->peer_name);
-            cal::tcp_base::send_from_connection(output_conn);
+            calns::tcp_base::send_from_connection(output_conn);
         }
 
         available_buf_len = out_buf->total_size() - out_buf->write_position(); // refresh again, so does statements below
@@ -617,23 +617,23 @@ OUTPUT:
 #endif
     if (PROTO_RET_SUCCESS == retcode)
         GLOG_INFO("~ ~ ~ ~ ~ ~ ~ ~ ~ ~ %s::%s() for [ 0x%08X | %s | %s ] successful, total time spent: %ld us\n",
-            typeid(*this).name(), __FUNC__, command, component.description, sid, cal::time_util::get_utc_microseconds() - start_time);
+            typeid(*this).name(), __FUNC__, command, component.description, sid, calns::time_util::get_utc_microseconds() - start_time);
     else
         GLOG_ERROR("! ! ! ! ! ! ! ! ! ! %s::%s() for [ 0x%08X | %s | %s ] failed,"
             " ret = %d, desc = %s, total time spent: %ld us\n",
             typeid(*this).name(), __FUNC__, command, component.description, sid,
-            retcode, get_return_code_description(retcode), cal::time_util::get_utc_microseconds() - start_time);
+            retcode, get_return_code_description(retcode), calns::time_util::get_utc_microseconds() - start_time);
 
     return RET_OK;
 }
 
-int packet_processor::dispacher_general_flow(const struct cal::net_connection *input_conn,
+int packet_processor::dispacher_general_flow(const struct calns::net_connection *input_conn,
     const int input_len,
-    struct cal::net_connection **mutable_output_conn,
+    struct calns::net_connection **mutable_output_conn,
     int &output_len)
 {
 #if 0 // TODO
-    cal::net_connection *connection = in.connection;
+    calns::net_connection *connection = in.connection;
     void *in_data = in.data_ptr;
     int in_len = get_proto_length(in_data);
     int32_t command = get_proto_command(in_data);
@@ -705,12 +705,12 @@ int packet_processor::dispacher_general_flow(const struct cal::net_connection *i
         return RET_FAILED;
     }
 
-    int64_t cur_time = cal::TimeHelper::GetUtcMicroseconds();
+    int64_t cur_time = calns::TimeHelper::GetUtcMicroseconds();
     const int kSendTryCount = 3;
-    static const char *s_operator_type = cal::singleton<ConfigManager>::instance()->config_entries()->private_configs.self.type_name.c_str();
+    static const char *s_operator_type = calns::singleton<ConfigManager>::instance()->config_entries()->private_configs.self.type_name.c_str();
     static int s_dispatch_policy = CFG_GET_DISPATCH_POLICY();
     int send_ret = -1;
-    const resource_t *res = cal::singleton<resource_manager>::instance()->resource_entries();
+    const resource_t *res = calns::singleton<resource_manager>::instance()->resource_entries();
     connection_cache *master_conn_cache = res->master_connection_cache;
     connection_cache *slave_conn_cache = res->slave_connection_cache;
 
@@ -750,9 +750,9 @@ int packet_processor::dispacher_general_flow(const struct cal::net_connection *i
                 return RET_FAILED;
             }
 
-            cal::net_connection *conn_detail = conn_index->conn_detail;
+            calns::net_connection *conn_detail = conn_index->conn_detail;
 
-            if ((send_ret = cal::tcp_base::SendFragment(conn_detail->fd, in_data, in_len)) < 0)
+            if ((send_ret = calns::tcp_base::SendFragment(conn_detail->fd, in_data, in_len)) < 0)
             {
                 LOG_WARN_CV("failed to forward packet to server{ fd[%d], name[%s], address[%s:%u] },"
                     " re-send it, or pick another server to try again\n",
@@ -827,7 +827,7 @@ int packet_processor::dispacher_general_flow(const struct cal::net_connection *i
         }
     }
 
-    send_ret = cal::tcp_base::SendFragment(target_fd, in_data, in_len);
+    send_ret = calns::tcp_base::SendFragment(target_fd, in_data, in_len);
     if (send_ret <= 0)
     {
         LOG_ERROR_CV("failed to forward packet to fd[%d], ret = %d\n", target_fd, send_ret);
@@ -848,20 +848,20 @@ static int general_heartbeat_handling(
     const msg_base *in_body,
     msg_base *out_body)
 {
-    cal::net_connection *connection = NULL;
+    calns::net_connection *connection = NULL;
     const char *peer_name = NULL;
     bool is_req = (0 == strcmp(heartbeat_type, "request"));
 
     if (is_req)
     {
-        cal::tcp_server *listener = cal::singleton<resource_manager>::get_instance()->resource()->server_listener;
+        calns::tcp_server *listener = calns::singleton<resource_manager>::get_instance()->resource()->server_listener;
 
         connection = listener->find_peer(fd);
         peer_name = "unknown_client";
     }
     else
     {
-        cal::tcp_client *requester = cal::singleton<resource_manager>::get_instance()->resource()->client_requester;
+        calns::tcp_client *requester = calns::singleton<resource_manager>::get_instance()->resource()->client_requester;
 
         connection = requester->find_peer(fd);
         peer_name = "unknown_server";
@@ -870,7 +870,7 @@ static int general_heartbeat_handling(
 
     if (NULL != connection)
     {
-        connection->last_op_time = cal::time_util::get_utc_microseconds();
+        connection->last_op_time = calns::time_util::get_utc_microseconds();
         peer_name = connection->peer_name;
     }
 
@@ -898,7 +898,7 @@ DECLARE_BUSINESS_FUNC(heartbeat_response_handling)
 
 DECLARE_BUSINESS_FUNC(identity_report_request_handling)
 {
-    cal::net_connection *connection = NULL;
+    calns::net_connection *connection = NULL;
     int fd = in_conn->fd;
 #ifndef USE_JSON_MSG
     IdentityReportReq *req = (IdentityReportReq *)in_body;
@@ -916,7 +916,7 @@ DECLARE_BUSINESS_FUNC(identity_report_request_handling)
     const Json::Value &client_name_json_value = (*req)[SERVER_NAME_KEY_STR];
     const char *client_name = client_name_json_value.empty() ? "" : client_name_json_value.asCString();
 #endif
-    cal::tcp_server *listener = cal::singleton<resource_manager>::get_instance()->resource()->server_listener;
+    calns::tcp_server *listener = calns::singleton<resource_manager>::get_instance()->resource()->server_listener;
 
     GLOG_INFO("identity report request contents: session_id[%s] | server_type[%d] | server_name[%s]\n", sid, server_type, client_name);
 
@@ -936,9 +936,9 @@ DECLARE_BUSINESS_FUNC(identity_report_request_handling)
 #endif
 
     int name_len = strlen(client_name);
-    connection_cache *conn_cache = cal::singleton<resource_manager>::get_instance()->resource()->master_connection_cache;
+    connection_cache *conn_cache = calns::singleton<resource_manager>::get_instance()->resource()->master_connection_cache;
     net_conn_index *conn_index = conn_cache->return_as_index(client_name, name_len);
-    const config_content_t *conf_contents = cal::singleton<config_manager>::get_instance()->config_content();
+    const config_content_t *conf_contents = calns::singleton<config_manager>::get_instance()->config_content();
     const std::map<std::string, int> &conf_server_types = conf_contents->fixed_common_configs.server_types;
 
     snprintf(connection->peer_name, sizeof(connection->peer_name), "%s", client_name);
@@ -969,7 +969,7 @@ DECLARE_BUSINESS_FUNC(identity_report_request_handling)
         memset(conn_index->conn_alias, 0, sizeof(conn_index->conn_alias));
         strncpy(conn_index->conn_alias, client_name, sizeof(conn_index->conn_alias) - 1);
         memset(conn_index->peer_ip, 0, sizeof(conn_index->peer_ip));
-        strncpy(conn_index->peer_ip, connection->peer_ip, cal::IPV4_LEN);
+        strncpy(conn_index->peer_ip, connection->peer_ip, calns::IPV4_LEN);
         conn_index->peer_port = connection->peer_port;
         conn_index->fd = fd;
         conn_index->conn_detail = connection;
@@ -1000,7 +1000,7 @@ DECLARE_BUSINESS_FUNC(identity_report_request_handling)
             " updating the its info in connection cache ...\n");
 
         memset(conn_index->peer_ip, 0, sizeof(conn_index->peer_ip));
-        strncpy(conn_index->peer_ip, connection->peer_ip, cal::IPV4_LEN);
+        strncpy(conn_index->peer_ip, connection->peer_ip, calns::IPV4_LEN);
         conn_index->peer_port = connection->peer_port;
         conn_index->fd = fd;
         conn_index->conn_detail = connection;
@@ -1028,7 +1028,7 @@ DECLARE_BUSINESS_FUNC(identity_report_request_handling)
 
 DECLARE_BUSINESS_FUNC(identity_report_response_handling)
 {
-    cal::net_connection *connection = NULL;
+    calns::net_connection *connection = NULL;
     int fd = in_conn->fd;
 #ifndef USE_JSON_MSG
     IdentityReportResp *resp = (IdentityReportResp *)in_body;
@@ -1038,7 +1038,7 @@ DECLARE_BUSINESS_FUNC(identity_report_response_handling)
     const Json::Value &sid_json_value = (*resp)[SID_KEY_STR];
     const char *sid = sid_json_value.empty() ? "" : sid_json_value.asCString();
 #endif
-    cal::tcp_client *requester = cal::singleton<resource_manager>::get_instance()->resource()->client_requester;
+    calns::tcp_client *requester = calns::singleton<resource_manager>::get_instance()->resource()->client_requester;
 
     GLOG_INFO("identity report response contents: error_code[%d] | session_id[%s]\n", retcode, sid);
 
@@ -1055,9 +1055,9 @@ DECLARE_BUSINESS_FUNC(identity_report_response_handling)
     return RET_OK;
 }
 
-int packet_processor::diagnose_connection(const struct cal::net_connection *input_conn,
+int packet_processor::diagnose_connection(const struct calns::net_connection *input_conn,
     const int input_len,
-    struct cal::net_connection **mutable_output_conn,
+    struct calns::net_connection **mutable_output_conn,
     int &output_len)
 {
     void *in_data_ptr = input_conn->recv_buf->get_read_pointer();

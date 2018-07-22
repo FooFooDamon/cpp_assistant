@@ -41,8 +41,8 @@
 
 #include "packet_processor.h"
 
-static const cal::command_line::user_option s_kPrivateOptions[]
-/*const cal::command_line::user_option g_kPrivateOptions[]*/ = {
+static const calns::command_line::user_option s_kPrivateOptions[]
+/*const calns::command_line::user_option g_kPrivateOptions[]*/ = {
     {
         /* .full_name = */"l,list",
         /* .desc = */"列出所支持的命令码或错误码含义。",
@@ -63,7 +63,7 @@ static const cal::command_line::user_option s_kPrivateOptions[]
     { NULL }
 };
 
-const cal::command_line::user_option *g_kPrivateOptions = s_kPrivateOptions;
+const calns::command_line::user_option *g_kPrivateOptions = s_kPrivateOptions;
 
 static void print_return_code_descriptions(void)
 {
@@ -76,9 +76,9 @@ const char *get_return_code_description(int retcode)
     return "UNKNOWN_ERROR";
 }
 
-int check_private_commandline_options(cal::command_line &cmdline, bool &should_exit)
+int check_private_commandline_options(calns::command_line &cmdline, bool &should_exit)
 {
-    const cal::command_line::option_value_t *op_val = NULL;
+    const calns::command_line::option_value_t *op_val = NULL;
 
     op_val = cmdline.get_option_value("list");
     if (op_val->is_specified)
@@ -333,9 +333,9 @@ int make_session_id(const void *condition, const int sid_holder_size, char *sid_
      * TODO: This is a default version, you can modify it and implement yours.
      */
 
-    uint64_t d1 = cal::time_util::get_utc_microseconds();
-    uint64_t d2 = cal::time_util::get_utc_microseconds();
-    uint64_t d3 = cal::time_util::get_utc_microseconds();
+    uint64_t d1 = calns::time_util::get_utc_microseconds();
+    uint64_t d2 = calns::time_util::get_utc_microseconds();
+    uint64_t d3 = calns::time_util::get_utc_microseconds();
     uint64_t d4 = *((uint64_t *)condition);
 
     memset(sid_result, 0, sid_holder_size);
@@ -357,13 +357,13 @@ int fetch_session_info(const char *sid, void* outbuf, int &outlen)
     return RET_OK;
 }
 
-int save_session_info(const struct cal::net_connection *src_conn, const void* buf, int buflen, bool commit_now/* = false*/)
+int save_session_info(const struct calns::net_connection *src_conn, const void* buf, int buflen, bool commit_now/* = false*/)
 {
     ; // TODO: Implement it!
     return RET_OK;
 }
 
-int save_session_info(const struct cal::net_connection *src_conn, const cafw::msg_base *body, const cafw::proto_header_t &header, bool commit_now/* = false*/)
+int save_session_info(const struct calns::net_connection *src_conn, const cafw::msg_base *body, const cafw::proto_header_t &header, bool commit_now/* = false*/)
 {
     ; // TODO: Implement it!
     return RET_OK;

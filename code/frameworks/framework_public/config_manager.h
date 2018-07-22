@@ -206,10 +206,10 @@ private:
 
 }
 
-#define CFG_GET_TIMEOUT_USEC(name)          cal::singleton<cafw::config_manager>::get_instance()->get_timeout_in_microseconds(name)
-#define CFG_GET_TIME_INTERVAL_USEC(name)    cal::singleton<cafw::config_manager>::get_instance()->get_time_interval_in_microseconds(name)
-#define CFG_GET_BUF_SIZE(name)              cal::singleton<cafw::config_manager>::get_instance()->get_buffer_size(name)
-#define CFG_GET_COUNTER(name)               cal::singleton<cafw::config_manager>::get_instance()->get_counter(name)
-#define CFG_GET_DISPATCH_POLICY()           cal::singleton<cafw::config_manager>::get_instance()->get_dispatch_policy()
+#define CFG_GET_TIMEOUT_USEC(name)          calns::singleton<cafw::config_manager>::get_instance()->get_timeout_in_microseconds(name)
+#define CFG_GET_TIME_INTERVAL_USEC(name)    calns::singleton<cafw::config_manager>::get_instance()->get_time_interval_in_microseconds(name)
+#define CFG_GET_BUF_SIZE(name)              calns::singleton<cafw::config_manager>::get_instance()->get_buffer_size(name)
+#define CFG_GET_COUNTER(name)               calns::singleton<cafw::config_manager>::get_instance()->get_counter(name)
+#define CFG_GET_DISPATCH_POLICY()           calns::singleton<cafw::config_manager>::get_instance()->get_dispatch_policy()
 
 #endif /* __CONFIG_MANAGER_H__ */
