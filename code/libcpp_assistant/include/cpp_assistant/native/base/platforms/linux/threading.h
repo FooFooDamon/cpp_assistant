@@ -38,7 +38,9 @@
 #define __CPP_ASSISTANT_PLATFORMS_LINUX_THREADING_H__
 
 #include <sys/types.h>
+#include <sys/syscall.h>
 #include <pthread.h>
+#include <unistd.h>
 #if CA_SINCE_CPP_11
 #include <mutex>
 #endif
@@ -47,10 +49,13 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
+/*
+ * Gets thread ID of current thread.
+ * It runs as fast as getpid(), and they both are much slower than pthread_self().
+ */
 inline pid_t gettid(void)
 {
-    return pthread_self();
-    //return ::gettid(); // TODO: may cause exceptions when being called within a signal handling function.
+    return syscall(SYS_gettid);
 }
 
 #if CA_SINCE_CPP_11

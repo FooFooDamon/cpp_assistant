@@ -97,7 +97,7 @@ void __warn(const char *format, ...) CA_NOTNULL(1) CA_PRINTF_CHECK(1, 2);
 void __error(const char *format, ...) CA_NOTNULL(1) CA_PRINTF_CHECK(1, 2);
 
 #define __output(func, class_str, ns_delim, fmt, ...)   \
-    func("%s, %s%s%s(): Line %d: " fmt, __FILE__, class_str, ns_delim, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+    func("%s:%d, %s%s%s(): " fmt, __FILE__, __LINE__, class_str, ns_delim, __FUNCTION__, ##__VA_ARGS__)
 
 #define debug_is_enabled                                __debug_is_enabled
 #define cdebug(fmt, ...)                                __output(__debug, typeid(*this).name(), "::", fmt, ##__VA_ARGS__)
