@@ -430,7 +430,7 @@ void default_heartbeat_timed_task(void)
 
 void default_log_flushing_timed_task(void)
 {
-    GLOG_FLUSH();
+    LOG_FLUSH();
 }
 
 } // namespace cafw

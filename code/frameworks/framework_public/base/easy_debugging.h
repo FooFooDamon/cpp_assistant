@@ -120,7 +120,7 @@ namespace calns = CA_LIB_NAMESPACE;
 #define GLOG_CRITICAL_NS(ns_str, fmt, ...)          GLOG_BASE_V(calns::LOG_LEVEL_CRITICAL, ns_str, "::", fmt, ##__VA_ARGS__)
 #define GQ_LOG_CRITICAL_NS(ns_str, fmt, ...)        GQ_LOG_BASE_V(calns::LOG_LEVEL_CRITICAL, ns_str, "::", fmt, ##__VA_ARGS__)
 
-#define GLOG_FLUSH()                                do{\
+#define LOG_FLUSH()                                 do{\
     if (NULL != g_file_logger) \
         g_file_logger->flush(); \
 }while(0)

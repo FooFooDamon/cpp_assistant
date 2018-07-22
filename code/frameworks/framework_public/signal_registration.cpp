@@ -118,7 +118,7 @@ DECLARE_DEFAULT_SIG_HANDLER(sigusr1)
     /*
      * flushes info above immediately
      */
-    GLOG_FLUSH();
+    LOG_FLUSH();
 
     return RET_OK;
 }
@@ -127,7 +127,7 @@ DECLARE_DEFAULT_SIG_HANDLER(sigsegv)
 {
     GLOG_WARN("sigsegv received, flushing log ...\n");
     GLOG_WARN("Program will exit abnormally and generate a core file containing crash info!!!\n");
-    GLOG_FLUSH();
+    LOG_FLUSH();
     // TODO: notify worker threads
     calns::sigcap::unregister(SIGSEGV);
     //signal(SIGSEGV, SIG_DFL); // the simpler but unsafe method of canceling registration
