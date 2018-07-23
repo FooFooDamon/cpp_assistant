@@ -51,10 +51,13 @@
  *
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  *
- * wxc, 2018/07/22, 0.04.01:
+ * wxc, 2018/07/23, 0.04.01:
  *      1. Removed TLOG_XX(), GLOG_XX() and CA_XX(), and added LOGF(x)
  *          to do the same things instead.
- *      2. Replaced pthread_self() with gettid() within some APIs.
+ *      2. Defined LOGS(x), and fixed the newline bug of the first call
+ *          of logger::get_stream().
+ *      3. Replaced pthread_self() with gettid() within some APIs.
+ *      4. Added mutable version of logger::output_holder().
  *
  * wxc, 2018/07/21, 0.04.00:
  *      1. Added CA_LIB_NAMESPACE customization on compilation.
