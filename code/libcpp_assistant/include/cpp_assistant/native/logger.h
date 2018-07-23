@@ -276,17 +276,23 @@ public:
         return m_output_holder;
     }
 
+    // Same as the above, except that this one is mutable.
+    inline FILE* output_holder(void)
+    {
+        return m_output_holder;
+    }
+
     inline logger& get_stream(enum_log_level log_level, bool starts_a_new_line = true)
     {
         m_instant_level = (enum_log_level)(log_level % LOG_LEVEL_COUNT);
-        if (starts_a_new_line
-            && current_log_lines() > 0
-            && is_open()
-            && level_enough(m_instant_level))
-        {
+
+        if (!is_open() || !level_enough(m_instant_level))
+            return *this;
+
+        if (starts_a_new_line && current_log_lines() > 0)
             fputs("\n", m_output_holder);
-            output(HAS_LOG_PREFIX, m_instant_level, "%s", "");
-        }
+
+        output(HAS_LOG_PREFIX, m_instant_level, "%s", "");
 
         return *this;
     }
