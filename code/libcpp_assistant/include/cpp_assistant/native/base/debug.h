@@ -53,6 +53,16 @@
  * but you probably need to redefine them in your own file when writing complex programs and needing high performance.
  */
 
+#ifdef GET_LOG_INSTANCE
+#undef GET_LOG_INSTANCE
+#endif
+#define GET_LOG_INSTANCE()                              CA_LIB_NAMESPACE::singleton<CA_LIB_NAMESPACE::screen_logger>::get_instance()
+
+#ifdef GET_LOG_HOLDER
+#undef GET_LOG_HOLDER
+#endif
+#define GET_LOG_HOLDER()                                GET_LOG_INSTANCE()->output_holder()
+
 /*
  * [F]ormatted logging macros. x could be:
  *     d, debug, D, DEBUGGING (DEBUG should not be used because it's generally used as a debug controlling macro somewhere).
@@ -66,7 +76,7 @@
 #ifdef RLOGF
 #undef RLOGF
 #endif
-#define RLOGF(x, fmt, ...)                              CA_LIB_NAMESPACE::singleton<CA_LIB_NAMESPACE::screen_logger>::get_instance()->x(fmt, ##__VA_ARGS__)
+#define RLOGF(x, fmt, ...)                              GET_LOG_INSTANCE()->x(fmt, ##__VA_ARGS__)
 
 #ifdef MULTI_THREADING
 
@@ -109,7 +119,7 @@
 #ifdef MULTI_THREADING // TODO: has not supported multi-threading so far, because locking is not easy.
 #define RLOGS(x)
 #else
-#define RLOGS(x)                                        CA_LIB_NAMESPACE::singleton<CA_LIB_NAMESPACE::screen_logger>::get_instance()->get_stream(x)
+#define RLOGS(x)                                        GET_LOG_INSTANCE()->get_stream(CA_LIB_NAMESPACE::LOG_LEVEL_##x)
 #endif
 
 #ifdef LOGS
