@@ -39,6 +39,8 @@
 
 #include <string.h>
 
+#include <typeinfo>
+
 #include "logger.h"
 
 CA_LIB_NAMESPACE_BEGIN
