@@ -1,0 +1,156 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+	<head>
+		<title> 01. common.xml配置指导 </title>
+		<meta name="Author" content="wxc">
+		<meta name="Keywords" content="configuration guide for common.xml">
+		<meta name="Description" content="common.xml配置指导">
+		<script>
+		function changeFoldStatus(oDiv){
+			var vDiv = document.getElementById(oDiv);
+			vDiv.style.display = (vDiv.style.display == 'none') ? 'block' : 'none';
+		}
+		</script>
+	</head>
+
+	<body bgcolor="#CACACA">
+		<div id="note">
+			1、前面有加减号的节点，表示其有下级内容，鼠标点击即可将该节点内容展开或折叠。<br><br>
+			2、置灰内容则表示相应的配置项程序不支持或仅用于开发内部工具。<br><br>
+		</div>
+
+		<div style="cursor:hand" onclick="changeFoldStatus('root_son')">[+/-] root</div>
+		<div id="root_son" style="display:block">
+			<div id="constant" style="cursor:hand" onclick="changeFoldStatus('constant_son')">
+				&emsp;|-- [+/-] constants：常量。<font color="red"><strong>一般情况下不允许增/删/改，</strong></font>
+				但代码逻辑发生改动或有新需求新功能之时由<br>
+				&emsp;|&emsp;&emsp;&emsp;&emsp;开发人员提出的除外。
+			</div>
+			<div id="constant_son" style="display:none">
+				<div style="cursor:hand" onclick="changeFoldStatus('log_son')">
+					&emsp;|&emsp;&emsp;&emsp;|<br>
+					&emsp;|&emsp;&emsp;&emsp;|-- [+/-] log-configs：日志配置
+				</div>
+				<div id="log_son" style="display:none">
+					<div id="log-levels" style="cursor:hand" onclick="changeFoldStatus('level_son')">
+						&emsp;|&emsp;&emsp;&emsp;|&emsp;&emsp;|<br>
+						&emsp;|&emsp;&emsp;&emsp;|&emsp;&emsp;`-- [+/-] levels：日志级别。定义哪些级别的日志可以输出。
+					</div>
+					<div id="level_son" style="display:none">
+						&emsp;|&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;|-- item：输出全部级别：name="all" value="0"<br>
+						&emsp;|&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;|-- item：输出调试级别以上的内容：name="debug" value="0"<br>
+						&emsp;|&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;|-- item：输出信息级别以上的内容：name="info" value="1"<br>
+						&emsp;|&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;|-- item：输出警告级别以上的内容：name="warning" value="2"<br>
+						&emsp;|&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;|-- item：输出错误级别以上的内容：name="error" value="3"<br>
+						&emsp;|&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;`-- item：仅输出致命错误级别的内容：name="critical" value="4"<br>
+					</div>
+				</div>
+
+				<div style="cursor:hand" onclick="changeFoldStatus('server_son')">
+					&emsp;|&emsp;&emsp;&emsp;|<br>
+					&emsp;|&emsp;&emsp;&emsp;|-- [+/-] server-types：服务器类型。仅定义某个模块对外展示的类型，不细分该模块内部的分发、处理模块等。
+				</div>
+				<div id="server_son" style="display:none">
+					&emsp;|&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;|-- item：与当前程序相同的类型，如果不关心服务器类型，或不显式指定，则使用这种类型：name="self" value="0"<br>
+					&emsp;|&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;`-- item：客户端，泛指与当前程序连接的前端：name="client" value="1"<br>
+					&emsp;|&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;`-- item：CASDK服务器，仅作测试用：name="casdk_server" value="2"<br>
+					&emsp;|&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;`-- item：CASDK客户端，仅作测试用：name="casdk_client" value="3"<br>
+				</div>
+
+				<div style="cursor:hand" onclick="changeFoldStatus('master_type_son')">
+					&emsp;|&emsp;&emsp;&emsp;|<br>
+					&emsp;|&emsp;&emsp;&emsp;|-- [+/-] master-types：节点的主从属性。
+				</div>
+				<div id="master_type_son" style="display:none">
+					&emsp;|&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;|-- item：与当前节点相同级别：name="peer" value="0"<br>
+					&emsp;|&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;`-- item：主节点：name="master" value="1"<br>
+					&emsp;|&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;`-- item：从节点：name="slave" value="2"<br>
+				</div>
+
+				<div style="cursor:hand" onclick="changeFoldStatus('dispatch_son')">
+					&emsp;|&emsp;&emsp;&emsp;|<br>
+					&emsp;|&emsp;&emsp;&emsp;`-- [+/-] dispatch-policies：分发策略。定义数据包以何种方式进行分发。
+				</div>
+				<div id="dispatch_son" style="display:none">
+					&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;|-- item：随机分发：name="random" value="0"<br>
+					&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;|-- item：按登录标识分发：name="by-id" value="1"<br>
+					&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;`-- <font color="grey">item：最小负载：name="to-least-load" value="2"</font><br>
+				</div>
+			</div>
+
+			<div id="variable" style="cursor:hand" onclick="changeFoldStatus('variable_son')">
+				&emsp;|<br>
+				&emsp;`-- [+/-] variables：变量。<font color="red"><strong>一般情况下不允许增/删，</strong></font>
+				但允许在开发人员确认情况下进行改动。推荐的<br>
+			    &emsp;&emsp;&emsp;&emsp;&emsp;做法是：<font color="blue">从不更改common.xml里的配置项值，若某个程序要使用特殊的值，则在该程序的配置文件<br>
+				&emsp;&emsp;&emsp;&emsp;&emsp;添加相应的配置项并赋予新的值即可。此类配置项的路径的前缀在common.xml里是/root/variables，<br>
+				&emsp;&emsp;&emsp;&emsp;&emsp;在具体程序的配置文件里则是/root/private，路径余下部分一样。</font>
+			</div>
+			<div id="variable_son" style="display:none">
+				&emsp;&emsp;&emsp;&emsp;|<br>
+				&emsp;&emsp;&emsp;&emsp;|-- timezone：时区。取值范围为-12到+12。目前取+8即可。
+
+				<div style="cursor:hand" onclick="changeFoldStatus('timed_task_son')">
+					&emsp;&emsp;&emsp;&emsp;|<br>
+					&emsp;&emsp;&emsp;&emsp;|-- [+/-] timed-task-settings：定时任务配置。unit属性值可为millisecond（毫秒）或second，一般用millisecond。
+				</div>
+				<div id="timed_task_son" style="display:none">
+					<div id="intervals" style="cursor:hand" onclick="changeFoldStatus('interval_son')">
+						&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;|<br>
+						&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;|-- [+/-] intervals：时间间隔，即循环执行的任务相邻两次运行的时间间隔。
+					</div>
+					<div id="interval_son" style="display:none">
+						&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;|-- message-clean：消息缓存清理。典型值：10000（即10秒）<br>
+						&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;|-- session-clean：会话数据清理。典型值：30000（即30秒）<br>
+						&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;|-- heartbeat：心跳。典型值：20000（即20秒）<br>
+						&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;`-- log-flushing：刷日志。典型值：1800000（即0.5小时）<br>
+					</div>
+
+					<div id="timeouts" style="cursor:hand" onclick="changeFoldStatus('timeout_son')">
+						&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;|<br>
+						&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;`-- [+/-] timeouts：超时时间，即维持某类事件有效性的最长时间。
+					</div>
+					<div id="timeout_son" style="display:none">
+						&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;|-- default-message-processing：默认消息处理超时。典型值：30000（即30秒）<br>
+						&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;|-- max-message-processing：最大消息处理超时。典型值：28800000（即8小时）<br>
+						&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;|-- session-keeping：会话数据保持超时。典型值：28800000（即8小时）<br>
+						&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;|-- default-waiting-for-peer-reply：默认等待对端消息响应超时。典型值：60000（即1分钟）<br>
+						&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;|-- longest-waiting-for-peer-reply：最大等待对端消息响应超时。典型值：28800000（即8小时）<br>
+						&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;|-- connect-trying：每次发起网络连接的等待时间。典型值：3000（即3秒）<br>
+						&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;`-- epoll-waiting：epoll轮询超时。典型值：10（毫秒）<br>
+					</div>
+				</div>
+
+				<div style="cursor:hand" onclick="changeFoldStatus('buf_setting_son')">
+					&emsp;&emsp;&emsp;&emsp;|<br>
+					&emsp;&emsp;&emsp;&emsp;|-- [+/-] buffer-settings：定时任务配置。unit属性值目前固定为KB。
+				</div>
+				<div id="buf_setting_son" style="display:none">
+					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;|<br>
+					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;`-- tcp-send：<font color="red"><strong>应用层</strong></font>TCP发送缓冲区的大小。典型值：128（KB）<br>
+					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;`-- tcp-receive：<font color="red"><strong>应用层</strong></font>TCP接收缓冲区的大小。典型值：128（KB）<br>
+				</div>
+
+				<div style="cursor:hand" onclick="changeFoldStatus('counter_son')">
+					&emsp;&emsp;&emsp;&emsp;|<br>
+					&emsp;&emsp;&emsp;&emsp;|-- [+/-] counters：计数器配置。
+				</div>
+				<div id="counter_son" style="display:none">
+					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;|-- message-processing-per-round：程序对每条链路的一次轮询中最多处理多少个包。典型值：10<br>
+					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;`-- forward-retries-on-failure：转发失败后的重试次数。典型值：4<br>
+					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;`-- worker-thread：工作线程个数。典型值：4，或不超过CPU核心数，不限定则填-1。若是单线程程序，可配成0。<br>
+				</div>
+
+				<div style="cursor:hand" onclick="changeFoldStatus('dispatch_setting_son')">
+					&emsp;&emsp;&emsp;&emsp;|<br>
+					&emsp;&emsp;&emsp;&emsp;`-- [+/-] dispatch-settings：分发配置。
+				</div>
+				<div id="dispatch_setting_son" style="display:none">
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;|<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;`-- policy：分发策略。取值范围：见/root/constants/dispatch-policies/item的name值。<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;默认值：by-id（按标识分发）
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

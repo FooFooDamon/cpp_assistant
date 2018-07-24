@@ -1,0 +1,43 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+	<head>
+		<title> 03. 通用分发模块配置指导 </title>
+		<meta name="Author" content="wxc">
+		<meta name="Keywords" content="configuration guide for general dispatcher">
+		<meta name="Description" content="通用分发模块配置指导">
+		<script>
+		function changeFoldStatus(oDiv){
+			var vDiv = document.getElementById(oDiv);
+			vDiv.style.display = (vDiv.style.display == 'none') ? 'block' : 'none';
+		}
+		</script>
+	</head>
+
+	<body bgcolor="#CACACA">
+		<div id="note">
+			1、前面有加减号的节点，表示其有下级内容，鼠标点击即可将该节点内容展开或折叠。<br><br>
+			2、本文档适用于通用分发模块配置文件xxx_dispatcher.xml（例如config_manager_dispatcher.xml）。<br>
+			&emsp;&emsp;<font color="red">需要根据实际情况配置的内容会以彩色标注，否则直接使用开发人员提供的值即可。</font><br><br>
+			3、部分与处理模块相同的配置项，其说明详见于
+			<a href="02_configuration_guide_for_operator_template(处理模块模板配置指导).html">02_configuration_guide_for_operator_template(处理模块模板配置指导).html</a>。<br>
+			&emsp;&emsp;以下仅对分发模块独有的配置项进行说明。<br><br>
+		</div>
+
+		<div style="cursor:hand" onclick="changeFoldStatus('root_son')">[+/-] root</div>
+		<div id="root_son" style="display:block">
+			<div id="private" style="cursor:hand" onclick="changeFoldStatus('private_son')">
+				&emsp;|<br>
+				&emsp;`-- [+/-] private：私有配置。
+			</div>
+			<div id="private_son" style="display:block">
+				<div style="cursor:hand" onclick="changeFoldStatus('none_son')">
+					&emsp;&emsp;&emsp;&emsp;|<br>
+					&emsp;&emsp;&emsp;&emsp;`-- [+/-] 暂无。
+				</div>
+				<div id="none_son" style="display:block">
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;`-- ……
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

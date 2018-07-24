@@ -1,0 +1,91 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+	<head>
+		<title> 02. 处理模块模板配置指导 </title>
+		<meta name="Author" content="wxc">
+		<meta name="Keywords" content="configuration guide for operator template">
+		<meta name="Description" content="处理模块模板配置指导">
+		<script>
+		function changeFoldStatus(oDiv){
+			var vDiv = document.getElementById(oDiv);
+			vDiv.style.display = (vDiv.style.display == 'none') ? 'block' : 'none';
+		}
+		</script>
+	</head>
+
+	<body bgcolor="#CACACA">
+		<div id="note">
+			1、前面有加减号的节点，表示其有下级内容，鼠标点击即可将该节点内容展开或折叠。<br><br>
+			2、本文档适用于处理模块。<font color="red">需要根据实际情况配置的内容会以彩色标注，否则直接使用开发人员提供的值即可。</font><br><br>
+			3、若某个处理模块配置文件中存在部分未说明的配置项，可能属于实例化（个性化）的配置项，其说明详见于<br>
+			&emsp;&emsp;<a href="01_configuration_guide(配置指导).common.xml.html">01_configuration_guide(配置指导).common.xml.html</a>。此类配置项的路径的前缀在common.xml里是/root/variables，<br>
+			&emsp;&emsp;在当前处理模块的配置文件里则是/root/private，路径余下部分一样。<br><br>
+		</div>
+
+		<div style="cursor:hand" onclick="changeFoldStatus('root_son')">[+/-] root</div>
+		<div id="root_son" style="display:block">
+			<div id="shared">
+				&emsp;|-- shared：共享配置。ref属性指向公共配置文件common.xml，<font color="blue">根据实际情况进行配置，一般使用绝对路径，<br>
+				&emsp;|&emsp;&emsp;&emsp;&emsp;若使用相对路径则表示相对于当前业务程序配置文件的路径。</font>
+			</div>
+
+			<div id="private" style="cursor:hand" onclick="changeFoldStatus('private_son')">
+				&emsp;|<br>
+				&emsp;`-- [+/-] private：私有配置。
+			</div>
+			<div id="private_son" style="display:block">
+				<div style="cursor:hand" onclick="changeFoldStatus('log_son')">
+					&emsp;&emsp;&emsp;&emsp;|<br>
+					&emsp;&emsp;&emsp;&emsp;|-- [+/-] log-configs：日志配置。
+				</div>
+				<div id="log_son" style="display:none">
+					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;|-- basename：日志文件的基本名称，即排除日志文件名中的日期、PID、后缀名剩下的部分，<br>
+					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;直接使用开发人员提供的名称即可。<br>
+					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;|-- directory：保存日志文件的目录，<font color="blue">根据实际情况进行配置，可使用绝对路径或相对（于业务程序根目录的）路径。</font><br>
+					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;`-- level：文件日志级别标识，一般直接使用开发人员提供的ID值即可，若要修改，取值范围</font><br>
+					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;参考common.xml文件/root/constants/log-configs/levels下各item的name值。<br>
+				</div>
+
+				<div style="cursor:hand" onclick="changeFoldStatus('identities_son')">
+					&emsp;&emsp;&emsp;&emsp;|<br>
+					&emsp;&emsp;&emsp;&emsp;|-- [+/-] identities：进程的身份信息配置。包括每个进程实例的名称、IP、端口等，详见其下item的说明：
+				</div>
+				<div id="identities_son" style="display:block">
+					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;|<br>
+					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;`-- item：<strong><font color="red">注意：单进程实例的程序只需配一个item，多进程实例的则需要配多个item，<br>
+					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;item数视具体部署环境而定。</font></strong>各属性值说明如下：<br>
+					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;> enabled：控制当前item是否可用。取值为yes或no，一般设成yes即可。<br>
+					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;> type：进程的服务器类型。使用开发人员提供的值，不能更改。<br>
+					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;> name：当前进程实例的名称。<font color="blue">根据实际情况进行配置，以易于识记且<font color="red">全局范围内不重名</font>即可。</font><br>
+					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;> master-slave：主从属性配置。设成master则该进程为主节点，设成slave则该进程为<br>
+					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;从（备）节点。<font color="blue">根据实际情况进行配置。</font><br>
+					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;> address：地址配置。格式为“IP:PORT”，冒号为英文冒号，且冒号前后不能有空格。<font color="blue">根据实际情况进行配置。</font>
+				</div>
+
+				<div style="cursor:hand" onclick="changeFoldStatus('upstream_servers_son')">
+					&emsp;&emsp;&emsp;&emsp;|<br>
+					&emsp;&emsp;&emsp;&emsp;|-- [+/-] upstream-servers：上游服务器配置。并非所有模块都有上游服务器，若有，则具体为：<br>
+					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;> 对于分发模块，处理模块就是它的上游；<br>
+					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;> 对于某类处理模块，处于其后端的模块，就是它的上游，<br>
+				</div>
+				<div id="upstream_servers_son" style="display:block">
+					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;|<br>
+					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;`-- item：格式与identities的item格式一样，可参考之，<font color="blue">并根据实际情况进行配置。</font>且注意以下事项：<br>
+					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;> 对于分发模块，upstream-servers的item信息，条数与配置内容须与处理模块identities的item一致。<br>
+					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;> 对于处理模块，upstream-servers的item信息，须与后端模块的分发模块（或扫描模块等，<br>
+					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;具体看后端模块的要求）的实际配置情况一致。<br>
+				</div>
+
+				<div style="cursor:hand" onclick="changeFoldStatus('db_son')">
+					&emsp;&emsp;&emsp;&emsp;|<br>
+					&emsp;&emsp;&emsp;&emsp;`-- [+/-] db-configs：数据库配置。
+				</div>
+				<div id="db_son" style="display:none">
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;|<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;`-- connection：数据库连接。owner属性值是明文形式的库表属主，encrypted-dsn则是<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;密码形式的登录用户名及密码串。<font color="blue">根据实际情况进行配置。</font>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
