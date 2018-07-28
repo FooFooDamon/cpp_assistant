@@ -41,7 +41,6 @@ extern long int timezone; // defined and modified by system
 
 CA_LIB_NAMESPACE_BEGIN
 
-//DEFINE_CLASS_NAME(time_util);
 
 static mutex s_lock;
 bool time_util::m_timezone_is_initialized = false;

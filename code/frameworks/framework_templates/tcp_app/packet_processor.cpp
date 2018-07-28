@@ -90,7 +90,6 @@ static component_cleaner s_component_cleaner; // for automatically cleaning g_pa
 namespace cafw
 {
 
-//DEFINE_CLASS_NAME(packet_processor);
 
 int packet_processor::m_max_packet_length = PROTO_HEADER_SIZE;
 

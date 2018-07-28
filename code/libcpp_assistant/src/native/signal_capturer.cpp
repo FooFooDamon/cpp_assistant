@@ -36,7 +36,6 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
-//DEFINE_CLASS_NAME(signal_capturer);
 
 static signal_setting_t s_signal_settings[SIGNAL_COUNT];
 static bool s_settings_initialized = false;

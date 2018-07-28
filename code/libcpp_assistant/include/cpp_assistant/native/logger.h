@@ -221,7 +221,6 @@ public:
  * attributes:
  * =================================== */
 public:
-    //DEFINE_CLASS_NAME_FUNC()
 
     inline enum_log_level log_level(void) const
     {
@@ -548,7 +547,6 @@ protected:
  * data:
  * =================================== */
 protected:
-    //DECLARE_CLASS_NAME_VAR();
     enum_log_level m_log_level;
     enum_log_level m_instant_level;
     bool m_is_open;

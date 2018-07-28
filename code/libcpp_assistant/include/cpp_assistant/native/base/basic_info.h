@@ -63,29 +63,6 @@
 #endif
 #define CA_REENTRANT
 
-#if 0 // not needed any more
-#define CLASS_NAME_VAR                              m_class_name
-
-#define DECLARE_CLASS_NAME_VAR()                    static const char *CLASS_NAME_VAR
-
-#define DEFINE_CLASS_NAME(_class_)                  const char* _class_::CLASS_NAME_VAR = typeid(_class_).name()
-
-#define OVERWRITE_CLASS_NAME(_class_)               _class_::CLASS_NAME_VAR = #_class_
-
-#define INHERIT_CLASS_NAME_VAR(_parent_)            using _parent_::CLASS_NAME_VAR
-
-#define DEFINE_TEMPLATE_CLASS_NAME(_class_, _type_) \
-    template<typename _type_> const char* _class_<_type_>::CLASS_NAME_VAR = typeid(_class_<_type_>).name()
-
-#define DEFINE_CLASS_NAME_FUNC()                    \
-    static inline const char* class_name(void)      \
-    {\
-        return CLASS_NAME_VAR; \
-    }
-
-#define DEFINE_TEMPLATE_CLASS_FUNC                  DEFINE_CLASS_NAME_FUNC
-#endif
-
 CA_LIB_NAMESPACE_BEGIN
 
 CA_REENTRANT const char *get_library_name(void);

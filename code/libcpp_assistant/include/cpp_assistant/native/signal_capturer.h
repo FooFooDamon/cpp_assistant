@@ -132,7 +132,6 @@ public:
  * attributes:
  * =================================== */
 public:
-    //DEFINE_CLASS_NAME_FUNC()
 
 /* ===================================
  * status:
@@ -159,7 +158,6 @@ protected:
  * data:
  * =================================== */
 protected:
-    //DECLARE_CLASS_NAME_VAR();
 };
 
 typedef signal_capturer sigcap;

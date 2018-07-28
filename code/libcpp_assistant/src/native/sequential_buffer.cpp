@@ -37,7 +37,6 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
-//DEFINE_CLASS_NAME(sequential_buffer);
 const void* sequential_buffer::OVERFLOW_PTR = nullptr;
 
 sequential_buffer::sequential_buffer()

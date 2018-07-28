@@ -102,7 +102,6 @@ public:
  * attributes:
  * =================================== */
 public:
-    //DEFINE_CLASS_NAME_FUNC()
 
 /* ===================================
  * status:
@@ -123,7 +122,6 @@ protected:
  * data:
  * =================================== */
 protected:
-    //DECLARE_CLASS_NAME_VAR();
 };
 
 CA_LIB_NAMESPACE_END

@@ -42,7 +42,6 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
-//DEFINE_CLASS_NAME(file_logger);
 static const int S_INITIAL_FILE_LOG_NUM = 0;
 
 file_logger::file_logger()

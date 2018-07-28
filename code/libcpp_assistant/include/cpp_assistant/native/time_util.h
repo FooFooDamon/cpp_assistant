@@ -118,7 +118,6 @@ public:
  * attributes:
  * =================================== */
 public:
-    //DEFINE_CLASS_NAME_FUNC()
 
 /* ===================================
  * status:
@@ -139,7 +138,6 @@ protected:
  * data:
  * =================================== */
 protected:
-    //DECLARE_CLASS_NAME_VAR();
     static bool m_timezone_is_initialized;
     static const uint32_t SECS_FROM_1900_TO_1970;
 };

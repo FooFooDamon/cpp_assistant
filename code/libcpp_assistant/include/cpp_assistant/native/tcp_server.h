@@ -98,7 +98,6 @@ public:
  * attributes:
  * =================================== */
 public:
-    //DEFINE_CLASS_NAME_FUNC()
 
     inline int listening_fd(void) const override
     {
@@ -144,7 +143,6 @@ protected:
  * data:
  * =================================== */
 protected:
-    //DECLARE_CLASS_NAME_VAR();
     net_connection *m_listening_conn;
 };
 

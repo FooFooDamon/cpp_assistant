@@ -35,7 +35,6 @@
 namespace cafw
 {
 
-//DEFINE_CLASS_NAME(connection_cache);
 
 connection_cache::connection_cache()
     : m_connection_dictionary(NULL)

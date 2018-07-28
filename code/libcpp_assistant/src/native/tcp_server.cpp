@@ -40,7 +40,6 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
-//DEFINE_CLASS_NAME(tcp_server);
 
 tcp_server::tcp_server()
     : tcp_base(),
