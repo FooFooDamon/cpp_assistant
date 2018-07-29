@@ -103,7 +103,7 @@ int main_app::prepare_prerequisites(void)
     return RET_OK;
 }
 
-int main_app::parse_commandLine(int argc, char **argv)
+int main_app::parse_command_line(int argc, char **argv)
 {
     calns::command_line *cmdline = m_cmdline;
     calns::command_line::user_option builtin_options[] = {

@@ -79,7 +79,7 @@ public:
  * =================================== */
 public:
     int prepare_prerequisites(void);
-    int parse_commandLine(int argc, char **argv);
+    int parse_command_line(int argc, char **argv);
 #if defined(HAS_CONFIG_FILES)
     int load_configurations(void);
 #endif

@@ -44,7 +44,7 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    if (app->parse_commandLine(argc, argv) < 0)
+    if (app->parse_command_line(argc, argv) < 0)
     {
         fprintf(stderr, "**** Errors occurred while parsing command line.\n");
         return -1;
