@@ -31,6 +31,7 @@
 #include <stdlib.h>
 
 #include "private/debug.h"
+#include "base/platforms/os_specific.h"
 
 CA_LIB_NAMESPACE_BEGIN
 
@@ -89,7 +90,7 @@ int command_line::parse(int argc, const char **argv)
 
     m_has_parsed = true;
 
-    char *program_name = strrchr((char*)argv[0], '/');
+    char *program_name = strrchr((char*)argv[0], get_directory_delimiter());
 
     if (nullptr == program_name)
     {
@@ -99,6 +100,8 @@ int command_line::parse(int argc, const char **argv)
     else
     {
         m_program_directory.assign(argv[0], program_name - argv[0]);
+        /*if (0 == m_program_directory.length())
+        	m_program_directory = "/";*/
         m_program_name = (++program_name);
     }
 
