@@ -142,6 +142,16 @@ int config_manager::load(void)
 
     QLOGF_C(I, "common configuration file: %s\n", common_config.c_str());
 
+    std::string common_config_dir = calns::str::get_directory(common_config);
+
+    if ('/' != common_config_dir[0])
+    {
+    	std::string private_config_dir(calns::str::get_directory(m_config_content->config_file_path));
+
+    	common_config = private_config_dir + "/" + common_config;
+    	QLOGF_C(I, "file path has been fixed due to relative path usage: %s\n", common_config.c_str());
+    }
+
     fixed_common_config *fixed_common_config = &(m_config_content->fixed_common_configs);
     mutable_common_config *mutable_common_config = &(m_config_content->mutable_common_configs);
 
