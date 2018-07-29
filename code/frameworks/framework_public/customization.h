@@ -109,7 +109,7 @@ CA_LIB_NAMESPACE_END
 #endif
 
 #if !defined(DEFAULT_CONFIG_FILES)
-#define DEFAULT_CONFIG_FILES                "config.xml"
+#define DEFAULT_CONFIG_FILES                "./conf/config.xml"
 #endif
 
 #if !defined(DAEMON_DESC)
