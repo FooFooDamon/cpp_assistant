@@ -31,19 +31,20 @@
 #include <stdlib.h>
 
 #include "private/debug.h"
+#include "base/platforms/os_specific.h"
 
 CA_LIB_NAMESPACE_BEGIN
 
 CA_REENTRANT /* static */int str::split(const char *src,
     const int src_len,
     const char *delim,
-    std::vector<std::string> &result)
+    std::vector<std::string> &result)/* CA_NOTNULL(1, 3) */
 {
     result.clear();
 
-    if (nullptr == src ||
-        src_len <= 0 ||
-        nullptr == delim)
+    if (src_len <= 0
+    	|| nullptr == src
+        || nullptr == delim)
         return CA_RET(INVALID_PARAM_VALUE);
 
     bool is_long_str = (src_len + 1 > MAX_LEN_IN_STACK);
@@ -91,6 +92,38 @@ CA_REENTRANT /* static */int str::split(const char *src,
     if (is_long_str) free(buf_heap);
 
     return CA_RET_OK;
+}
+
+CA_REENTRANT /* static */int str::get_directory(const char *path, const int path_len, char *result)/* CA_NOTNULL(1, 3) */
+{
+	if (path_len <= 0
+		|| nullptr == path
+		|| nullptr == result)
+		return CA_RET(INVALID_PARAM_VALUE);
+
+	const char *last_dir_delim_ptr = strrchr(path, get_directory_delimiter());
+
+	if (nullptr == last_dir_delim_ptr)
+	{
+		if (0 == strcmp(path, ".."))
+			strncpy(result, "..", 3);
+		else
+			strncpy(result, ".", 2);
+
+		return CA_RET_OK;
+	}
+
+	size_t dir_len = last_dir_delim_ptr - path;
+
+	if (0 == dir_len)
+		strncpy(result, "/", 2);
+	else
+	{
+		strncpy(result, path, dir_len);
+		result[dir_len] = '\0';
+	}
+
+	return CA_RET_OK;
 }
 
 CA_LIB_NAMESPACE_END
