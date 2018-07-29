@@ -16,6 +16,6 @@ ifneq ($(CA_LIB_NAMESPACE),)
     DEFINES += -DCA_LIB_NAMESPACE=$(CA_LIB_NAMESPACE) -DCA_LIB_NAMESPACE_STR=\"$(CA_LIB_NAMESPACE)\"
 endif
 
-CFLAGS += $(DEFINES) $(INCLUDES) $(OPTIMIZE_FLAG) -g -fPIC -Wno-misleading-indentation
+CFLAGS += $(DEFINES) $(INCLUDES) $(OPTIMIZE_FLAG) -g -fPIC -Wno-misleading-indentation -Wno-nonnull-compare
 CXXFLAGS = $(CFLAGS) -ftemplate-depth-128
 LDFLAGS +=
