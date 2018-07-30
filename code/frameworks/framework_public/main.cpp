@@ -76,7 +76,7 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    if (app->initialize_business() < 0)
+    if (app->initialize_business(argc, argv) < 0)
     {
         fprintf(stderr, "**** Errors occurred while initializing business.\n");
         app->release_resources();

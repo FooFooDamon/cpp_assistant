@@ -86,7 +86,7 @@ public:
     int prepare_resources(void);
     int register_signals(void);
     int register_timed_tasks(void);
-    int initialize_business(void);
+    int initialize_business(int argc, char **argv);
     void finalize_business(void);
     int run_business(void);
     void release_resources(void);

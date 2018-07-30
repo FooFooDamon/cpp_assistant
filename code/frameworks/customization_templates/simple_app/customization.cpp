@@ -169,7 +169,7 @@ cafw::timed_task_info_t g_customized_timed_tasks[] = {
     }
 };
 
-int init_business(void)
+int init_business(int argc, char **argv)
 {
     // TODO: Add your own stuff, or do nothing if there is none.
     return RET_OK;

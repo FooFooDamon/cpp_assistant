@@ -155,7 +155,7 @@ extern cafw::timed_task_info_t g_customized_timed_tasks[];
 
 extern struct cafw::handler_component g_packet_handler_components[];
 
-extern int init_business(void);
+extern int init_business(int argc, char **argv);
 extern int run_private_business(bool &should_exit);
 extern void finalize_business(void);
 

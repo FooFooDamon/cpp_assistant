@@ -447,9 +447,9 @@ int main_app::register_timed_tasks(void)
     return RET_OK;
 }
 
-int main_app::initialize_business(void)
+int main_app::initialize_business(int argc, char **argv)
 {
-    return init_business();
+    return init_business(argc, argv);
 }
 
 void main_app::finalize_business(void)
