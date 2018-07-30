@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <root>
-	<shared ref="/home/foo/etc/common.xml"/>
+	<shared ref="common.xml"/>
 	<private>
 		<log-configs>
 			<file-logger enabled="yes">
 				<basename> tcp_client </basename>
-				<directory> . </directory>
+				<directory>./logs</directory>
 				<level> debug </level>
 			</file-logger>
 			<terminal-logger>
