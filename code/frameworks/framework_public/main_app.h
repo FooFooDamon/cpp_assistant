@@ -90,7 +90,6 @@ public:
     void finalize_business(void);
     int run_business(void);
     void release_resources(void);
-    bool expires(void);
 
 /* ===================================
  * accessors:

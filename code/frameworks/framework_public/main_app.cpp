@@ -36,7 +36,6 @@
 #include <sstream>
 
 #include <google/protobuf/stubs/common.h>
-#include <otlv4.h>
 
 #include "customization.h"
 
@@ -217,10 +216,6 @@ int main_app::parse_command_line(int argc, char **argv)
 #ifdef HAS_PROTOBUF
         printf("Protocol buffer version: v%d.%d.%d\n", GOOGLE_PROTOBUF_VERSION / 1000000,
             (GOOGLE_PROTOBUF_VERSION % 1000000) / 1000, GOOGLE_PROTOBUF_VERSION % 1000);
-#endif
-#ifdef HAS_DATABASE
-        printf("OTL version: v%ld.%ld.%ld\n", (OTL_VERSION_NUMBER & (0xff << 16)) >> 16,
-            (OTL_VERSION_NUMBER & (0xf << 12)) >> 12, OTL_VERSION_NUMBER & 0xfff);
 #endif
         exit(EXIT_SUCCESS);
     }
@@ -477,12 +472,6 @@ int main_app::run_business(void)
 
     while (true)
     {
-        if (expires())
-        {
-            LOGF_C(E, "program has expired, exits now\n");
-            break;
-        }
-
         ret = RET_OK;
 
         bool should_exit = false;
@@ -526,17 +515,6 @@ void main_app::release_resources(void)
     }*/
 #ifdef HAS_PROTOBUF
     google::protobuf::ShutdownProtobufLibrary();
-#endif
-}
-
-bool main_app::expires(void)
-{
-#ifdef CHECKS_EXPIRATION
-    int64_t cur_time = calns::TimeHelper::GetUtcMicroseconds();
-
-    return (cur_time >= m_config_manager->config_entries()->private_configs.expiration);
-#else
-    return false;
 #endif
 }
 
