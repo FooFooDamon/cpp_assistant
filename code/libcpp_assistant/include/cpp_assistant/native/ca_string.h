@@ -254,6 +254,18 @@ public:
         const char *delim,
         std::vector<std::string> &result) CA_NOTNULL(1, 3);
 
+    // Same as the above, except that this one returns the result directly through the return value.
+    CA_REENTRANT static inline std::vector<std::string> split(const char *src,
+        const int src_len,
+        const char *delim) CA_NOTNULL(1, 3)
+	{
+    	std::vector<std::string> result;
+
+    	split(src, src_len, delim, result);
+
+    	return result;
+	}
+
     // Gets the directory part of the string specified by @path, and save it into @result.
     CA_REENTRANT static int get_directory(const char *path, const int path_len, char *result) CA_NOTNULL(1, 3);
 
