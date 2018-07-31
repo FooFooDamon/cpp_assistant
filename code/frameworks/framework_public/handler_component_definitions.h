@@ -61,20 +61,6 @@ typedef msg_base* (*body_container_alloc_func)(void);
 
 typedef void (*assemble_output_packet_func)(const void *original_msg, int retcode, msg_base *in, msg_base *out);
 
-typedef int (*db_commit_func)(int thread_num/* = -1*/);
-
-typedef int (*db_rollback_func)(int thread_num/* = -1*/);
-
-inline int fake_db_commit(int thread_num = -1)
-{
-    return 0;
-}
-
-inline int fake_db_rollback(int thread_num = -1)
-{
-    return 0;
-}
-
 typedef struct handler_component
 {
     int32_t in_cmd;
@@ -90,8 +76,6 @@ typedef struct handler_component
     business_func do_business;
     body_container_alloc_func alloc_body_container;
     assemble_output_packet_func assemble_out_packet;
-    db_commit_func commit_database_modification;
-    db_rollback_func rollback_database_modification;
 }handler_component;
 
 typedef std::map<uint32_t, handler_component> component_map;
@@ -188,14 +172,12 @@ void assemble_minimal_out_packet(const void *original_msg, int retcode, msg_base
     ASSEMBLE_OUT_PACKET_FUNC(name)
 
 #define SET_HANDLER_FUNCS_ONE_BY_ONE(name, has_group_func, has_validation_func,        \
-    has_assemble_func, needs_db_commit) \
+    has_assemble_func) \
     has_group_func ? GROUP_PACKET_FUNC(name) : NULL, \
     has_validation_func ? VALIDATE_PACKET_FUNC(name) : NULL, \
     BUSINESS_FUNC(name), \
     has_group_func ? ALLOC_PACKET_CONTAINER_FUNC(name) : NULL, \
-    has_assemble_func ? ASSEMBLE_OUT_PACKET_FUNC(name) : NULL, \
-    needs_db_commit ? cafw::fake_db_commit/*db_commit*/ : NULL, \
-    needs_db_commit ? cafw::fake_db_rollback/*db_rollback*/ : NULL
+    has_assemble_func ? ASSEMBLE_OUT_PACKET_FUNC(name) : NULL
 
 #define SET_ALL_HANDLER_FUNCS_TO_NULL()                                                \
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL

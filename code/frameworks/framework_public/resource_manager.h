@@ -54,7 +54,6 @@ typedef struct resource_t
     calns::tcp_client *client_requester;
     connection_cache *master_connection_cache;
     connection_cache *slave_connection_cache;
-    void *db_connection;
     struct extra_resource_t *extra_resource;
 }resource_t;
 
@@ -122,8 +121,6 @@ protected:
     int __prepare_loggers(const void *condition = NULL);
     int __prepare_network(const void *condition = NULL);
     void __release_network(void);
-    int __prepare_database(const void *condition = NULL);
-    void __detach_from_database(void);
     int __prepare_extra_resource(const void *condition = NULL);
     void __release_extra_resource(void);
 

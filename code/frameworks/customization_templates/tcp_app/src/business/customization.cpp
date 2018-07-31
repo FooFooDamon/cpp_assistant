@@ -252,6 +252,9 @@ void make_test_packets(void)
 #endif // #ifndef USE_JSON_MSG
 }
 
+/********************************** Simple test end **********************************/
+
+
 cafw::timed_task_info_t g_customized_timed_tasks[] = {
     /*
      * {
@@ -260,6 +263,7 @@ cafw::timed_task_info_t g_customized_timed_tasks[] = {
      * }
      */
 
+	// NOTE: Contents below are just for test, feel free to delete them in your project.
     /********************************** Simple test begin **********************************/
     {
         "simple_test",
@@ -500,6 +504,7 @@ DECLARE_BUSINESS_FUNC(multi_packet_response_test)
 
 /********************************** Simple tests end **********************************/
 
+
 cafw::handler_component g_packet_handler_components[] = {
     /********************************** Simple tests begin **********************************/
     {
@@ -513,8 +518,7 @@ cafw::handler_component g_packet_handler_components[] = {
         SET_HANDLER_FUNCS_ONE_BY_ONE(single_packet_request_test,
             NO_GROUP_FUNC,
             NO_VALIDATION_FUNC,
-            HAS_ASSEMBLE_OUT_FUNC,
-            NEEDS_DB_COMMIT)
+            HAS_ASSEMBLE_OUT_FUNC)
     },
     {
         CMD_SIMPLE_SINGLE_PACKET_TEST_RESP,      CMD_UNUSED,
@@ -527,8 +531,7 @@ cafw::handler_component g_packet_handler_components[] = {
         SET_HANDLER_FUNCS_ONE_BY_ONE(single_packet_response_test,
             NO_GROUP_FUNC,
             NO_VALIDATION_FUNC,
-            NO_ASSEMBLE_OUT_FUNC,
-            NEEDS_DB_COMMIT)
+            NO_ASSEMBLE_OUT_FUNC)
     },
 #ifndef USE_JSON_MSG
     {
@@ -538,8 +541,7 @@ cafw::handler_component g_packet_handler_components[] = {
         SET_HANDLER_FUNCS_ONE_BY_ONE(multi_packet_request_test,
             HAS_GROUP_FUNC,
             NO_VALIDATION_FUNC,
-            HAS_ASSEMBLE_OUT_FUNC,
-            NEEDS_DB_COMMIT)
+            HAS_ASSEMBLE_OUT_FUNC)
     },
     {
         CMD_SIMPLE_MULTI_PACKET_TEST_RESP,      CMD_UNUSED,
@@ -548,11 +550,12 @@ cafw::handler_component g_packet_handler_components[] = {
         SET_HANDLER_FUNCS_ONE_BY_ONE(multi_packet_response_test,
             NO_GROUP_FUNC,
             NO_VALIDATION_FUNC,
-            NO_ASSEMBLE_OUT_FUNC,
-            NEEDS_DB_COMMIT)
+            NO_ASSEMBLE_OUT_FUNC)
     },
 #endif // #ifndef USE_JSON_MSG
     /********************************** Simple tests end **********************************/
+
     // TODO: Fill in your own components.
+
     { CMD_UNUSED /* Other fields are not cared. */}
 };

@@ -62,7 +62,6 @@ int resource_manager::prepare(const void *condition)
 #ifdef HAS_CONFIG_FILES // Complex resources need info from configuration files.
     PREPARE_RESOURCE_ITEM(__prepare_loggers, "logger");
     PREPARE_RESOURCE_ITEM(__prepare_network, "network");
-    PREPARE_RESOURCE_ITEM(__prepare_database, "database");
 #endif
     PREPARE_RESOURCE_ITEM(__prepare_extra_resource, "extra resource");
 
@@ -114,7 +113,6 @@ void resource_manager::__clear(void)
     {
 #ifdef HAS_CONFIG_FILES
         __release_network();
-        __detach_from_database();
 #endif
         if (NULL != m_resource->extra_resource)
             __release_extra_resource();
@@ -381,82 +379,6 @@ void resource_manager::__release_network(void)
             *(conn_caches[i]) = NULL;
         }
     }
-}
-
-int resource_manager::__prepare_database(const void *condition)
-{
-#ifdef HAS_DATABASE
-    if (NULL == config)
-    {
-        LOG_INFO("no database resources needed to be initialized\n");
-        return RET_OK;
-    }
-
-    std::string &db_dsn = const_cast<std::string &>(config->private_configs.db_dsn);
-    const char *encrypted_dsn = db_dsn.c_str();
-    int encrypted_len = db_dsn.length();
-    char decrypted_dsn[128] = {0};
-    int decrypted_len = sizeof(decrypted_dsn);
-    int trade_mode = -1;
-
-    //LOG_DEBUG_CV("src: dsn = %s, len = %d\n", encrypted_dsn, encrypted_len);
-
-    if (db_initialize() < 0)
-    {
-        LOG_ERROR_CV("db_initialize() failed\n");
-        goto PREPARATION_FAILED;
-    }
-    LOG_INFO_CV("database initialization successful\n");
-
-    if (ts_db_dec(encrypted_dsn, encrypted_len, decrypted_dsn, &decrypted_len) < 0)
-    {
-        LOG_ERROR_CV("failed to decrypt database DSN\n");
-        goto PREPARATION_FAILED;
-    }
-    //LOG_DEBUG_CV("dst: dsn = %s, len = %d\n", decrypted_dsn, decrypted_len);
-    LOG_INFO_CV("DSN decryption successful\n");
-
-    db_dsn = decrypted_dsn;
-
-    if (db_login(db_dsn.c_str()) < 0)
-    {
-        LOG_ERROR_CV("failed to login to database\n");
-        goto PREPARATION_FAILED;
-    }
-    LOG_INFO_CV("login successful\n");
-
-    m_resource->db_connection = &g_db_conn;
-
-    if ((trade_mode = db_query_trade_mode()) < 0)
-    {
-        LOG_ERROR_CV("failed to get trade mode\n");
-        goto PREPARATION_FAILED;
-    }
-    db_set_trade_mode(trade_mode);
-    LOG_INFO_CV("trade mode is %d and is loaded into memory\n", trade_mode);
-
-    return RET_OK;
-
-PREPARATION_FAILED:
-
-    __clear();
-
-    return RET_FAILED;
-#else
-    m_resource->db_connection = NULL;
-    QLOGF_C(I, "no database resources\n");
-    return RET_OK;
-#endif
-}
-
-void resource_manager::__detach_from_database(void)
-{
-    if (NULL == m_resource->db_connection)
-        return;
-
-    //db_logoff();
-
-    m_resource->db_connection = NULL;
 }
 
 int resource_manager::__prepare_extra_resource(const void *condition)

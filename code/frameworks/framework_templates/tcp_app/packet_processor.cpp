@@ -384,8 +384,6 @@ int packet_processor::single_operator_general_flow(const struct calns::net_conne
     clear_message_holder(*actual_body_for_parsing);
     body_len_after_parsing = parse_message(GET_BODY_ADDR(in_data_ptr), body_len, *actual_body_for_parsing);
     all_parsed_ok = (body_len_after_parsing > 0);
-    //body_base = dynamic_cast<UnifiedBodyBase *>(actual_body_for_parsing); // failed
-    //body_base = reinterpret_cast<UnifiedBodyBase *>(actual_body_for_parsing); // static_cast works too
     STAT_TIME_CONSUMPTION("input packet parsing");
 
     if (!all_parsed_ok)
@@ -527,35 +525,6 @@ int packet_processor::single_operator_general_flow(const struct calns::net_conne
     STAT_TIME_CONSUMPTION("business operation");
 
 OUTPUT:
-
-    do {
-        if (!has_done_business)
-            break;
-
-        if (PROTO_RET_SUCCESS == retcode)
-        {
-            if (NULL == component.commit_database_modification)
-                RLOGF(I, "business finished successfully without database modifications,"
-                    " or with database committing inside the business handler.\n");
-            else
-            {
-                component.commit_database_modification(-1);
-                RLOGF(I, "business finished successfully, commit database modifications now\n");
-            }
-        }
-        else
-        {
-            if (NULL == component.rollback_database_modification)
-                RLOGF(W, "business is not ok, but no database roll-back is needed,"
-                    " or the roll-back is inside the business handler.\n");
-            else
-            {
-                component.rollback_database_modification(-1);
-                RLOGF(W, "business is not ok, roll back database modifications now\n");
-            }
-        }
-        STAT_TIME_CONSUMPTION("database commit or roll-back");
-    } while (0);
 
     /*
      * Step 4: Assemble output packet if required.
@@ -875,13 +844,7 @@ static int general_heartbeat_handling(
 
     RLOGF(D, "^~^~^~^~ heart beat %s: fd[%d], name[%s]\n",
         heartbeat_type, fd, peer_name);
-#if 0 // TODO
-    if (NULL != out_body)
-        ((OldHeartbeatResp *)out_body)->Clear();
 
-    if (is_req)
-        ((OldHeartbeatResp *)out_body)->set_session_id(((OldHeartbeatReq *)in_body)->session_id().c_str());
-#endif
     return RET_OK;
 }
 
@@ -955,7 +918,6 @@ DECLARE_BUSINESS_FUNC(identity_report_request_handling)
         }
 
         memset(conn_index->server_type, 0, sizeof(conn_index->server_type));
-        //strncpy(conn_index->server_type, "client", sizeof(conn_index->server_type) - 1);
         for (std::map<std::string, int>::const_iterator iter = conf_server_types.begin(); iter != conf_server_types.end(); ++iter)
         {
             if (server_type == iter->second)
@@ -1198,13 +1160,6 @@ int packet_processor::__inner_init(void)
         return RET_FAILED;
     }
 
-    /*if ((NULL == m_dispatcher_by_loginid) &&
-        (NULL == (m_dispatcher_by_loginid = new LoginDispatcherMap)))
-    {
-        LOG_ERROR_CV("m_dispatcher_by_loginid structure initialization failed\n");
-        return RET_FAILED;
-    }*/
-
     return RET_OK;
 }
 
@@ -1229,12 +1184,6 @@ void packet_processor::__clear(void)
         delete m_timestamps_when_pkts_incomplete;
         m_timestamps_when_pkts_incomplete = NULL;
     }
-
-    /*if (NULL != m_dispatcher_by_loginid)
-    {
-        delete m_dispatcher_by_loginid;
-        m_dispatcher_by_loginid = NULL;
-    }*/
 }
 
 } // namespace cafw
