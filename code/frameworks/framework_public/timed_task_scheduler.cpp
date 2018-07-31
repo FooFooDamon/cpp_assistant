@@ -268,9 +268,9 @@ bool timed_task_scheduler::__task_info_is_ok(const timed_task_config &info)
 
 void default_message_clean_timed_task(void)
 {
-    /*MessageCache *msg_cache = calns::SingletonT<PacketProcessor>::instance()->message_cache();
+    /*message_cache *msg_cache = calns::singleton<packet_processor>::get_instance()->get_message_cache();
 
-    msg_cache->CleanExpiredMessages(calns::TimeHelper::GetUtcMicroseconds());*/
+    msg_cache->clean_expired_messages(calns::time_util::get_utc_microseconds());*/
 }
 
 void default_session_clean_timed_task(void)
@@ -282,9 +282,9 @@ void default_session_clean_timed_task(void)
 // this function may do a lot of searches, execute it when it has to.
 static bool has_time_consuming_messages(const char *conn_name)
 {
-    /*MessageCache *msg_cache = calns::SingletonT<PacketProcessor>::instance()->message_cache();
+    /*message_cache *msg_cache = calns::singleton<packet_processor>::get_instance()->get_message_cache();
 
-    return (msg_cache->TimeConsumingMessageCount(conn_name) > 0);*/
+    return (msg_cache->time_consuming_message_count(conn_name) > 0);*/
     return false;
 }
 
