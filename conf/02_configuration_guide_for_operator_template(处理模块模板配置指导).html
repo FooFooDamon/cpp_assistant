@@ -64,26 +64,16 @@
 
 				<div style="cursor:hand" onclick="changeFoldStatus('upstream_servers_son')">
 					&emsp;&emsp;&emsp;&emsp;|<br>
-					&emsp;&emsp;&emsp;&emsp;|-- [+/-] upstream-servers：上游服务器配置。并非所有模块都有上游服务器，若有，则具体为：<br>
-					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;> 对于分发模块，处理模块就是它的上游；<br>
-					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;> 对于某类处理模块，处于其后端的模块，就是它的上游，<br>
+					&emsp;&emsp;&emsp;&emsp;`-- [+/-] upstream-servers：上游服务器配置。并非所有模块都有上游服务器，若有，则具体为：<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;> 对于分发模块，处理模块就是它的上游；<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;> 对于某类处理模块，处于其后端的模块，就是它的上游，<br>
 				</div>
 				<div id="upstream_servers_son" style="display:block">
-					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;|<br>
-					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;`-- item：格式与identities的item格式一样，可参考之，<font color="blue">并根据实际情况进行配置。</font>且注意以下事项：<br>
-					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;> 对于分发模块，upstream-servers的item信息，条数与配置内容须与处理模块identities的item一致。<br>
-					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;> 对于处理模块，upstream-servers的item信息，须与后端模块的分发模块（或扫描模块等，<br>
-					&emsp;&emsp;&emsp;&emsp;|&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;具体看后端模块的要求）的实际配置情况一致。<br>
-				</div>
-
-				<div style="cursor:hand" onclick="changeFoldStatus('db_son')">
-					&emsp;&emsp;&emsp;&emsp;|<br>
-					&emsp;&emsp;&emsp;&emsp;`-- [+/-] db-configs：数据库配置。
-				</div>
-				<div id="db_son" style="display:none">
 					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;|<br>
-					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;`-- connection：数据库连接。owner属性值是明文形式的库表属主，encrypted-dsn则是<br>
-					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;密码形式的登录用户名及密码串。<font color="blue">根据实际情况进行配置。</font>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;`-- item：格式与identities的item格式一样，可参考之，<font color="blue">并根据实际情况进行配置。</font>且注意以下事项：<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;> 对于分发模块，upstream-servers的item信息，条数与配置内容须与处理模块identities的item一致。<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;> 对于处理模块，upstream-servers的item信息，须与后端模块的分发模块（或扫描模块等，<br>
+					&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;具体看后端模块的要求）的实际配置情况一致。<br>
 				</div>
 			</div>
 		</div>
