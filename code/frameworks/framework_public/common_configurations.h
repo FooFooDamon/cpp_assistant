@@ -140,8 +140,6 @@ typedef struct mutable_common_config
 #define XNODE_COUNTER                               "counters"
 #define XNODE_DISPATCH_SETTING                      "dispatch-settings"
 
-#define XPATH_EXPIRATION                            XPATH_PRIVATE_CONFIG_ROOT"/expiration"
-
 /*
  * timed task intervals
  */
