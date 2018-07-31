@@ -403,48 +403,12 @@ int connection_cache::send_to_single_connection(const char *name, const void *ms
     return ret;
 }
 
-bool connection_cache::is_accessible(const net_conn_attr &target, const net_conn_attr &visitor)
-{
-    /*bool group_checking_passed = (0 == strcasecmp(target.belonging_group, GROUP_TYPE_ALL)) ||
-        (0 == strcasecmp(visitor.belonging_group, GROUP_TYPE_ADMIN)) ||
-        (0 == strcasecmp(visitor.belonging_group, target.belonging_group));
-
-    bool env_checking_passed = (0 == strcasecmp(target.environment, ENV_TYPE_ALL)) ||
-        (0 == strcasecmp(visitor.environment, ENV_TYPE_ALL)) ||
-        (0 == strcasecmp(visitor.environment, target.environment));
-
-    bool market_checking_passed = (0 == strcasecmp(target.market, MARKET_TYPE_ALL)) ||
-        (0 == strcasecmp(visitor.market, MARKET_TYPE_ALL)) ||
-        (0 == strcasecmp(visitor.market, target.market));
-
-    bool exchange_checking_passed = (0 == strcasecmp(target.exchange, EXCHANGE_TYPE_ALL)) ||
-        (0 == strcasecmp(visitor.exchange, EXCHANGE_TYPE_ALL)) ||
-        (0 == strcasecmp(visitor.exchange, target.exchange));
-
-    LOGF_NS(D, ConnectionCache, "target attribute: %s:%s:%s:%s, visitor attribute: %s:%s:%s:%s, "
-        "group_checking_passed = %d, env_checking_passed = %d, market_checking_passed = %d, "
-        "exchange_checking_passed = %d\n", target.belonging_group, target.environment,
-        target.market, target.exchange, visitor.belonging_group, visitor.environment,
-        visitor.market, visitor.exchange, group_checking_passed, env_checking_passed,
-        market_checking_passed, exchange_checking_passed);
-
-    return (group_checking_passed &&
-        env_checking_passed &&
-        market_checking_passed &&
-        exchange_checking_passed);*/
-    return true;
-}
-
 int connection_cache::attribute_to_string(const net_conn_attr &attr, std::string &str)
 {
     std::stringstream formated_str;
     const char *is_master_str = attr.is_master ? "master" : "slave";
 
-    formated_str /*<< attr.belonging_group << ":"
-        << attr.environment << ":"
-        << attr.market << ":"
-        << attr.exchange << ":"*/
-        << is_master_str;
+    formated_str << is_master_str;
     str = formated_str.str();
 
     return RET_OK;
@@ -452,33 +416,7 @@ int connection_cache::attribute_to_string(const net_conn_attr &attr, std::string
 
 int connection_cache::string_to_attribute(const std::string &str, net_conn_attr &attr)
 {
-    /*if (str.empty())
-    {
-        LOGF_NS(E, ConnectionCache, "empty source string\n");
-        return RET_FAILED;
-    }
-
-    std::vector<std::string> fragments;
-    int split_ret = calns::str::split(str.c_str(), str.length(), ":", fragments);
-
-    if ((split_ret < 0) ||
-        (fragments.size() < 4))
-    {
-        LOGF_NS(E, ConnectionCache, "calns::StringHelper::Split() failed, or source string is not"
-            " correctly formatted, split ret = %d, source string = %s\n",
-            split_ret, str.c_str());
-        return RET_FAILED;
-    }
-
-    if (fragments.size() > 4)
-    {
-        if (0 == strcasecmp(fragments[4].c_str(), MASTER_STRING))
-            attr.is_master = true;
-        else
-            attr.is_master = false;
-    }
-    else*/
-        attr.is_master = true;
+    attr.is_master = true;
 
     return RET_OK;
 }

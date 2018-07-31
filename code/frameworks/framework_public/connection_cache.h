@@ -133,7 +133,6 @@ public:
         const int policy,
         const int id);
     int send_to_single_connection(const char *name, const void *msg, const int msg_len);
-    static bool is_accessible(const net_conn_attr &target, const net_conn_attr &visitor);
     static int attribute_to_string(const net_conn_attr &attr, std::string &str);
     static int string_to_attribute(const std::string &str, net_conn_attr &attr);
 
