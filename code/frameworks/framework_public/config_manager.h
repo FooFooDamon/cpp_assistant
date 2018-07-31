@@ -60,12 +60,7 @@ typedef struct private_config
     std::string terminal_log_level;
     net_node_config self;
     std::vector<net_node_config> upstream_servers;
-    std::string db_owner;
-    std::string db_dsn;
     std::set<uint32_t> time_consuming_cmd;
-#ifdef CHECK_EXPIRATION
-    int64_t expiration;
-#endif
     struct extra_config_t *extra_items;
 }private_config;
 
@@ -73,14 +68,18 @@ typedef struct config_content_t
 {
     std::string config_file_path;
     void *config_file_ptr;
+
     // Real common configurations and can not be changed.
     fixed_common_config fixed_common_configs;
+
     // Mutable common configurations:
     // They are not real common configurations,
     // their values come from the configuration file for this program if there are such items in it,
     // or from the common configuration file otherwise.
     mutable_common_config mutable_common_configs;
-    private_config private_configs; // private configurations only for this program
+
+    // private configurations only for this program
+    private_config private_configs;
 }config_content_t;
 
 extern int load_extra_server_types(const config_file_t *config_file, std::map<std::string, int> &result);
@@ -190,10 +189,7 @@ protected:
     int __load_log_config(void);
     int __load_identity_config(void);
     int __load_upstream_server_config(void);
-    int __load_database_config(void);
-    int __load_time_consuming_messages(void);
     int __load_network_nodes(const char *type);
-    int __load_expiration(void);
     int64_t get_long_int_value_by_name(const char *name, const std::map<std::string, int64_t> &holder) const;
 
 /* ===================================

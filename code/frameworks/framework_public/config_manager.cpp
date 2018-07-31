@@ -279,9 +279,6 @@ int config_manager::load_private_config(void)
         m_config_content->fixed_common_configs.server_types);
     LOAD_PRIVATE_CFG_ITEM(__load_identity_config, "identity");
     LOAD_PRIVATE_CFG_ITEM(__load_upstream_server_config, "upstream server");
-    LOAD_PRIVATE_CFG_ITEM(__load_database_config, "database");
-    LOAD_PRIVATE_CFG_ITEM(__load_time_consuming_messages, "time-consuming message");
-    LOAD_PRIVATE_CFG_ITEM(__load_expiration, "expiration");
 
     if (NULL == m_config_content->private_configs.extra_items
         && init_extra_config(&(m_config_content->private_configs.extra_items)) < 0)
@@ -372,102 +369,6 @@ int config_manager::__load_upstream_server_config(void)
     LOGF_C(I, "no upstream servers needed, skip\n");
     return RET_OK;
 #endif
-}
-
-int config_manager::__load_database_config(void)
-{
-#ifdef HAS_DATABASE
-    TiXmlDocument *file = (TiXmlDocument *)m_config_content->config_file_ptr;
-
-    const char *xpath_db_node = XPATH_DB_CONNECTION_ITEM;
-    std::vector<TiXmlElement> db_nodes;
-
-    calns::XmlHelper::FindNodesByPath(xpath_db_node, *file, db_nodes);
-    if (1 != db_nodes.size())
-    {
-        LOGF_C(E, "0 or multiple %s items found\n", xpath_db_node);
-        return RET_FAILED;
-    }
-
-    const char *owner_attr = "owner";
-    const char *owner_ptr = db_nodes[0].Attribute(owner_attr);
-    const char *enc_dsn_attr = "encrypted-dsn";
-    const char *enc_dsn_ptr = db_nodes[0].Attribute(enc_dsn_attr);
-#if defined(DB_ORACLE)
-    const char *db_type = "[Oracle]";
-#elif defined(DB_MYSQL)
-    const char *db_type = "[MySQL]";
-#else
-    const char *db_type = "[Unknown database]";
-#endif
-
-    if (NULL == owner_ptr ||
-        NULL == enc_dsn_ptr)
-    {
-        LOGF_C(E, "null %s or %s dsn\n", owner_attr, enc_dsn_attr);
-        return RET_FAILED;
-    }
-
-    m_config_content->private_configs.db_owner = owner_ptr;
-    m_config_content->private_configs.db_dsn = enc_dsn_ptr;
-    LOGF_C(I, "%s configurations was loaded successfully\n", db_type);
-
-    return RET_OK;
-#else
-    QLOGF_C(I, "no database needed, skip\n");
-    return RET_OK;
-#endif
-}
-
-int config_manager::__load_time_consuming_messages(void)
-{
-    /*TiXmlDocument *file = (TiXmlDocument *)m_config_content->config_file_ptr;
-
-    const char *xpath_msg = XPATH_PRIVATE_CONFIG_ROOT"/message-settings/time-consuming-messages/item";
-    std::vector<TiXmlElement> msg_nodes;
-
-    calns::XmlHelper::FindNodesByPath(xpath_msg, *file, msg_nodes);
-    if (0 == msg_nodes.size())
-    {
-        LOGF_C(I, "no [%s] items\n", xpath_msg);
-        return RET_OK;
-    }
-
-    LOGF_C(I, "parsing %s ...\n", xpath_msg);
-
-    std::set<uint32_t> &msg_cmd = m_config_content->private_configs.time_consuming_cmd;
-    const char *cmd_attr = "command-code";
-
-    for (size_t i = 0; i < msg_nodes.size(); ++i)
-    {
-        const char *cmd_ptr = msg_nodes[i].Attribute(cmd_attr);
-
-        if (NULL == cmd_ptr)
-        {
-            LOGF_C(E, "attribute[%s] not found, i = %d\n", cmd_attr, i);
-            return RET_FAILED;
-        }
-
-        uint32_t cmd_value = static_cast<uint32_t>(strtoll(cmd_ptr, NULL, 16));
-
-        if (msg_cmd.end() != msg_cmd.find(cmd_value))
-            continue;
-
-        bool insert_ok = msg_cmd.insert(cmd_value).second;
-
-        if (!insert_ok)
-        {
-            LOGF_C(E, "failed to cache time-consuming command code due to STL exception,"
-                " i = %d, command code = 0x%08X\n", i, cmd_value);
-            return RET_FAILED;
-        }
-
-        LOGF_C(I, "time-consuming command code 0x%08X cached, i = %d\n", cmd_value, i);
-    }
-
-    LOGF_C(I, "%d time-consuming message items in total\n", msg_cmd.size());
-*/
-    return RET_OK;
 }
 
 int config_manager::__load_network_nodes(const char *type)
@@ -614,69 +515,6 @@ int config_manager::__load_network_nodes(const char *type)
     }
 
     return RET_OK;
-}
-
-int config_manager::__load_expiration(void)
-{
-#ifdef CHECK_EXPIRATION
-    TiXmlDocument *file = (TiXmlDocument *)m_config_content->config_file_ptr;
-
-    const char *xpath_expiration = XPATH_EXPIRATION;
-    std::vector<TiXmlElement> expiration_nodes;
-
-    calns::XmlHelper::FindNodesByPath(xpath_expiration, *file, expiration_nodes);
-    if (1 != expiration_nodes.size())
-    {
-        LOGF_C(E, "0 or multiple %s items found\n", xpath_expiration);
-        return RET_FAILED;
-    }
-
-    const char *expiration_str = expiration_nodes[0].GetText();
-    int encryed_len = strlen(expiration_str);
-    char decrypted_exp_str[128] = {0};
-    int decrypted_len = sizeof(decrypted_exp_str);
-
-    if (ts_db_dec(expiration_str, encryed_len, decrypted_exp_str, &decrypted_len) < 0)
-    {
-        LOGF_C(E, "failed to decrypt expiration info\n");
-        return RET_FAILED;
-    }
-    //LOGF_C(I, "expiration info decrypted successfully: %s\n", decrypted_exp_str);
-
-    std::vector<std::string> date_fragments;
-
-    if (CA_RET_OK != calns::StringHelper::Split(decrypted_exp_str, decrypted_len, "|", date_fragments)
-        || date_fragments.size() < 6)
-    {
-        LOGF_C(E, "unknown decrypted expiration info: %s\n", decrypted_exp_str);
-        return RET_FAILED;
-    }
-
-    struct tm datetime_tm;
-    time_t calendar_secs = 0;
-    const int64_t kSecsFrom1900To1970 = calns::TimeHelper::GetSecondsFrom1900To1970();
-
-    memset(&datetime_tm, 0, sizeof(struct tm));
-    datetime_tm.tm_year = atoi(date_fragments[0].c_str()) - 1900;
-    datetime_tm.tm_mon = atoi(date_fragments[1].c_str()) - 1;
-    datetime_tm.tm_mday = atoi(date_fragments[2].c_str());
-    datetime_tm.tm_hour = atoi(date_fragments[3].c_str());
-    datetime_tm.tm_min = atoi(date_fragments[4].c_str());
-    datetime_tm.tm_sec = atoi(date_fragments[5].c_str());
-
-    calendar_secs = mktime(&datetime_tm);
-
-    m_config_content->private_configs.expiration = (int64_t)(calendar_secs + kSecsFrom1900To1970) * 1000000;
-    LOGF_C(I, "expiration info parsed successfully, program will keep running"
-        " until %s-%s-%s %s:%s:%s (or UTC microseconds %ld)\n",
-        date_fragments[0].c_str(), date_fragments[1].c_str(), date_fragments[2].c_str(),
-        date_fragments[3].c_str(), date_fragments[4].c_str(), date_fragments[5].c_str(),
-        m_config_content->private_configs.expiration);
-
-    return RET_OK;
-#else
-    return RET_OK;
-#endif
 }
 
 
