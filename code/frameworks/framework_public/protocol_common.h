@@ -103,7 +103,7 @@ typedef MinimalBody                     UnifiedBodyPrefix;
 }while (0)
 #endif
 
-#define GLOG_PROTO_FIELD(field_owner, field_name, fmt, ...)                          do{\
+#define LOG_PROTO_FIELD(field_owner, field_name, fmt, ...)                          do{\
     if ((field_owner).has_##field_name()) \
         RLOGF(I, fmt, ##__VA_ARGS__); \
 }while(0)
@@ -146,18 +146,12 @@ typedef Json::Value                     msg_base;
 }while (0)
 #endif
 
-#define GLOG_PROTO_FIELD(field_owner, field_name, fmt, ...)                          do{\
+#define LOG_PROTO_FIELD(field_owner, field_name, fmt, ...)                          do{\
     if (!(field_owner)[#field_name].empty()) \
         RLOGF(I, fmt, ##__VA_ARGS__); \
 }while(0)
 
 #endif // #ifndef USE_JSON_MSG
-
-#define G_OUTPUT_REQ_PREFIX(req_body)                                               OUTPUT_REQ_PREFIX(req_body, G)
-#define T_OUTPUT_REQ_PREFIX(req_body)                                               OUTPUT_REQ_PREFIX(req_body, T)
-
-#define G_OUTPUT_RESP_PREFIX(resp_body)                                             OUTPUT_RESP_PREFIX(resp_body, G)
-#define T_OUTPUT_RESP_PREFIX(resp_body)                                             OUTPUT_RESP_PREFIX(resp_body, T)
 
 enum
 {
@@ -420,10 +414,6 @@ inline void set_proto_error_code(int32_t value, void *raw_buf)
     set_proto_header_field(HEADER_OFFSET_ERR_CODE, value, raw_buf);
 }
 
-//int proto_precheck(const int inlen, const void* inbuf, int &outlen, void* outbuf, int &retcode);
-
-//int validate_protocol_header(void *buf, int len, uint32_t cmd);
-
 int parse_header(const void *inbuf, proto_header_t *result) CA_NOTNULL(1,2);
 int assemble_header(const proto_header_t *src, void *outbuf) CA_NOTNULL(1,2);
 
@@ -539,8 +529,6 @@ int send_heartbeat_request(const int fd);
 int send_identity_report_request(const int fd);
 
 const char *desc_of_end_flag(int src_value);
-/*const char *desc_of_operation_type(int src_value);
-const char *desc_of_effect_status(int src_value);*/
 
 } // namespace cafw
 

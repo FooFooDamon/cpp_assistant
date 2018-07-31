@@ -36,38 +36,6 @@
 namespace cafw
 {
 
-/*int proto_precheck(const int inlen, const void* inbuf, int &outlen, void* outbuf, int &retcode)
-{
-    if (inlen <= 0 ||
-        NULL == inbuf ||
-        NULL == outbuf)
-    {
-        retcode = PROTO_RET_UNKNOWN_ERROR;
-        LOGF_NS(E, "cafw", "null parameter pointers\n");
-        return RET_FAILED;
-    }
-
-    // TODO
-
-    return RET_OK;
-}*/
-
-/*int validate_protocol_header(void *buf, int len, int32_t cmd)
-{
-    if (NULL == buf)
-        return CA_RET(NULL_PARAM);
-
-    if (cmd != get_proto_command(buf))
-        return CA_RET(OBJECT_MISMATCHED);
-
-    int32_t expected_total_len = get_proto_length(buf);
-
-    if (len < (int)expected_total_len)
-        return CA_RET(LENGTH_TOO_SMALL);
-
-    return RET_OK;
-}*/
-
 int parse_header(const void *inbuf, proto_header_t *result)/*  CA_NOTNULL(1,2) */
 {
 #if 0
@@ -181,8 +149,6 @@ static int get_proto_prefix_length_by_type(int type)
 
         prefix_len = resp_prefix.ByteSize();
     }
-
-    //printf("prefix_len = %d\n", prefix_len);
 
     return prefix_len;
 }
@@ -503,35 +469,5 @@ const char *desc_of_end_flag(int src_value)
 
     return desc[src_value];
 }
-
-/*const char *desc_of_operation_type(int src_value)
-{
-    const char *desc[] = {
-        "no operation",
-        "addition",
-        "modification",
-        "deletion",
-        "cancellation",
-        "query"
-    };
-
-    if (src_value < 0 || src_value >= (int)(sizeof(desc) / sizeof(char*)))
-        return "unknown operation type";
-
-    return desc[src_value];
-}
-
-const char *desc_of_effect_status(int src_value)
-{
-    const char *desc[] = {
-        "status disabled",
-        "status enabled"
-    };
-
-    if (src_value < 0 || src_value >= (int)(sizeof(desc) / sizeof(char*)))
-        return "unknown effect status";
-
-    return desc[src_value];
-}*/
 
 } // namespace cafw
