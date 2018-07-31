@@ -1,13 +1,19 @@
 mkdir -p $(dirname $0)/../logs
 cd $(dirname $0)/.. || exit 1
 
-# SERVER_COUNT and CLIENT_COUNT depend on how many server/client items are configured in the relative XML file.
-# You may need to changes these if any configuration changes.
-SERVER_COUNT=3
-CLIENT_COUNT=3
+for i in server client
+do
+	config_file=./conf/${i}s.xml
+	section_start_line=`grep "<identities>" $config_file -n | awk -F : '{ print $1 }'`
+	section_end_line=`grep "</identities>" $config_file -n | awk -F : '{ print $1 }'`
+	instance_count=`sed -n "${section_start_line},${section_end_line}p" "$config_file" | grep -i "enabled=\"yes\"" -c`
 
-#gnome-terminal -e 'bash -c "ulimit -c unlimited; sleep $(($RANDOM % $SERVER_COUNT)); ./tcp_server -c ./conf/servers.xml; read -p \"Press any key to continue ...\""' --tab --tab --tab
-gnome-terminal --tab --tab --tab -- sleep $(($RANDOM % $SERVER_COUNT)) && ./tcp_server -c ./conf/servers.xml && read -p "Press any key to continue ..."
+	for j in `seq 1 $instance_count`
+	do
+		# Does not work
+		#gnome-terminal -- $(dirname $0)/_run_single_instance.sh $instance_count $config_file
 
-#gnome-terminal -e 'bash -c "ulimit -c unlimited; sleep $(($RANDOM % $CLIENT_COUNT)); ./tcp_server -c ./conf/clients.xml; read -p \"Press any key to continue ...\""' --tab --tab --tab
-gnome-terminal --tab --tab --tab -- sleep $(($RANDOM % $CLIENT_COUNT)) && ./tcp_server -c ./conf/clients.xml && read -p "Press any key to continue ..."
+		gnome-terminal -- bash -c "$(dirname $0)/_run_single_instance.sh $instance_count $config_file"
+	done
+done
+
