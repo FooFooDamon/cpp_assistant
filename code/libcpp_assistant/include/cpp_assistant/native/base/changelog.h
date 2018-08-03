@@ -51,6 +51,12 @@
  *
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  *
+ * wxc, 2018/08/03, 0.04.02:
+ *      1. Added NO_CA_LOG macro to control if LOG*(x) could be used.
+ *      2. Added str::get_directory() series.
+ *      3. Added str::split() with a return type of vector<string>.
+ *      4. Added NO_TINYXML compilation switch.
+ *
  * wxc, 2018/07/23, 0.04.01:
  *      1. Removed TLOG_XX(), GLOG_XX() and CA_XX(), and added LOGF(x)
  *          to do the same things instead.

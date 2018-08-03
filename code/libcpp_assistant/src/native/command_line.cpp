@@ -101,7 +101,7 @@ int command_line::parse(int argc, const char **argv)
     {
         m_program_directory.assign(argv[0], program_name - argv[0]);
         /*if (0 == m_program_directory.length())
-        	m_program_directory = "/";*/
+            m_program_directory = "/";*/
         m_program_name = (++program_name);
     }
 

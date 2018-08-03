@@ -111,29 +111,29 @@ TEST(ca_string, split)
 
 TEST(ca_string, get_directory)
 {
-	const char *path = "path";
-	int path_len = strlen(path);
-	char result[4] = {0};
+    const char *path = "path";
+    int path_len = strlen(path);
+    char result[4] = {0};
 
 #if 0 // TODO: will crash if using gcc 7.3
-	ASSERT_EQ(CA_RET(INVALID_PARAM_VALUE), calib::str::get_directory(nullptr, path_len, result));
-	ASSERT_EQ(CA_RET(INVALID_PARAM_VALUE), calib::str::get_directory(path, 0, result));
-	ASSERT_EQ(CA_RET(INVALID_PARAM_VALUE), calib::str::get_directory(path, path_len, nullptr));
-	ASSERT_EQ(CA_RET(INVALID_PARAM_VALUE), calib::str::get_directory(nullptr, 0, nullptr));
+    ASSERT_EQ(CA_RET(INVALID_PARAM_VALUE), calib::str::get_directory(nullptr, path_len, result));
+    ASSERT_EQ(CA_RET(INVALID_PARAM_VALUE), calib::str::get_directory(path, 0, result));
+    ASSERT_EQ(CA_RET(INVALID_PARAM_VALUE), calib::str::get_directory(path, path_len, nullptr));
+    ASSERT_EQ(CA_RET(INVALID_PARAM_VALUE), calib::str::get_directory(nullptr, 0, nullptr));
 #endif
-	ASSERT_EQ(CA_RET(OK), calib::str::get_directory(path, path_len, result));
-	ASSERT_STREQ(result, ".");
+    ASSERT_EQ(CA_RET(OK), calib::str::get_directory(path, path_len, result));
+    ASSERT_STREQ(result, ".");
 
-	ASSERT_STREQ(calib::str::get_directory(".", strlen(".")).c_str(), ".");
-	ASSERT_STREQ(calib::str::get_directory("./", strlen("./")).c_str(), ".");
-	ASSERT_STREQ(calib::str::get_directory("./a", strlen("./a")).c_str(), ".");
-	ASSERT_STREQ(calib::str::get_directory("./a/", strlen("./a/")).c_str(), "./a");
-	ASSERT_STREQ(calib::str::get_directory("..", strlen("..")).c_str(), "..");
-	ASSERT_STREQ(calib::str::get_directory("../", strlen("../")).c_str(), "..");
-	ASSERT_STREQ(calib::str::get_directory("../b/a", strlen("../b/a")).c_str(), "../b");
-	ASSERT_STREQ(calib::str::get_directory("../b/a/", strlen("../b/a/")).c_str(), "../b/a");
-	ASSERT_STREQ(calib::str::get_directory("/", strlen("/")).c_str(), "/");
-	ASSERT_STREQ(calib::str::get_directory("/usr/local/lib/", strlen("/usr/local/lib/")).c_str(), "/usr/local/lib");
-	ASSERT_STREQ(calib::str::get_directory("/usr/local/lib/liba.so", strlen("/usr/local/lib/liba.so")).c_str(), "/usr/local/lib");
+    ASSERT_STREQ(calib::str::get_directory(".", strlen(".")).c_str(), ".");
+    ASSERT_STREQ(calib::str::get_directory("./", strlen("./")).c_str(), ".");
+    ASSERT_STREQ(calib::str::get_directory("./a", strlen("./a")).c_str(), ".");
+    ASSERT_STREQ(calib::str::get_directory("./a/", strlen("./a/")).c_str(), "./a");
+    ASSERT_STREQ(calib::str::get_directory("..", strlen("..")).c_str(), "..");
+    ASSERT_STREQ(calib::str::get_directory("../", strlen("../")).c_str(), "..");
+    ASSERT_STREQ(calib::str::get_directory("../b/a", strlen("../b/a")).c_str(), "../b");
+    ASSERT_STREQ(calib::str::get_directory("../b/a/", strlen("../b/a/")).c_str(), "../b/a");
+    ASSERT_STREQ(calib::str::get_directory("/", strlen("/")).c_str(), "/");
+    ASSERT_STREQ(calib::str::get_directory("/usr/local/lib/", strlen("/usr/local/lib/")).c_str(), "/usr/local/lib");
+    ASSERT_STREQ(calib::str::get_directory("/usr/local/lib/liba.so", strlen("/usr/local/lib/liba.so")).c_str(), "/usr/local/lib");
 }
 

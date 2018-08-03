@@ -258,31 +258,31 @@ public:
     CA_REENTRANT static inline std::vector<std::string> split(const char *src,
         const int src_len,
         const char *delim) CA_NOTNULL(1, 3)
-	{
-    	std::vector<std::string> result;
+    {
+        std::vector<std::string> result;
 
-    	split(src, src_len, delim, result);
+        split(src, src_len, delim, result);
 
-    	return result;
-	}
+        return result;
+    }
 
     // Gets the directory part of the string specified by @path, and save it into @result.
     CA_REENTRANT static int get_directory(const char *path, const int path_len, char *result) CA_NOTNULL(1, 3);
 
     // Same as the above, except that this one returns the result directly through the return value.
     CA_REENTRANT static inline std::string get_directory(const char *path, const int path_len) CA_NOTNULL(1)
-	{
-    	char result[path_len] = {0};
+    {
+        char result[path_len] = {0};
 
-    	get_directory(path, path_len, result);
+        get_directory(path, path_len, result);
 
-    	return result;
-	}
+        return result;
+    }
 
     // Same as the above, except that parameter type if this one is std::string.
     CA_REENTRANT static inline std::string get_directory(const std::string &path)
     {
-    	return get_directory(path.c_str(), path.length());
+        return get_directory(path.c_str(), path.length());
     }
 
 }; // class str
