@@ -6,7 +6,15 @@ include $(CA_LIB_ROOT)/ca_lib.mk
 DIR_LIB_INSTALL = $(CA_LIB_ROOT)/lib
 
 INCLUDES += -I. -I$(CA_LIB_ROOT)/include -I$(CA_LIB_ROOT)/include/cpp_assistant/native
-INCLUDES += -I$(CA_LIB_ROOT)/include/cpp_assistant/3rdparty/tinyxml
+ifeq ($(NO_TINYXML),)
+    INCLUDES += -I$(CA_LIB_ROOT)/include/cpp_assistant/3rdparty/tinyxml
+else
+    # If TinyXML headers are not in a system header directory,
+    # tell cpp-assistant by running: TINYXML_INC_DIR=<the actual directory>
+    ifneq ($(TINYXML_INC_DIR),)
+        INCLUDES += -I$(TINYXML_INC_DIR)
+    endif
+endif
 
 SRCS += $(shell find . -name "*.cpp" | grep -v "\.svn")
 OBJS += $(addsuffix .o, $(basename $(SRCS)))

@@ -15,19 +15,22 @@ ifeq ($(CA_SVN_VER),)
 endif
 VERSION_DEFINES := CA_MOD_DATE=$(CA_MOD_DATE) CA_MAIN_VER=$(CA_MAIN_VER) CA_SVN_VER=$(CA_SVN_VER)
 
-# If TinyXML is already installed in your system,
-# then you can specify this variable to remove it from libraries of CppAssistant.
-# NO_TINYXML=1
-ifneq ($(NO_TINYXML),)
-	TINYXML_FLAG = "NO_TINYXML=1"
-endif
-
+# If you don't want the default namespace,
+# change it by running: make CA_LIB_NAMESPACE=<the actual namespace>
 export CA_LIB_NAMESPACE
+
+# If you already have TinyXML library installed somewhere,
+# tell cpp-assistant by running: make NO_TINYXML=1
+export NO_TINYXML
 
 NATIVE_SRCS += $(shell find $(DIR_NATIVE) -name "*.cpp" | grep -v "\.svn")
 NATIVE_OBJS += $(addsuffix .o, $(basename $(NATIVE_SRCS)))
 
-3RD_PARTY_SRCS = $(shell find $(DIR_3RD_PARTY) -name "*.c*" | grep -v "\.svn")
+ifeq ($(NO_TINYXML),)
+    3RD_PARTY_SRCS = $(shell find $(DIR_3RD_PARTY) -name "*.c*" | grep -v "\.svn")
+else
+    3RD_PARTY_SRCS = $(shell find $(DIR_3RD_PARTY) -name "*.c*" | grep -v "\.svn\|tinyxml")
+endif
 3RD_PARTY_OBJS += $(addsuffix .o, $(basename $(3RD_PARTY_SRCS)))
 
 LIB_CPP_ASSISTANT.A := libcpp_assistant.a
@@ -51,7 +54,7 @@ validate_and_prepare:
 # programs use the archive!!!
 #$(LIB_CPP_ASSISTANT.A): ./native/libca_native.a ./3rdparty/libca_3rdparty.a
 $(LIB_CPP_ASSISTANT.A):
-	make static $(DEBUG_FLAG) $(STL_FLAG) $(TINYXML_FLAG) -C $(DIR_3RD_PARTY)
+	make static $(DEBUG_FLAG) $(STL_FLAG) -C $(DIR_3RD_PARTY)
 	make static $(DEBUG_FLAG) $(STL_FLAG) $(VERSION_DEFINES) -C $(DIR_NATIVE)
 	$(AR) $(AR_FLAGS) $@ $(NATIVE_OBJS) $(3RD_PARTY_OBJS)
 	$(RANLIB) $@
@@ -59,7 +62,7 @@ $(LIB_CPP_ASSISTANT.A):
 static: $(LIB_CPP_ASSISTANT.A)
 
 $(LIB_CPP_ASSISTANT.SO):
-	make shared $(DEBUG_FLAG) $(STL_FLAG) $(TINYXML_FLAG) -C $(DIR_3RD_PARTY)
+	make shared $(DEBUG_FLAG) $(STL_FLAG) -C $(DIR_3RD_PARTY)
 	make shared $(DEBUG_FLAG) $(STL_FLAG) $(VERSION_DEFINES) -C $(DIR_NATIVE)
 	$(CXX) -shared -o $@.$(CA_MAIN_VER) $(NATIVE_OBJS) $(3RD_PARTY_OBJS)
 	-ln -s $@.$(CA_MAIN_VER) $@
@@ -71,11 +74,11 @@ debug:
 	make all DEBUG=1
 
 obj_only: validate_and_prepare
-	make obj_only $(DEBUG_FLAG) $(STL_FLAG) $(TINYXML_FLAG) -C $(DIR_3RD_PARTY)
+	make obj_only $(DEBUG_FLAG) $(STL_FLAG) -C $(DIR_3RD_PARTY)
 	make obj_only $(DEBUG_FLAG) $(STL_FLAG) -C $(DIR_NATIVE)
 
 check: validate_and_prepare
-	make check $(DEBUG_FLAG) $(STL_FLAG) $(TINYXML_FLAG) -C $(DIR_3RD_PARTY)
+	make check $(DEBUG_FLAG) $(STL_FLAG) -C $(DIR_3RD_PARTY)
 	make check $(DEBUG_FLAG) $(STL_FLAG) -C $(DIR_NATIVE)
 
 install:

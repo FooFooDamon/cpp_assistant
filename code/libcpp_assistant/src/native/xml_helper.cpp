@@ -30,6 +30,8 @@
 
 #include <stdarg.h>
 
+#include "tinyxml.h"
+
 #include "ca_string.h"
 #include "private/debug.h"
 

@@ -36,8 +36,10 @@
 #ifndef __CA_3RDPARTY_H__
 #define __CA_3RDPARTY_H__
 
+#ifndef NO_TINYXML
 #include "3rdparty/tinyxml/tinyxml.h"
 #include "3rdparty/tinyxml/tinystr.h"
+#endif
 #include "3rdparty/dict.h"
 
 #endif /* __CA_3RDPARTY_H__ */

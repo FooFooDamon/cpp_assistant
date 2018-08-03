@@ -41,8 +41,10 @@
 #include <vector>
 #include <map>
 
-#include "../3rdparty/tinyxml/tinyxml.h"
 #include "base/ca_inner_necessities.h"
+
+class TiXmlElement;
+class TiXmlDocument;
 
 CA_LIB_NAMESPACE_BEGIN
 
