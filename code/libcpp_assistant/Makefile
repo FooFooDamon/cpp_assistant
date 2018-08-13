@@ -104,7 +104,7 @@ uninstall:
 
 clean:
 	rm -f $(addsuffix *, $(basename $(TARGETS)))
-	-cd $(DIR_LIB_INSTALL)/ && rm -f $(addsuffix *, $(basename $(TARGETS))) && cd -
+	#-cd $(DIR_LIB_INSTALL)/ && rm -f $(addsuffix *, $(basename $(TARGETS))) && cd -
 	find . -iname "*.plist" | xargs rm -f
 	make clean -C $(DIR_3RD_PARTY)
 	make clean -C $(DIR_NATIVE)
