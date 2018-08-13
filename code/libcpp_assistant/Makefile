@@ -82,13 +82,13 @@ check: validate_and_prepare
 	make check $(DEBUG_FLAG) $(STL_FLAG) -C $(DIR_NATIVE)
 
 install:
+	mkdir -p $(HOME)/include/cpp_assistant
+	rm -rf $(HOME)/include/cpp_assistant/*
+	cp -a -r include/cpp_assistant/* $(HOME)/include/cpp_assistant/
 	mkdir -p $(DIR_LIB_INSTALL)
 	mkdir -p $(HOME)/lib
 	make install -C $(DIR_3RD_PARTY)
 	make install -C $(DIR_NATIVE)
-	mkdir -p $(HOME)/include/cpp_assistant
-	rm -rf $(HOME)/include/cpp_assistant/*
-	cp -a -r include/cpp_assistant/* $(HOME)/include/cpp_assistant/
 	for i in $(TARGETS); \
 	do \
 		cp -a $$i* $(DIR_LIB_INSTALL)/ ;\
@@ -99,7 +99,8 @@ uninstall:
 	make uninstall -C $(DIR_3RD_PARTY)
 	make uninstall -C $(DIR_NATIVE)
 	-cd $(DIR_LIB_INSTALL)/ && rm -f $(addsuffix *, $(basename $(TARGETS))) && cd -
-	@echo "Contents in directory $(HOME)/lib and $(HOME)/include/cpp_assistant have to be cleared manually if necessary."
+	rm -rf $(HOME)/include/cpp_assistant/*
+	rm -f $(HOME)/lib/libcpp_assistant* $(HOME)/lib/libca_native* $(HOME)/lib/libca_3rdparty*
 
 clean:
 	rm -f $(addsuffix *, $(basename $(TARGETS)))

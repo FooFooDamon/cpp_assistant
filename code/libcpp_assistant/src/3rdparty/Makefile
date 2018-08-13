@@ -65,6 +65,6 @@ install:
 uninstall:
 	-cd $(DIR_LIB_INSTALL)/ && rm -f $(addsuffix *, $(basename $(TARGETS))) && cd -
 
-clean: uninstall
+clean:
 	rm -f $(addsuffix *, $(basename $(TARGETS))) $(STANDALONE_OBJS)
 	make clean -C $(DIR_TINY_XML)

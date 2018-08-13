@@ -62,5 +62,5 @@ install:
 uninstall:
 	-cd $(DIR_LIB_INSTALL)/ && rm -f $(addsuffix *, $(basename $(TARGETS))) && cd -
 
-clean: uninstall
+clean:
 	rm -f $(addsuffix *, $(basename $(TARGETS))) $(OBJS)
