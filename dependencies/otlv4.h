@@ -1,5 +1,5 @@
 // =================================================================================
-// ORACLE, ODBC and DB2/CLI Template Library, Version 4.0.424,
+// ORACLE, ODBC and DB2/CLI Template Library, Version 4.0.434,
 // Copyright (C) 1996-2018, Sergei Kuchin (skuchin@gmail.com)
 //
 // This library is free software. Permission to use, copy, modify,
@@ -25,7 +25,7 @@
 #include "otl_include_0.h"
 #endif
 
-#define OTL_VERSION_NUMBER (0x0401A8L)
+#define OTL_VERSION_NUMBER (0x0401B2L)
 
 #if defined(OTL_THIRD_PARTY_STRING_VIEW_CLASS)
 #define OTL_STD_STRING_VIEW_CLASS OTL_THIRD_PARTY_STRING_VIEW_CLASS
@@ -54,6 +54,13 @@
 
 #if defined(_MSC_VER) && (_MSC_VER==1800)
 #define OTL_CPP_11_ON
+#endif
+
+#if defined(_MSC_VER) && (_MSC_VER==1900) && !defined(_MSVC_LANG)
+// VC++ 2015 before update 3
+#if !defined(OTL_CPP_11_ON)
+#define OTL_CPP_11_ON
+#endif
 #endif
 
 #if defined(__GNUC__) && defined(__GNUC_MINOR__) && (__GNUC__*100+__GNUC_MINOR__<=407) && (__GNUC__*100+__GNUC_MINOR__>=404)
@@ -223,7 +230,47 @@
 #define OTL_ANSI_CPP_17_CONSTEXPR_IF
 #endif
 
-#if defined(OTL_STREAM_WITH_STD_TUPLE_ON) && defined(OTL_CPP_14_ON)
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && (__GNUC__*100+__GNUC_MINOR__==404) && \
+    defined(__GXX_EXPERIMENTAL_CXX0X__)
+// automatically enable some C++0X features for GNU C++ 4.4 when it's
+// used with -std=c++0x
+
+#if !defined(OTL_ANSI_CPP_11_RVAL_REF_SUPPORT)
+#define OTL_ANSI_CPP_11_RVAL_REF_SUPPORT
+#endif
+
+#if !defined(OTL_ANSI_CPP_11_VARIADIC_TEMPLATES)
+#define OTL_ANSI_CPP_11_VARIADIC_TEMPLATES
+#endif
+
+#if !defined(OTL_ANSI_CPP_11_ENUM_IS_SUPPORTED)
+#define OTL_ANSI_CPP_11_ENUM_IS_SUPPORTED
+#endif
+
+#if !defined(OTL_ANSI_CPP_11_TUPLE_IS_SUPPORTED)
+#define OTL_ANSI_CPP_11_TUPLE_IS_SUPPORTED
+#endif
+
+#if !defined(OTL_ANSI_CPP_11_ARRAY_IS_SUPPORTED)
+#define OTL_ANSI_CPP_11_ARRAY_IS_SUPPORTED
+#endif
+
+#endif
+
+#if defined(OTL_CPP_14_ON)
+// atomically enable support for std::tuples and std::arrays under
+// OTL_CPP_14_ON
+#if !defined(OTL_ANSI_CPP_11_TUPLE_IS_SUPPORTED)
+#define OTL_ANSI_CPP_11_TUPLE_IS_SUPPORTED
+#endif
+
+#if !defined(OTL_ANSI_CPP_11_ARRAY_IS_SUPPORTED)
+#define OTL_ANSI_CPP_11_ARRAY_IS_SUPPORTED
+#endif
+
+#endif
+
+#if defined(OTL_STREAM_WITH_STD_TUPLE_ON) && defined(OTL_ANSI_CPP_11_TUPLE_IS_SUPPORTED)
 #include <tuple>
 #include <utility>
 
@@ -448,6 +495,12 @@ inline int otl_sprintf_s(char* dest, size_t /* dest_sz */, const char* fmt, ...)
 #endif
 #if defined(OTL_UNICODE)
 #define OTL_ORA_UNICODE_LONG_LENGTH_IN_BYTES
+#endif
+#endif
+
+#if defined(OTL_ORA18C)
+#if !defined(OTL_ORA12C_R2)
+#define OTL_ORA12C_R2
 #endif
 #endif
 
@@ -2347,6 +2400,17 @@ struct otl_oracle_date {
   otl_oracle_date()
       : century(0), year(0), month(0), day(0), hour(0), minute(0), second(0) {}
 
+  otl_oracle_date& operator=(const otl_oracle_date& that){
+    century=that.century;
+    year=that.year;
+    month=that.month;
+    day=that.day;
+    hour=that.hour;
+    minute=that.minute;
+    second=that.second;
+    return *this;
+  }
+
   ~otl_oracle_date() {}
 };
 
@@ -2772,6 +2836,107 @@ const int otl_numeric_type_3_str_size = 60;
 typedef unsigned char otl_sql_exec_from_enum;
 const otl_sql_exec_from_enum otl_sql_exec_from_cursor_class = 0;
 const otl_sql_exec_from_enum otl_sql_exec_from_select_cursor_class = 1;
+
+#if defined(OTL_STREAM_WITH_STD_VARIANT_ON) && defined(OTL_CPP_17_ON)
+
+#include <type_traits>
+#include <variant>
+
+template<const size_t I, typename Variant>
+struct otl_convert_type_to_code_helper{
+
+  static int convert(){
+    using currType=typename std::variant_alternative<I,Variant>::type;
+    if constexpr(std::is_same_v<int,currType>)
+      return otl_var_int;
+    if constexpr(std::is_same_v<double,currType>)
+      return otl_var_double;
+    if constexpr(std::is_same_v<float,currType>)
+      return otl_var_float;
+    if constexpr(std::is_same_v<unsigned int,currType>)
+      return otl_var_unsigned_int;
+    if constexpr(std::is_same_v<short int,currType>)
+      return otl_var_short;
+    if constexpr(std::is_same_v<long int,currType>)
+      return otl_var_long_int;
+    if constexpr(std::is_same_v<otl_datetime,currType>)
+      return otl_var_timestamp;
+#if defined(OTL_BIGINT)
+    if constexpr(std::is_same_v<OTL_BIGINT,currType>)
+      return otl_var_bigint;
+#endif
+#if defined(OTL_UBIGINT)
+    if constexpr(std::is_same_v<OTL_UBIGINT,currType>)
+      return otl_var_ubigint;
+#endif
+  }
+};
+
+template<typename streamType, const size_t N, typename Variant>
+struct otl_variant_helper{
+    
+  static void write(streamType& s, const Variant& v, bool& value_written){
+    otl_variant_helper<streamType,N-1,Variant>::write(s,v,value_written);
+    if(value_written)return;
+    otl_var_desc* vd=s.describe_next_in_var();
+    if(vd && 
+       vd->ftype==otl_convert_type_to_code_helper<N-1,Variant>::convert() &&
+       v.index()==N-1){
+      // write the value only when the bind variable is of the same
+      // type and when the variant's currently held alternative's index
+      // is N-1
+      s<<std::get<N-1>(v);
+      value_written=true;
+    }
+  }
+  
+  static void read(streamType& s, Variant& v, bool& value_read){
+    otl_variant_helper<streamType,N-1,Variant>::read(s,v,value_read);
+    if(value_read)return;
+    otl_var_desc* vd=s.describe_next_out_var();
+    if(vd && vd->ftype==otl_convert_type_to_code_helper<N-1,Variant>::convert()){
+      using currType=typename std::variant_alternative<N-1,Variant>::type;
+      currType val;
+      s>>val;
+      v=val;
+      value_read=true;
+    }
+  }
+    
+};
+
+template<typename streamType, typename Variant>
+struct otl_variant_helper<streamType,1,Variant>{
+  
+  static void write(streamType& s, const Variant& v, bool& value_written) {
+    value_written=false;
+    otl_var_desc* vd=s.describe_next_in_var();
+    if(vd && 
+       vd->ftype==otl_convert_type_to_code_helper<0,Variant>::convert() &&
+      v.index()==0){
+      // write the value only when the bind variable is of the same
+      // type and when the variant's currently held alternative's
+      // index is 0
+      s<<std::get<0>(v);
+      value_written=true;
+    }
+  }
+  
+  static void read(streamType& s, Variant& v, bool& value_read) {
+    value_read=false;
+    otl_var_desc* vd=s.describe_next_out_var();
+    if(vd && vd->ftype==otl_convert_type_to_code_helper<0,Variant>::convert()){
+      using currType=typename std::variant_alternative<0,Variant>::type;
+      currType val;
+      s>>val;
+      v=val;
+      value_read=true;
+    }
+  }
+  
+};
+
+#endif
 
 class otl_long_string {
 public:
@@ -4917,6 +5082,10 @@ public:
 #else
   OTL_NO_THROW
 #endif
+#if defined(OTL_EXCEPTION_DERIVED_FROM) && \
+    defined(OTL_EXCEPTION_INITIALIZED_WITH_BASE_CLASS_CONSTRUCTOR_CALL)
+        : OTL_EXCEPTION_INITIALIZED_WITH_BASE_CLASS_CONSTRUCTOR_CALL
+#endif
   {
     stm_text[0] = 0;
     var_info[0] = 0;
@@ -4956,6 +5125,10 @@ OTL_EXCEPTION_COPIES_INPUT_STRING_IN_CASE_OF_OVERFLOW is defined
 #endif
 #else
   OTL_NO_THROW
+#endif
+#if defined(OTL_EXCEPTION_DERIVED_FROM) && \
+  defined(OTL_EXCEPTION_INITIALIZED_WITH_BASE_CLASS_CONSTRUCTOR_CALL)
+        : OTL_EXCEPTION_INITIALIZED_WITH_BASE_CLASS_CONSTRUCTOR_CALL
 #endif
   {
     stm_text[0] = 0;
@@ -6953,6 +7126,10 @@ private:
 #if defined(OTL_ORA_SDO_GEOMETRY)
 struct oci_spatial_geometry;
 #endif
+#if defined(OTL_STREAM_WITH_STD_CHAR_ARRAY_ON) && defined(OTL_ANSI_CPP_11_ARRAY_IS_SUPPORTED) || \
+    defined(OTL_STREAM_WITH_STD_UNICODE_CHAR_ARRAY_ON) && defined(OTL_ANSI_CPP_11_ARRAY_IS_SUPPORTED)
+#include <array>
+#endif
 template <OTL_TYPE_NAME TExceptionStruct, OTL_TYPE_NAME TConnectStruct,
           OTL_TYPE_NAME TCursorStruct, OTL_TYPE_NAME TVariableStruct,
           OTL_TYPE_NAME TSelectCursorStruct, OTL_TYPE_NAME TTimestampStruct>
@@ -7400,7 +7577,7 @@ public:
             OTL_RCAST(unsigned char *, sl[cur_col].val(this->cur_row));
         int len = sl[cur_col].get_len(this->cur_row);
         int buf_sz = sl[cur_col].get_elem_size();
-        if (len > buf_sz)
+        if (len > buf_sz || len<0)
           len = buf_sz;
 
 #if (defined(OTL_STL) && !defined(OTL_ACE) &&                                  \
@@ -7645,7 +7822,7 @@ public:
     return *this;
   }
 
-#if defined(OTL_STREAM_WITH_STD_UNICODE_CHAR_ARRAY_ON) && defined(OTL_CPP_14_ON) && defined(OTL_UNICODE)
+#if defined(OTL_STREAM_WITH_STD_UNICODE_CHAR_ARRAY_ON) && defined(OTL_ANSI_CPP_11_ARRAY_IS_SUPPORTED) && defined(OTL_UNICODE)
   void getString(char16_t *s, int max_size) {
     check_if_executed();
     if (eof_intern())
@@ -8071,7 +8248,7 @@ public:
     return *this;
   }
 
-#if defined(OTL_STREAM_WITH_STD_CHAR_ARRAY_ON) && defined(OTL_CPP_14_ON)
+#if defined(OTL_STREAM_WITH_STD_CHAR_ARRAY_ON) && defined(OTL_ANSI_CPP_11_ARRAY_IS_SUPPORTED)
     template<const size_t N>
     OTL_TMPL_SELECT_STREAM &operator<<(const std::array<char,N>& s){
       (*this)<<s.data();
@@ -8079,7 +8256,7 @@ public:
     }
 #endif
 
-#if defined(OTL_STREAM_WITH_STD_UNICODE_CHAR_ARRAY_ON) && defined(OTL_CPP_14_ON) && defined(OTL_UNICODE)
+#if defined(OTL_STREAM_WITH_STD_UNICODE_CHAR_ARRAY_ON) && defined(OTL_ANSI_CPP_11_ARRAY_IS_SUPPORTED) && defined(OTL_UNICODE)
     template<const size_t N>
     OTL_TMPL_SELECT_STREAM &operator<<(const std::array<char16_t,N>& s){
       (*this)<<OTL_RCAST(unsigned char*,OTL_CCAST(char16_t*,s.data()));
@@ -9196,7 +9373,7 @@ public:
     return *this;
   }
 
-#if defined(OTL_STREAM_WITH_STD_UNICODE_CHAR_ARRAY_ON) && defined(OTL_CPP_14_ON) && defined(OTL_UNICODE)
+#if defined(OTL_STREAM_WITH_STD_UNICODE_CHAR_ARRAY_ON) && defined(OTL_ANSI_CPP_11_ARRAY_IS_SUPPORTED) && defined(OTL_UNICODE)
     template<const size_t N>
     OTL_TMPL_OUT_STREAM &operator<<(const std::array<char16_t,N>& s){
       (*this)<<OTL_RCAST(const unsigned char*,s.data());
@@ -9204,7 +9381,7 @@ public:
     }
 #endif
 
-#if defined(OTL_STREAM_WITH_STD_CHAR_ARRAY_ON) && defined(OTL_CPP_14_ON)
+#if defined(OTL_STREAM_WITH_STD_CHAR_ARRAY_ON) && defined(OTL_ANSI_CPP_11_ARRAY_IS_SUPPORTED)
     template<const size_t N>
     OTL_TMPL_OUT_STREAM &operator<<(const std::array<char,N>& s){
       (*this)<<s.data();
@@ -10213,7 +10390,7 @@ public:
     return *this;
   }
 
-#if defined(OTL_STREAM_WITH_STD_UNICODE_CHAR_ARRAY_ON) && defined(OTL_CPP_14_ON) && defined(OTL_UNICODE)
+#if defined(OTL_STREAM_WITH_STD_UNICODE_CHAR_ARRAY_ON) && defined(OTL_ANSI_CPP_11_ARRAY_IS_SUPPORTED) && defined(OTL_UNICODE)
   void getString(char16_t *s, int max_size) {
     if (eof())
       return;
@@ -13069,7 +13246,7 @@ private:
   otl_var(const otl_var &)
       : p_v(nullptr), p_len(nullptr), ftype(0), act_elem_size(0),
         lob_stream_mode(false), lob_stream_flag(0), vparam_type(-1), lob_len(0),
-        lob_pos(0), lob_ftype(0), otl_adapter(otl_odbc_adapter),
+        lob_pos(0), lob_ftype(0), otl_adapter(OTL_ADAPTER_ENUM otl_odbc_adapter),
         charz_flag(false) {}
 
   otl_var &operator=(const otl_var &) { return *this; }
@@ -15578,11 +15755,11 @@ public:
 };
 #endif
 
-#if defined(OTL_STREAM_WITH_STD_CHAR_ARRAY_ON) && defined(OTL_CPP_14_ON)
+#if defined(OTL_STREAM_WITH_STD_CHAR_ARRAY_ON) && defined(OTL_ANSI_CPP_11_ARRAY_IS_SUPPORTED)
 #include <array>
 #endif
 
-#if defined(OTL_STREAM_WITH_STD_UNICODE_CHAR_ARRAY_ON) && defined(OTL_CPP_14_ON)
+#if defined(OTL_STREAM_WITH_STD_UNICODE_CHAR_ARRAY_ON) && defined(OTL_ANSI_CPP_11_ARRAY_IS_SUPPORTED)
 #include <array>
 #endif
 
@@ -15616,7 +15793,7 @@ private:
   int last_eof_rc;
   bool last_oper_was_read_op;
 
-#if defined(OTL_STREAM_WITH_STD_TUPLE_ON) && defined(OTL_CPP_14_ON)
+#if defined(OTL_STREAM_WITH_STD_TUPLE_ON) && defined(OTL_ANSI_CPP_11_TUPLE_IS_SUPPORTED)
 
 public:
  
@@ -15629,6 +15806,28 @@ public:
   template<typename...T>
   otl_stream& operator>>(std::tuple<T...>& t){
     otl_tuple_helper<otl_stream,decltype(t),sizeof...(T)>::read(*this,t);
+    return (*this);
+  }
+
+#endif
+
+#if defined(OTL_STREAM_WITH_STD_VARIANT_ON) && defined(OTL_CPP_17_ON)
+
+public:
+ 
+  template<typename...T>
+  otl_stream& operator<<(const std::variant<T...>& v){
+    bool value_written=false;
+    otl_variant_helper<otl_stream,sizeof...(T),std::variant<T...>>
+      ::write(*this,v,value_written);
+    return (*this);
+  }
+  
+  template<typename...T>
+  otl_stream& operator>>(std::variant<T...>& v){
+    bool value_read=false;
+    otl_variant_helper<otl_stream,sizeof...(T),std::variant<T...>>
+     ::read(*this,v,value_read);
     return (*this);
   }
 
@@ -17039,7 +17238,7 @@ OTL_THROWS_OTL_EXCEPTION:
   }
 #endif
 
-#if !defined(OTL_UNICODE) && defined(OTL_STREAM_WITH_STD_CHAR_ARRAY_ON) && defined(OTL_CPP_14_ON)
+#if !defined(OTL_UNICODE) && defined(OTL_STREAM_WITH_STD_CHAR_ARRAY_ON) && defined(OTL_ANSI_CPP_11_ARRAY_IS_SUPPORTED)
   template<const size_t N>
   otl_stream &operator>>(std::array<char,N>& s) OTL_THROWS_OTL_EXCEPTION {
     last_oper_was_read_op = true;
@@ -17071,7 +17270,7 @@ OTL_THROWS_OTL_EXCEPTION:
   }
 #endif
 
-#if defined(OTL_STREAM_WITH_STD_UNICODE_CHAR_ARRAY_ON) && defined(OTL_CPP_14_ON) && defined(OTL_UNICODE)
+#if defined(OTL_STREAM_WITH_STD_UNICODE_CHAR_ARRAY_ON) && defined(OTL_ANSI_CPP_11_ARRAY_IS_SUPPORTED) && defined(OTL_UNICODE)
   template<const size_t N>
   otl_stream &operator>>(std::array<char16_t,N>& s) OTL_THROWS_OTL_EXCEPTION {
     last_oper_was_read_op = true;
@@ -18238,7 +18437,7 @@ OTL_THROWS_OTL_EXCEPTION:
   }
 #endif
 
-#if defined(OTL_STREAM_WITH_STD_CHAR_ARRAY_ON) && defined(OTL_CPP_14_ON)
+#if defined(OTL_STREAM_WITH_STD_CHAR_ARRAY_ON) && defined(OTL_ANSI_CPP_11_ARRAY_IS_SUPPORTED)
   template<const size_t N>
   otl_stream &operator<<(const std::array<char,N>& s) OTL_THROWS_OTL_EXCEPTION {
     last_oper_was_read_op = false;
@@ -18261,7 +18460,7 @@ OTL_THROWS_OTL_EXCEPTION:
   }
 #endif
 
-#if defined(OTL_STREAM_WITH_STD_UNICODE_CHAR_ARRAY_ON) && defined(OTL_CPP_14_ON) && defined(OTL_UNICODE)
+#if defined(OTL_STREAM_WITH_STD_UNICODE_CHAR_ARRAY_ON) && defined(OTL_ANSI_CPP_11_ARRAY_IS_SUPPORTED) && defined(OTL_UNICODE)
   template<const size_t N>
   otl_stream &operator<<(const std::array<char16_t,N>& s) OTL_THROWS_OTL_EXCEPTION {
     last_oper_was_read_op = false;
@@ -21737,7 +21936,7 @@ private:
         cda(nullptr), connect(nullptr), buf(nullptr), buf_len(0),
         real_buf_len(0), ext_buf_flag(0), act_elem_size(0), max_tab_len(0),
         cur_tab_len(0), pl_tab_flag(0), lob_stream_flag(0), vparam_type(-1),
-        otl_adapter(otl_ora8_adapter),
+        otl_adapter(OTL_ADAPTER_ENUM otl_ora8_adapter),
         lob_stream_mode(false), 
 #if defined(OTL_UNICODE)
         unicode_var_len(0), 
@@ -21762,7 +21961,7 @@ private:
         cda(nullptr), connect(nullptr), buf(nullptr), buf_len(0),
         real_buf_len(0), ext_buf_flag(0), act_elem_size(0), max_tab_len(0),
         cur_tab_len(0), pl_tab_flag(0), lob_stream_flag(0), vparam_type(-1),
-        otl_adapter(otl_ora8_adapter),
+        otl_adapter(OTL_ADAPTER_ENUM otl_ora8_adapter),
         lob_stream_mode(false), 
 #if defined(OTL_UNICODE)
         unicode_var_len(0), 
@@ -23259,8 +23458,10 @@ public:
                                                     : cursor->get_stm_text(),
                                                 var_info);
       }
-      bind_var->get_var_struct().set_lob_stream_flag(0);
-      bind_var->set_not_null(0);
+      if(bind_var){
+        bind_var->get_var_struct().set_lob_stream_flag(0);
+        bind_var->set_not_null(0);
+      }
     }
   }
 
@@ -24364,7 +24565,7 @@ OTL_THROWS_OTL_EXCEPTION:
     return *this;
   }
 
-#if defined(OTL_STREAM_WITH_STD_CHAR_ARRAY_ON) && defined(OTL_CPP_14_ON)
+#if defined(OTL_STREAM_WITH_STD_CHAR_ARRAY_ON) && defined(OTL_ANSI_CPP_11_ARRAY_IS_SUPPORTED)
     template<const size_t N>
     OTL_ORA_REFCUR_COMMON_READ_STREAM &
     operator>>(std::array<char,N>& s) OTL_THROWS_OTL_EXCEPTION {
@@ -24450,7 +24651,7 @@ OTL_THROWS_OTL_EXCEPTION:
     return *this;
   }
 
-#if defined(OTL_STREAM_WITH_STD_UNICODE_CHAR_ARRAY_ON) && defined(OTL_CPP_14_ON)
+#if defined(OTL_STREAM_WITH_STD_UNICODE_CHAR_ARRAY_ON) && defined(OTL_ANSI_CPP_11_ARRAY_IS_SUPPORTED)
     template<const size_t N>
     OTL_ORA_REFCUR_COMMON_READ_STREAM &
     operator>>(std::array<char16_t,N>& s) OTL_THROWS_OTL_EXCEPTION {
@@ -25295,7 +25496,7 @@ public:
     return *this;
   }
 
-#if defined(OTL_STREAM_WITH_STD_CHAR_ARRAY_ON) && defined(OTL_CPP_14_ON)
+#if defined(OTL_STREAM_WITH_STD_CHAR_ARRAY_ON) && defined(OTL_ANSI_CPP_11_ARRAY_IS_SUPPORTED)
   template<const size_t N>
   otl_inout_stream &operator>>(std::array<char,N>& s) {
     otl_ora8_inout_stream::getString(s.data(),OTL_SCAST(int,s.size()));
@@ -25309,7 +25510,7 @@ public:
   }
 #endif
 
-#if defined(OTL_STREAM_WITH_STD_UNICODE_CHAR_ARRAY_ON) && defined(OTL_CPP_14_ON) && defined(OTL_UNICODE)
+#if defined(OTL_STREAM_WITH_STD_UNICODE_CHAR_ARRAY_ON) && defined(OTL_ANSI_CPP_11_ARRAY_IS_SUPPORTED) && defined(OTL_UNICODE)
   template<const size_t N>
   otl_inout_stream &operator>>(std::array<char16_t,N>& s) {
     otl_ora8_inout_stream::getString(s.data(),OTL_SCAST(int,s.size()));
@@ -26010,8 +26211,8 @@ public:
       }
 #else
       otl_time0 *tm = OTL_RCAST(otl_time0 *, vl[cur_in]->val());
-      memcpy(tm, OTL_RCAST(void *, OTL_CCAST(otl_time0 *, &t)),
-             otl_oracle_date_size);
+      otl_time0 *tp = OTL_CCAST(otl_time0 *, &t);
+      *tm=*tp;
 #endif
     }
     this->vl[cur_in]->set_not_null(0);
@@ -26169,7 +26370,7 @@ public:
     return *this;
   }
 
-#if defined(OTL_STREAM_WITH_STD_CHAR_ARRAY_ON) && defined(OTL_CPP_14_ON)
+#if defined(OTL_STREAM_WITH_STD_CHAR_ARRAY_ON) && defined(OTL_ANSI_CPP_11_ARRAY_IS_SUPPORTED)
   template<const size_t N>
   otl_ref_select_stream &operator>>(std::array<char,N>& s) {
     check_if_executed();
@@ -26270,7 +26471,7 @@ public:
     return *this;
   }
 
-#if defined(OTL_STREAM_WITH_STD_UNICODE_CHAR_ARRAY_ON) && defined(OTL_CPP_14_ON) && defined(OTL_UNICODE)
+#if defined(OTL_STREAM_WITH_STD_UNICODE_CHAR_ARRAY_ON) && defined(OTL_ANSI_CPP_11_ARRAY_IS_SUPPORTED) && defined(OTL_UNICODE)
   template<const size_t N>
   otl_ref_select_stream &operator>>(std::array<char16_t,N>& s) {
     check_if_executed();
@@ -26734,7 +26935,7 @@ public:
     return *this;
   }
 
-#if defined(OTL_STREAM_WITH_STD_UNICODE_CHAR_ARRAY_ON) && defined(OTL_CPP_14_ON) && defined(OTL_UNICODE)
+#if defined(OTL_STREAM_WITH_STD_UNICODE_CHAR_ARRAY_ON) && defined(OTL_ANSI_CPP_11_ARRAY_IS_SUPPORTED) && defined(OTL_UNICODE)
   template<const size_t N>
   otl_ref_select_stream &operator<<(const std::array<char16_t,N>& s){
     (*this)<<OTL_RCAST(unsigned char*,OTL_CCAST(char16_t*,s.data()));
@@ -27275,11 +27476,11 @@ public:
 };
 #endif
 
-#if defined(OTL_STREAM_WITH_STD_CHAR_ARRAY_ON) && defined(OTL_CPP_14_ON)
+#if defined(OTL_STREAM_WITH_STD_CHAR_ARRAY_ON) && defined(OTL_ANSI_CPP_11_ARRAY_IS_SUPPORTED)
 #include <array>
 #endif
 
-#if defined(OTL_STREAM_WITH_STD_UNICODE_CHAR_ARRAY_ON) && defined(OTL_CPP_14_ON)
+#if defined(OTL_STREAM_WITH_STD_UNICODE_CHAR_ARRAY_ON) && defined(OTL_ANSI_CPP_11_ARRAY_IS_SUPPORTED)
 #include <array>
 #endif
 
@@ -29063,7 +29264,7 @@ OTL_THROWS_OTL_EXCEPTION:
     return *this;
   }
 
-#if defined(OTL_STREAM_WITH_STD_TUPLE_ON) && defined(OTL_CPP_14_ON)
+#if defined(OTL_STREAM_WITH_STD_TUPLE_ON) && defined(OTL_ANSI_CPP_11_TUPLE_IS_SUPPORTED)
 
 public:
  
@@ -29076,6 +29277,28 @@ public:
   template<typename...T>
   otl_stream& operator>>(std::tuple<T...>& t){
     otl_tuple_helper<otl_stream,decltype(t),sizeof...(T)>::read(*this,t);
+    return (*this);
+  }
+
+#endif
+
+#if defined(OTL_STREAM_WITH_STD_VARIANT_ON) && defined(OTL_CPP_17_ON)
+
+public:
+ 
+  template<typename...T>
+  otl_stream& operator<<(const std::variant<T...>& v){
+    bool value_written=false;
+    otl_variant_helper<otl_stream,sizeof...(T),std::variant<T...>>
+      ::write(*this,v,value_written);
+    return (*this);
+  }
+  
+  template<typename...T>
+  otl_stream& operator>>(std::variant<T...>& v){
+    bool value_read=false;
+    otl_variant_helper<otl_stream,sizeof...(T),std::variant<T...>>
+        ::read(*this,v,value_read);
     return (*this);
   }
 
@@ -29622,7 +29845,7 @@ public:
   }
 #endif
 
-#if !defined(OTL_UNICODE) && defined(OTL_STREAM_WITH_STD_CHAR_ARRAY_ON) && defined(OTL_CPP_14_ON)
+#if !defined(OTL_UNICODE) && defined(OTL_STREAM_WITH_STD_CHAR_ARRAY_ON) && defined(OTL_ANSI_CPP_11_ARRAY_IS_SUPPORTED)
   template<const size_t N>
   OTL_ORA_COMMON_READ_STREAM &operator>>(std::array<char,N>& s) OTL_THROWS_OTL_EXCEPTION {
     last_oper_was_read_op = true;
@@ -29688,7 +29911,7 @@ public:
 
 #endif
 
-#if defined(OTL_UNICODE) && defined(OTL_STREAM_WITH_STD_UNICODE_CHAR_ARRAY_ON) && defined(OTL_CPP_14_ON)
+#if defined(OTL_UNICODE) && defined(OTL_STREAM_WITH_STD_UNICODE_CHAR_ARRAY_ON) && defined(OTL_ANSI_CPP_11_ARRAY_IS_SUPPORTED)
   template<const size_t N>
   OTL_ORA_COMMON_READ_STREAM &operator>>(std::array<char16_t,N>& s) OTL_THROWS_OTL_EXCEPTION {
     last_oper_was_read_op = true;
@@ -34610,4 +34833,3 @@ inline void otl_write_row(S &s, const T1 &t1, const T2 &t2, const T3 &t3,
 #endif
 
 #endif
- 
