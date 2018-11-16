@@ -38,8 +38,9 @@ echo "" >> $target_file
 echo "#include <stdio.h>" >> $target_file
 echo "" >> $target_file
 
-echo "#include \"$target_h\"" >> $target_file
+echo "#include \"$(basename $target_h)\"" >> $target_file
 echo "" >> $target_file
+[ -z "$SQL_NAMESPACE" ] || printf "namespace $SQL_NAMESPACE {\n\n" >> $target_file
 
 line_num=0
 begin_line_num=0
@@ -105,5 +106,6 @@ rm -f $print_func_file
 rm -f sql_names.txt
 
 echo "" >> $target_file
+[ -z "$SQL_NAMESPACE" ] || printf "} // namespace $SQL_NAMESPACE\n\n" >> $target_file
 #echo "Conversion finished successfully."
 
