@@ -48,7 +48,7 @@ static bool s_settings_initialized = false;
 
 #define GET_SETTING_CAPACITY()              (sizeof(s_signal_settings) / sizeof(signal_setting_t))
 
-#define INIT_SIG_SETTINGS_ONCE()            do {\
+#define INIT_SIG_SETTINGS_ONCE()            do { \
     if (!s_settings_initialized) { \
         init_signal_settings(); \
         /*nsdebug(signal_capturer, "Signal initialization successful.\n");*/\

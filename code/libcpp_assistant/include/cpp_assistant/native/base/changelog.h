@@ -51,6 +51,10 @@
  *
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  *
+ * wxc, 2018/11/24, 0.04.03:
+ *      1. Added str::dirname(), basename() and split_dir_and_basename().
+ *      2. Changed return value (with type of int) of str::get_directory().
+ *
  * wxc, 2018/08/03, 0.04.02:
  *      1. Added NO_CA_LOG macro to control if LOG*(x) could be used.
  *      2. Added str::get_directory() series.

@@ -30,6 +30,7 @@
 
 #include "base/ca_return_code.h"
 //#define TIXML_USE_STL "YES"
+#include "cpp_assistant/3rdparty/tinyxml/tinyxml.h"
 #include "xml_helper.h"
 
 enum

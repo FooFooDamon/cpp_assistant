@@ -70,16 +70,24 @@
 
 // Tells the compiler to check the format string argument and arguments afterwards
 // of a printf-like function.
-#define CA_PRINTF_CHECK(fmt_str_index, first_arg_index) \
+#define CA_PRINTF_CHECK(fmt_str_index, first_arg_index)             \
     CA_FORMAT_CHECK(__printf__, fmt_str_index, first_arg_index)
 
 #define CA_BEFORE_CPP_11                            __cplusplus < 201103L
 #define CA_SINCE_CPP_11                             __cplusplus >= 201103L
 
 #if CA_BEFORE_CPP_11
+
 #define override
+
 #define final
+
 #define nullptr                                     NULL
-#endif // if __cplusplus < 201103L
+
+#endif // if CA_BEFORE_CPP_11
+
+#ifndef CA_MAX_LEN_IN_STACK
+#define CA_MAX_LEN_IN_STACK                        8192
+#endif
 
 #endif /* __CPP_ASSISTANT_COMPILER_H__ */

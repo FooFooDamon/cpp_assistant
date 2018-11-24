@@ -58,12 +58,12 @@ CA_LIB_NAMESPACE_BEGIN
 #define DOUBLE_TYPE_NAME                                                "double"
 #define LONG_DOUBLE_TYPE_NAME                                           "long double"
 
-#define IS_NOT_FLOATING_POINT_TYPE(type)                                      \
+#define IS_NOT_FLOATING_POINT_TYPE(type)                                \
     (typeid(float) != typeid(type) \
     && typeid(double) != typeid(type) \
     && typeid(long double) != typeid(type))
 
-#define THROW_EXCEPTION_IF_NOT_FLOATING_POINT(type)                           \
+#define THROW_EXCEPTION_IF_NOT_FLOATING_POINT(type)                     \
     if (IS_NOT_FLOATING_POINT_TYPE(type)) \
         throw "Type("#type") is not one of floating point types: float, double, long double."
 

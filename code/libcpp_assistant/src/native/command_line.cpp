@@ -112,7 +112,7 @@ int command_line::parse(int argc, const char **argv)
     #define ADD_VALUE(_option_, _value_) do{\
         int add_value_ret = add_value(_option_, _value_); \
         if (CA_RET(UNKNOWN_CMD_LINE_OPTION) == add_value_ret) \
-            return CA_RET(UNKNOWN_CMD_LINE_OPTION);\
+            return CA_RET(UNKNOWN_CMD_LINE_OPTION); \
         if (CA_RET(EXCESS_OBJECT_COUNT) == add_value_ret) \
         {\
             short_option = nullptr; \

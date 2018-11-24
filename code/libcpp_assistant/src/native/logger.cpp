@@ -220,7 +220,7 @@ int logger::output(bool has_prefix,
                 now.tm_hour, now.tm_min, now.tm_sec, tv.tv_usec, LEVEL_STR);
         else
             /*write_ret += */fprintf(destination, "[%04d-%02d-%02d %02d:%02d:%02d.%06ld]%s ",
-                now.tm_year + 1900, now.tm_mon + 1, now.tm_mday, \
+                now.tm_year + 1900, now.tm_mon + 1, now.tm_mday,
                 now.tm_hour, now.tm_min, now.tm_sec, tv.tv_usec, LEVEL_STR);
     }
 

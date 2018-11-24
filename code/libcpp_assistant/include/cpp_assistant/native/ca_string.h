@@ -53,10 +53,6 @@ CA_LIB_NAMESPACE_BEGIN
 class str : public no_instance
 {
 public:
-    enum
-    {
-        MAX_LEN_IN_STACK = 4 * 1024
-    };
 
     typedef struct char_less_than_operator
     {
@@ -149,7 +145,7 @@ public:
     {
         dst.clear();
 
-        char buf[MAX_LEN_IN_STACK] = {0};
+        char buf[CA_MAX_LEN_IN_STACK] = {0};
         int ret = to_string(src, sizeof(buf), buf);
 
         if (ret < 0)
@@ -266,24 +262,63 @@ public:
         return result;
     }
 
-    // Gets the directory part of the string specified by @path, and save it into @result.
-    CA_REENTRANT static int get_directory(const char *path, const int path_len, char *result) CA_NOTNULL(1, 3);
+    // Gets the directory part out of the string specified by @path, and save it into @result.
+    // Returns the length of result directory on success, or a negative number on error.
+    // NOTE:
+    //    1) If @path_len is less than the actual length of @path, then a sub-string of @path will be handled;
+    //        if @path_len is greater than the actual length of @path, the result is undefined.
+    //    2) Size of @result should be large enough to hold the result contents.
+    CA_REENTRANT static int get_directory(const char *path, const int path_len, char *result, const char dir_delim = '/') CA_NOTNULL(1, 3);
 
     // Same as the above, except that this one returns the result directly through the return value.
-    CA_REENTRANT static inline std::string get_directory(const char *path, const int path_len) CA_NOTNULL(1)
+    CA_REENTRANT static inline std::string get_directory(const char *path, const int path_len, const char dir_delim = '/') CA_NOTNULL(1)
     {
-        char result[path_len] = {0};
+        if (path_len <= 0/* || nullptr == path*/)
+            return "";
 
-        get_directory(path, path_len, result);
+        std::string result(path_len + 1, '\0');
+        char *result_ptr = (char*)result.c_str();
+        int dir_len = get_directory(path, path_len, result_ptr, dir_delim);
+
+        if (dir_len > 0 && dir_len != path_len)
+            result.resize(dir_len);
 
         return result;
     }
 
     // Same as the above, except that parameter type if this one is std::string.
-    CA_REENTRANT static inline std::string get_directory(const std::string &path)
+    CA_REENTRANT static inline std::string get_directory(const std::string &path, const char dir_delim = '/')
     {
-        return get_directory(path.c_str(), path.length());
+        return get_directory(path.c_str(), path.length(), dir_delim);
     }
+
+    // A Bash-like function, same as get_directory() with the same parameters
+    CA_REENTRANT static inline std::string dirname(const char *path, const int path_len, const char dir_delim = '/') CA_NOTNULL(1)
+    {
+        return get_directory(path, path_len, dir_delim);
+    }
+
+    CA_REENTRANT static inline std::string dirname(const std::string &path, const char dir_delim = '/')
+    {
+        return get_directory(path.c_str(), path.length(), dir_delim);
+    }
+
+    CA_REENTRANT static std::pair<std::string, std::string> split_dir_and_basename(const std::string &path,
+        const char dir_delim = '/',
+        const char *basename_suffix = nullptr,
+        const bool is_case_sensitive = true);
+
+    // TODO: split_dir_and_basename(const char *path, ...);
+
+    CA_REENTRANT static inline std::string basename(const std::string &path,
+        const char dir_delim = '/',
+        const char *basename_suffix = nullptr,
+        const bool is_case_sensitive = true)
+    {
+        return split_dir_and_basename(path, dir_delim, basename_suffix, is_case_sensitive).second;
+    }
+
+    // TODO: basename(const char *path, ...);
 
 }; // class str
 

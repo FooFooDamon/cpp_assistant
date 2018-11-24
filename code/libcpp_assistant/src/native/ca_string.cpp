@@ -47,7 +47,7 @@ CA_REENTRANT /* static */int str::split(const char *src,
         || nullptr == delim)
         return CA_RET(INVALID_PARAM_VALUE);
 
-    bool is_long_str = (src_len + 1 > MAX_LEN_IN_STACK);
+    bool is_long_str = (src_len + 1 > CA_MAX_LEN_IN_STACK);
     char *buf_heap = nullptr;
 
     if (is_long_str)
@@ -57,7 +57,7 @@ CA_REENTRANT /* static */int str::split(const char *src,
             return CA_RET(MEMORY_ALLOC_FAILED);
     }
 
-    char buf_stack[MAX_LEN_IN_STACK] = {0};
+    char buf_stack[CA_MAX_LEN_IN_STACK] = {0};
     char *buf = is_long_str ? buf_heap : buf_stack;
     char *part = nullptr;
     char *save_ptr = nullptr;
@@ -94,36 +94,83 @@ CA_REENTRANT /* static */int str::split(const char *src,
     return CA_RET_OK;
 }
 
-CA_REENTRANT /* static */int str::get_directory(const char *path, const int path_len, char *result)/* CA_NOTNULL(1, 3) */
+CA_REENTRANT /* static */int str::get_directory(const char *path, const int path_len, char *result, const char dir_delim/* = '/'*/)/* CA_NOTNULL(1, 3) */
 {
     if (path_len <= 0
         || nullptr == path
         || nullptr == result)
         return CA_RET(INVALID_PARAM_VALUE);
 
-    const char *last_dir_delim_ptr = strrchr(path, get_directory_delimiter());
+    int pos = path_len;
 
-    if (nullptr == last_dir_delim_ptr)
+    while (--pos >= 0 &&  path[pos] != dir_delim);
+
+    if (pos < 0)
     {
         if (0 == strcmp(path, ".."))
+        {
             strncpy(result, "..", 3);
-        else
-            strncpy(result, ".", 2);
 
-        return CA_RET_OK;
+            return 2;
+        }
+
+        strncpy(result, ".", 2);
+
+        return 1;
     }
 
-    size_t dir_len = last_dir_delim_ptr - path;
+    size_t dir_len = pos;
 
     if (0 == dir_len)
-        strncpy(result, "/", 2);
-    else
     {
-        strncpy(result, path, dir_len);
-        result[dir_len] = '\0';
+        strncpy(result, "/", 2);
+
+        return 1;
     }
 
-    return CA_RET_OK;
+    strncpy(result, path, dir_len);
+    result[dir_len] = '\0';
+
+    return dir_len;
+}
+
+CA_REENTRANT /* static */ std::pair<std::string, std::string> str::split_dir_and_basename(const std::string &path,
+    const char dir_delim/* = '/'*/,
+    const char *basename_suffix/* = nullptr*/,
+    const bool is_case_sensitive/* = true*/)
+{
+    const char *path_ptr = path.c_str();
+    int path_len = path.length();
+    const std::string &dir = get_directory(path_ptr, path_len, dir_delim);
+    size_t dir_len = dir.length();
+
+    if (0 == dir_len)
+        return std::make_pair("", "");
+
+    bool path_is_pure_dir = (dir_delim == path[path_len - 1]) || ("." == path) || (".." == path);
+
+    if (path_is_pure_dir)
+        return std::make_pair(dir, "");
+
+    int basename_start_pos = (dir_delim == path[dir_len]) ? (dir_len + 1) : 0;
+    const std::string &basename = path.substr(basename_start_pos);
+
+    if (nullptr == basename_suffix)
+        return std::make_pair(dir, basename);
+
+    size_t basename_len = basename.length();
+    size_t last_dot_pos = basename.rfind(".");
+
+    if (0 == last_dot_pos || std::string::npos == last_dot_pos)
+        return std::make_pair(dir, basename);
+
+    if ((basename_len - 1 == last_dot_pos && 0 == strcmp(".", basename_suffix))
+        || 0 == strcmp(".*", basename_suffix)
+        || (is_case_sensitive && 0 == basename.substr(last_dot_pos + 1).compare(basename_suffix + 1))
+        || (!is_case_sensitive && 0 == strcasecmp(basename.substr(last_dot_pos + 1).c_str(), basename_suffix + 1)))
+        return std::make_pair(dir, basename.substr(0, last_dot_pos));
+
+    return std::make_pair(dir, basename);
 }
 
 CA_LIB_NAMESPACE_END
