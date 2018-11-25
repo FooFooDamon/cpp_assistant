@@ -320,6 +320,10 @@ public:
 
     // TODO: basename(const char *path, ...);
 
+    CA_REENTRANT static std::string get_absolute_path(const char *path) CA_NOTNULL(1);
+
+    CA_REENTRANT static std::string get_self_absolute_path(void);
+
 }; // class str
 
 typedef str::char_less_than_operator                    char_less_than_operator;

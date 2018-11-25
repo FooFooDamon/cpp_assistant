@@ -31,10 +31,21 @@
 #include "base/ca_return_code.h"
 
 int g_ret = CA_RET_GENERAL_FAILURE;
+static std::vector<std::string> s_cmd_args;
+
+std::vector<std::string>& get_commandline_arguments(void)
+{
+    return s_cmd_args;
+}
 
 int main(int argc, char **argv)
 {
+    for (int i = 0; i < argc; ++i)
+    {
+        s_cmd_args.push_back(argv[i]);
+    }
     testing::InitGoogleTest(&argc, argv);
+
     return RUN_ALL_TESTS();
 }
 

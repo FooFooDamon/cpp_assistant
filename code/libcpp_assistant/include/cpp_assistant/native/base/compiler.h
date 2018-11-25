@@ -90,4 +90,12 @@
 #define CA_MAX_LEN_IN_STACK                        8192
 #endif
 
+#ifndef CA_MAX_FILENAME_LEN
+#define CA_MAX_FILENAME_LEN                        255
+#endif
+
+#ifndef CA_MAX_PATH_LEN
+#define CA_MAX_PATH_LEN                            4095
+#endif
+
 #endif /* __CPP_ASSISTANT_COMPILER_H__ */

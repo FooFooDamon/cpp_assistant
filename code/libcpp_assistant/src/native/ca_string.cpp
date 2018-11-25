@@ -134,7 +134,7 @@ CA_REENTRANT /* static */int str::get_directory(const char *path, const int path
     return dir_len;
 }
 
-CA_REENTRANT /* static */ std::pair<std::string, std::string> str::split_dir_and_basename(const std::string &path,
+CA_REENTRANT /* static */std::pair<std::string, std::string> str::split_dir_and_basename(const std::string &path,
     const char dir_delim/* = '/'*/,
     const char *basename_suffix/* = nullptr*/,
     const bool is_case_sensitive/* = true*/)
@@ -171,6 +171,29 @@ CA_REENTRANT /* static */ std::pair<std::string, std::string> str::split_dir_and
         return std::make_pair(dir, basename.substr(0, last_dot_pos));
 
     return std::make_pair(dir, basename);
+}
+
+CA_REENTRANT /* static */std::string str::get_absolute_path(const char *path)/* CA_NOTNULL(1) */
+{
+    if (nullptr == path || strlen(path) > CA_MAX_PATH_LEN)
+        return "";
+
+    char result[CA_MAX_PATH_LEN + 1] = {0};
+
+    if (nullptr == realpath(path, result))
+        return "";
+
+    return result;
+}
+
+CA_REENTRANT /* static */std::string str::get_self_absolute_path(void)
+{
+    char result[CA_MAX_PATH_LEN + 1] = {0};
+
+    if (readlink("/proc/self/exe", result, CA_MAX_PATH_LEN) < 0)
+        return "";
+
+    return result;
 }
 
 CA_LIB_NAMESPACE_END

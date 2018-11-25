@@ -29,6 +29,9 @@
 #ifndef __CPP_ASSISTANT_UNITTEST_COMMON_HEADERS_H__
 #define __CPP_ASSISTANT_UNITTEST_COMMON_HEADERS_H__
 
+#include <string>
+#include <vector>
+
 #include <gtest/gtest.h>
 
 #include "base/ca_inner_necessities.h"
@@ -44,6 +47,8 @@ extern int g_ret;
     test_func; \
     ASSERT_EQ(CA_RET_OK, g_ret); \
     printf("~ ~ ~ ~ "#test_func" passed ~ ~ ~ ~\n\n")
+
+std::vector<std::string>& get_commandline_arguments(void);
 
 #endif // __CPP_ASSISTANT_UNITTEST_COMMON_HEADERS_H__
 

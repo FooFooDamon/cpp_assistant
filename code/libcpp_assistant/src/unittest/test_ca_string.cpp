@@ -199,3 +199,17 @@ TEST(ca_string, split_dir_and_basename)
     ASSERT_STREQ(result.second.c_str(), "xx");
 }
 
+TEST(ca_string, absolute_path_apis)
+{
+    const std::string &cmd_program_path = get_commandline_arguments()[0];
+    const std::string &fixed_absolute_path = calib::str::get_absolute_path(cmd_program_path.c_str());
+    const std::string &self_absolute_path = calib::str::get_self_absolute_path();
+
+    printf("Program path fetched from command line: %s\n", cmd_program_path.c_str());
+    printf("Path after being fixed by calib::str::get_absolute_path(): %s\n", fixed_absolute_path.c_str());
+    printf("Program path fetched using calib::str::get_self_absolute_path() directly: %s\n", self_absolute_path.c_str());
+
+    ASSERT_STREQ(fixed_absolute_path.c_str(), self_absolute_path.c_str());
+    //ASSERT_STREQ(calib::str::get_absolute_path(nullptr).c_str(), "");  // TODO: will crash if using gcc 7.3
+}
+

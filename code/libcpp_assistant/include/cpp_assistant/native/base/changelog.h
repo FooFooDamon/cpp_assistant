@@ -51,8 +51,9 @@
  *
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  *
- * wxc, 2018/11/24, 0.04.03:
- *      1. Added str::dirname(), basename() and split_dir_and_basename().
+ * wxc, 2018/11/25, 0.04.03:
+ *      1. Added str::dirname(), basename(), split_dir_and_basename(),
+ *          get_absolute_path() and get_self_absolute_path().
  *      2. Changed return value (with type of int) of str::get_directory().
  *
  * wxc, 2018/08/03, 0.04.02:
