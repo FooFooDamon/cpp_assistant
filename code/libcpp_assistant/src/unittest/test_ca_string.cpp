@@ -42,6 +42,13 @@ TEST(ca_string, split)
     const char *DELIM_COMMA = ",";
     std::vector<std::string> result;
 
+    ASSERT_EQ(CA_RET(OK), calib::str::split(DELIM_SLASH, strlen(DELIM_SLASH), DELIM_SLASH, result));
+    ASSERT_EQ(0, result.size());
+    ASSERT_EQ(CA_RET(OK), calib::str::split("/foo", strlen("/foo"), DELIM_SLASH, result));
+    ASSERT_EQ(1, result.size());
+    ASSERT_EQ(CA_RET(OK), calib::str::split("foo/", strlen("foo/"), DELIM_SLASH, result));
+    ASSERT_EQ(1, result.size());
+
     /*
      * Tests a short string.
      */
