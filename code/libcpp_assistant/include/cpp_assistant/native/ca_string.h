@@ -262,6 +262,19 @@ public:
         return result;
     }
 
+    CA_REENTRANT static inline int split(const std::string &src,
+        const char *delim,
+        std::vector<std::string> &result) CA_NOTNULL(2)
+	{
+    	return split(src.c_str(), src.length(), delim, result);
+	}
+
+    CA_REENTRANT static inline std::vector<std::string> split(const std::string &src,
+        const char *delim) CA_NOTNULL(2)
+	{
+    	return split(src.c_str(), src.length(), delim);
+	}
+
     // Gets the directory part out of the string specified by @path, and save it into @result.
     // Returns the length of result directory on success, or a negative number on error.
     // NOTE:
