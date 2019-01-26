@@ -7,7 +7,7 @@ endif
 ifeq ($(DEBUG), 1)
     DEBUG_FLAG = "DEBUG=1"
     DEFINES += -DDEBUG
-    OPTIMIZE_FLAG = -O0
+    OPTIMIZE_FLAG = -O0 -g -ggdb
 else
     OPTIMIZE_FLAG = -O2
 endif
@@ -16,6 +16,6 @@ ifneq ($(CA_LIB_NAMESPACE),)
     DEFINES += -DCA_LIB_NAMESPACE=$(CA_LIB_NAMESPACE) -DCA_LIB_NAMESPACE_STR=\"$(CA_LIB_NAMESPACE)\"
 endif
 
-CFLAGS += $(DEFINES) $(INCLUDES) $(OPTIMIZE_FLAG) -g -fPIC -Wno-misleading-indentation -Wno-nonnull-compare
+CFLAGS += $(DEFINES) $(INCLUDES) $(OPTIMIZE_FLAG) -fPIC -Wno-misleading-indentation -Wno-nonnull-compare
 CXXFLAGS = $(CFLAGS) -ftemplate-depth-128
 LDFLAGS +=
