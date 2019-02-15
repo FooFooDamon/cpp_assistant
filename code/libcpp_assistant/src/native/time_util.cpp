@@ -106,34 +106,34 @@ const time_util& time_util::operator=(const time_util& src)
     return CA_RET_OK;
 }
 
-/*static */int64_t time_util::get_utc_seconds(void)
+/*static */int64_t time_util::get_utc_seconds(bool since_1900/* = true */)
 {
-    return (int64_t)(time(nullptr)) + get_seconds_from_1900_to_1970();
+    return (int64_t)(time(nullptr)) + (since_1900 ? get_seconds_from_1900_to_1970() : 0);
 }
 
-/*static */int64_t time_util::get_utc_microseconds(void)
+/*static */int64_t time_util::get_utc_microseconds(bool since_1900/* = true */)
 {
     struct timeval tv;
     int64_t sum = 0;
 
     gettimeofday(&tv, nullptr);
 
-    sum = (int64_t)(tv.tv_sec) + get_seconds_from_1900_to_1970();
+    sum = (int64_t)(tv.tv_sec) + (since_1900 ? get_seconds_from_1900_to_1970() : 0);
     sum *= ONE_SEC_USECS;
     sum += tv.tv_usec;
 
     return sum;
 }
 
-/*static */int64_t time_util::get_local_seconds(void)
+/*static */int64_t time_util::get_local_seconds(bool since_1900/* = true */)
 {
-    return get_utc_seconds() + (int64_t)get_time_zone() * ONE_HOUR_SECS;
+    return get_utc_seconds(since_1900) + (int64_t)get_time_zone() * ONE_HOUR_SECS;
     // TODO: Or try this: mktime(localtime(&(time(nullptr))). Of course, use their *_r() versions.
 }
 
-/*static */int64_t time_util::get_local_microseconds(void)
+/*static */int64_t time_util::get_local_microseconds(bool since_1900/* = true */)
 {
-    return get_utc_microseconds() + (int64_t)get_time_zone() * ONE_HOUR_SECS * ONE_SEC_USECS;
+    return get_utc_microseconds(since_1900) + (int64_t)get_time_zone() * ONE_HOUR_SECS * ONE_SEC_USECS;
 }
 
 CA_LIB_NAMESPACE_END

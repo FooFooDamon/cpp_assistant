@@ -51,6 +51,11 @@
  *
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  *
+ * wxc, 2019/02/15, 0.04.04:
+ *      1. Added str::split() with std::string type input parameter.
+ *      2. Added default parameter since_1900 = true into time_util::get_utc/local_xxx().
+ *      3. Fixed the compile flags: Debug: -O0 -g -ggdb; Release: -O3
+ *
  * wxc, 2018/11/25, 0.04.03:
  *      1. Added str::dirname(), basename(), split_dir_and_basename(),
  *          get_absolute_path() and get_self_absolute_path().

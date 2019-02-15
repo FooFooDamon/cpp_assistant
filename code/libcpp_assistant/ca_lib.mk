@@ -9,7 +9,7 @@ ifeq ($(DEBUG), 1)
     DEFINES += -DDEBUG
     OPTIMIZE_FLAG = -O0 -g -ggdb
 else
-    OPTIMIZE_FLAG = -O2
+    OPTIMIZE_FLAG = -O3
 endif
 
 ifneq ($(CA_LIB_NAMESPACE),)

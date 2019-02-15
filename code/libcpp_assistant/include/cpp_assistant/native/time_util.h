@@ -102,17 +102,17 @@ public:
 
     /*
      * get_utc_xxx(): Gets current time value of a specified type in time zone 0,
-     * which starts from 1900 AD.
+     * which starts from 1900 or 1970 AD.
      */
-    static int64_t get_utc_seconds(void);
-    static int64_t get_utc_microseconds(void);
+    static int64_t get_utc_seconds(bool since_1900 = true/* since 1970 if false */);
+    static int64_t get_utc_microseconds(bool since_1900 = true/* since 1970 if false */);
 
     /*
      * Gets current time value of a specified type in local place,
-     * which starts from 1900 AD.
+     * which starts from 1900 or 1970 AD.
      */
-    static int64_t get_local_seconds(void);
-    static int64_t get_local_microseconds(void);
+    static int64_t get_local_seconds(bool since_1900 = true/* since 1970 if false */);
+    static int64_t get_local_microseconds(bool since_1900 = true/* since 1970 if false */);
 
 /* ===================================
  * attributes:
