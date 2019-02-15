@@ -11,7 +11,7 @@ do
 done
 # tts.sh is a self-made script that turns all tabs in files into spaces.
 tts.sh $SCRIPT_DIR/../code
-tar -zcvf ~/cpp_assistant_${version}.tar.gz $SCRIPT_DIR/../../cpp_assistant/ \
-	--exclude ".git" --exclude ".svn" --exclude "*.log" --exclude "*.a" --exclude "*.so" --exclude "*.so.*"
+tar --exclude ".git" --exclude ".svn" --exclude "*.log" --exclude "*.a" --exclude "*.so" --exclude "*.so.*" \
+	-zcvf ~/cpp_assistant_${version}.tar.gz $SCRIPT_DIR/../../cpp_assistant/
 nautilus ~/cpp_assistant_${version}.tar.gz
 

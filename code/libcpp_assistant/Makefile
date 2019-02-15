@@ -111,11 +111,11 @@ clean:
 
 update_copyright:
 	# update_code_copyright.sh is a self-made script that adds copyright info into all code files, or updates them.
-	-for i in `find ./src/ -path ./src/3rdparty -prune -o -type f -iname "*.[ch]*" -print | grep -v "\.svn"`; \
+	-for i in `find ./src/ -path ./src/3rdparty -prune -o -type f -iname "*.[ch]*" -print | grep -v "\.svn" | grep -v "\.git"`; \
 	do \
 		update_code_copyright.sh $$i; \
 	done
-	-for i in `find ./include/ -path ./include/cpp_assistant/3rdparty -prune -o -type f -iname "*.h" -print | grep -v "\.svn"`; \
+	-for i in `find ./include/ -path ./include/cpp_assistant/3rdparty -prune -o -type f -iname "*.h" -print | grep -v "\.svn" | grep -v "\.git"`; \
 	do \
 		update_code_copyright.sh $$i; \
 	done
@@ -126,5 +126,5 @@ pack:
 	make update_copyright
 	# tts.sh is a self-made script that turns all tabs in files into spaces.
 	-tts.sh ../libcpp_assistant/
-	tar -zcvf ~/libcpp_assistant_v$(CA_MAIN_VER).tar.gz ../libcpp_assistant/
+	tar --exclude ".git" --exclude ".svn" --exclude "*.log" --exclude "*.a" --exclude "*.so" --exclude "*.so.*" -zcvf ~/libcpp_assistant_v$(CA_MAIN_VER).tar.gz ../libcpp_assistant/
 	-nautilus ~/libcpp_assistant_v$(CA_MAIN_VER).tar.gz
