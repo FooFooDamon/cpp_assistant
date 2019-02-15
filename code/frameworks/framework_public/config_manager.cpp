@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, Wen Xiongchang <udc577 at 126 dot com>
+ * Copyright (c) 2016-2019, Wen Xiongchang <udc577 at 126 dot com>
  * All rights reserved.
  *
  * This software is provided 'as-is', without any express or implied
@@ -146,10 +146,10 @@ int config_manager::load(void)
 
     if ('/' != common_config_dir[0])
     {
-    	std::string private_config_dir(calns::str::get_directory(m_config_content->config_file_path));
+        std::string private_config_dir(calns::str::get_directory(m_config_content->config_file_path));
 
-    	common_config = private_config_dir + "/" + common_config;
-    	QLOGF_C(I, "file path has been fixed due to relative path usage: %s\n", common_config.c_str());
+        common_config = private_config_dir + "/" + common_config;
+        QLOGF_C(I, "file path has been fixed due to relative path usage: %s\n", common_config.c_str());
     }
 
     fixed_common_config *fixed_common_config = &(m_config_content->fixed_common_configs);

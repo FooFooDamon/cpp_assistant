@@ -2,7 +2,7 @@
 // Edit it before it can be practically used.
 
 /*
- * Copyright (c) 2016-2018, Wen Xiongchang <udc577 at 126 dot com>
+ * Copyright (c) 2016-2019, Wen Xiongchang <udc577 at 126 dot com>
  * All rights reserved.
  *
  * This software is provided 'as-is', without any express or implied
@@ -263,7 +263,7 @@ cafw::timed_task_info_t g_customized_timed_tasks[] = {
      * }
      */
 
-	// NOTE: Contents below are just for test, feel free to delete them in your project.
+    // NOTE: Contents below are just for test, feel free to delete them in your project.
     /********************************** Simple test begin **********************************/
     {
         "simple_test",
