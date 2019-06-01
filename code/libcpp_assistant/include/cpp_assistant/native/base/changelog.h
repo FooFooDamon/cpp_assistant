@@ -51,6 +51,9 @@
  *
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  *
+ * wxc, 2019/06/01, 0.05.00:
+ *      1. Changed the logging style of logger classes to be the same as Google logging library.
+ *
  * wxc, 2019/02/15, 0.04.04:
  *      1. Added str::split() with std::string type input parameter.
  *      2. Added default parameter since_1900 = true into time_util::get_utc/local_xxx().
