@@ -1,5 +1,12 @@
+wxc, 2019/06/01, v0.01.02:
+	libcpp_assistant v0.05.00，有以下改动：
+	1、增加若干个从路径分离出目录与文件名、获取绝对路径的函数；
+	2、time_util::get_utc/local_xxx()增加默认值为true的since_1900参数；
+	3、修正编译优化选项：Debug: -O0 -g -ggdb; Release: -O3；
+	4、日志接口输出的日志内容格式保持与Google logging库（即glog）一致。
+
 wxc, 2018/08/03, v0.01.01:
-	libcpp_assistant v0.04.02
+	libcpp_assistant v0.04.02；
 	framework_public有以下变动：
 	1、增加配置文件说明文档；
 	2、配置文件的指定可支持相对路径；
