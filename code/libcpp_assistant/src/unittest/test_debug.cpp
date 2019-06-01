@@ -34,7 +34,7 @@
 #define DEFINE_FOO_F(x)                 class Foo_F_##x {\
 public: \
     void print(int &count_var) {\
-        LOGF_C(x, "I'm LOGF_C(" #x "), number: %d\n", count_var++); \
+        LOGF_C(x, "I'm LOGF_C(" #x "), number: %d", count_var++); \
     } \
 }
 
@@ -69,11 +69,11 @@ TEST(debug, AllInOne)
     LOGS_NS(x, none::foo) << "I'm LOGS_NS(" #x "), number: " << count++; \
 \
     fprintf(GET_LOG_HOLDER(), "\n"); \
-    RLOGF(x, "I'm RLOGF(" #x "), number: %d\n", count++); \
-    LOGF(x, "I'm LOGF(" #x "), number: %d\n", count++); \
+    RLOGF(x, "I'm RLOGF(" #x "), number: %d", count++); \
+    LOGF(x, "I'm LOGF(" #x "), number: %d", count++); \
     Foo_F_##x foo_f_##x; \
     foo_f_##x.print(count); \
-    LOGF_NS(x, none::foo, "I'm LOGF_NS(" #x "), number: %d\n", count++);
+    LOGF_NS(x, none::foo, "I'm LOGF_NS(" #x "), number: %d", count++);
 
     TEST_CA_LOG(D);
     TEST_CA_LOG(I);

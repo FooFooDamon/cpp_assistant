@@ -154,7 +154,7 @@ void logger::flush(void)
     fflush(m_output_holder);
 }
 
-const char *G_LOG_LEVEL_STRINGS[] = { "[D]", "[I]", "[W]", "[E]", "[C]" };
+const char *G_LOG_LEVEL_STRINGS[] = { "D", "I", "W", "E", "C" };
 
 int logger::output(bool has_prefix,
     enum_log_level log_level,
@@ -206,6 +206,14 @@ int logger::output(bool has_prefix,
 
     int write_ret = 0;
 
+    if (needs_color)
+    {
+        // More readable but will cause a compile warning.
+        //const char *kColorStr = (LOG_LEVEL_WARNING == log_level) ? WARNING_COLOR : ERROR_COLOR;
+
+        fprintf(destination, ((LOG_LEVEL_WARNING == log_level) ? WARNING_COLOR : ERROR_COLOR));
+    }
+
     if (has_prefix)
     {
         const char *LEVEL_STR = G_LOG_LEVEL_STRINGS[log_level % LOG_LEVEL_COUNT];
@@ -215,21 +223,9 @@ int logger::output(bool has_prefix,
             fprintf(destination, "%08d: ", m_cur_line + 1);
 #endif
 
-        if (!m_to_screen)
-            /*write_ret += */fprintf(destination, "[%02d:%02d:%02d.%06ld]%s ",
-                now.tm_hour, now.tm_min, now.tm_sec, tv.tv_usec, LEVEL_STR);
-        else
-            /*write_ret += */fprintf(destination, "[%04d-%02d-%02d %02d:%02d:%02d.%06ld]%s ",
-                now.tm_year + 1900, now.tm_mon + 1, now.tm_mday,
-                now.tm_hour, now.tm_min, now.tm_sec, tv.tv_usec, LEVEL_STR);
-    }
-
-    if (needs_color)
-    {
-        // More readable but will cause a compile warning.
-        //const char *kColorStr = (LOG_LEVEL_WARNING == log_level) ? WARNING_COLOR : ERROR_COLOR;
-
-        fprintf(destination, ((LOG_LEVEL_WARNING == log_level) ? WARNING_COLOR : ERROR_COLOR));
+        /*write_ret += */fprintf(destination, "%s%02d%02d %02d:%02d:%02d.%06ld ",
+            LEVEL_STR, now.tm_mon + 1, now.tm_mday,
+            now.tm_hour, now.tm_min, now.tm_sec, tv.tv_usec);
     }
 
     write_ret += vfprintf(destination, fmt, args);

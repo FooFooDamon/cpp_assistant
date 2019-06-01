@@ -70,6 +70,9 @@ static void __formatted_output(int level, FILE *where, mutex *lock, const char *
     if (needs_lock)
         lock->lock();
 
+    if (needs_color)
+        fprintf(where, ((LOG_LEVEL_WARNING == level) ? WARNING_COLOR : ERROR_COLOR));
+
     if (s_has_output_prefix)
     {
         extern const char *G_LOG_LEVEL_STRINGS[];
@@ -79,14 +82,9 @@ static void __formatted_output(int level, FILE *where, mutex *lock, const char *
         gettimeofday(&tv, nullptr);
         localtime_r((time_t *)&(tv.tv_sec), &now);
 
-        fprintf(where, "[%04d-%02d-%02d %02d:%02d:%02d.%06ld]%s [%d#%d] [" CPP_ASSISTANT_NAME "]: ",
-            now.tm_year + 1900, now.tm_mon + 1, now.tm_mday,
-            now.tm_hour, now.tm_min, now.tm_sec, tv.tv_usec, G_LOG_LEVEL_STRINGS[level],
-            getpid(), gettid());
+        fprintf(where, "%s%02d%02d %02d:%02d:%02d.%06ld ",
+            G_LOG_LEVEL_STRINGS[level], now.tm_mon + 1, now.tm_mday, now.tm_hour, now.tm_min, now.tm_sec, tv.tv_usec);
     }
-
-    if (needs_color)
-        fprintf(where, ((LOG_LEVEL_WARNING == level) ? WARNING_COLOR : ERROR_COLOR));
 
     vfprintf(where, format, args);
 

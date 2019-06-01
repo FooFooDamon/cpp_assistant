@@ -48,7 +48,7 @@ static void stream_logging_test(calib::logger &logger, calib::enum_log_level log
     unsigned long int unsigned_long_int_value = 8;
     long long int long_long_int_value = 9;
     unsigned long long int unsigned_long_long_int_value = 10;
-    std::string string_value = "This is a string, not a char*.";
+    std::string string_value = "This is a string, not a char*.\n";
 
     logger.get_stream(log_level) << prefix << log_level << ": bool: " << true;
     logger.get_stream(log_level) << prefix << log_level << ": float_value: " << float_value;

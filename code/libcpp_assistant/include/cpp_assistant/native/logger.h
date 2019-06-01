@@ -281,7 +281,7 @@ public:
         return m_output_holder;
     }
 
-    inline logger& get_stream(enum_log_level log_level, bool starts_a_new_line = true)
+    inline logger& get_stream(enum_log_level log_level, bool starts_a_new_line = true, bool has_prefix = true)
     {
         m_instant_level = (enum_log_level)(log_level % LOG_LEVEL_COUNT);
 
@@ -291,7 +291,7 @@ public:
         if (starts_a_new_line && current_log_lines() > 0)
             fputs("\n", m_output_holder);
 
-        output(HAS_LOG_PREFIX, m_instant_level, "%s", "");
+        output(has_prefix, m_instant_level, "%s", "");
 
         return *this;
     }
@@ -589,18 +589,18 @@ CA_LIB_NAMESPACE_END
 #ifdef RLOGF
 #undef RLOGF
 #endif
-#define RLOGF(x, fmt, ...)                              GET_LOG_INSTANCE()->x(fmt, ##__VA_ARGS__)
+#define RLOGF(x, fmt, ...)                              GET_LOG_INSTANCE()->x(fmt "\n", ##__VA_ARGS__)
 
 #ifdef MULTI_THREADING
 
 #define LOGF_BASE(x, class_str, ns_delim, fmt, ...)     do {\
     CA_LIB_NAMESPACE::lock_guard<CA_LIB_NAMESPACE::mutex> lock(*CA_LIB_NAMESPACE::singleton<CA_LIB_NAMESPACE::mutex>::get_instance()); \
-    RLOGF(x, "[%d#%d] %s:%d, %s%s%s(): " fmt, getpid(), CA_LIB_NAMESPACE::gettid(), __FILE__, __LINE__, class_str, ns_delim, __FUNCTION__, ##__VA_ARGS__); \
+    RLOGF(x, "%d %s:%d] %s%s%s(): " fmt, getpid(), __FILE__, __LINE__, class_str, ns_delim, __FUNCTION__, ##__VA_ARGS__); \
 } while(0)
 
 #else
 
-#define LOGF_BASE(x, class_str, ns_delim, fmt, ...)     RLOGF(x, "%s:%d, %s%s%s(): " fmt, __FILE__, __LINE__, class_str, ns_delim, __FUNCTION__, ##__VA_ARGS__)
+#define LOGF_BASE(x, class_str, ns_delim, fmt, ...)     RLOGF(x, "%d %s:%d] %s%s%s(): " fmt, getpid(), __FILE__, __LINE__, class_str, ns_delim, __FUNCTION__, ##__VA_ARGS__)
 
 #endif
 
@@ -638,19 +638,19 @@ CA_LIB_NAMESPACE_END
 #ifdef LOGS
 #undef LOGS
 #endif
-#define LOGS(x)                                         RLOGS(x) << __FILE__ << ":" << __LINE__ << ", " << __FUNCTION__ << "(): "
+#define LOGS(x)                                         RLOGS(x) << getpid() << " " << __FILE__ << ":" << __LINE__ << "] " << __FUNCTION__ << "(): "
 
 // C means the the same as the one in the formatted logging above.
 #ifdef LOGS_C
 #undef LOGS_C
 #endif
-#define LOGS_C(x)                                       RLOGS(x) << __FILE__ << ":" << __LINE__ << ", " << typeid(*this).name() << "::" << __FUNCTION__ << "(): "
+#define LOGS_C(x)                                       RLOGS(x) << getpid() << " " << __FILE__ << ":" << __LINE__ << "] " << typeid(*this).name() << "::" << __FUNCTION__ << "(): "
 
 // NS means the the same as the one in the formatted logging above.
 #ifdef LOGS_NS
 #undef LOGS_NS
 #endif
-#define LOGS_NS(x, _namespace_)                         RLOGS(x) << __FILE__ << ":" << __LINE__ << ", " << #_namespace_ << "::" << __FUNCTION__ << "(): "
+#define LOGS_NS(x, _namespace_)                         RLOGS(x) << getpid() << " " << __FILE__ << ":" << __LINE__ << "] " << #_namespace_ << "::" << __FUNCTION__ << "(): "
 
 #endif // NO_CA_LOG
 
