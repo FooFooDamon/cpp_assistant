@@ -11,7 +11,7 @@ CA_MOD_DATE := $(shell echo "$(CA_CHANGE_LOG_ITEM)" | awk -F ", " '{ print $$2 }
 CA_MAIN_VER := $(shell echo "$(CA_CHANGE_LOG_ITEM)" | awk -F ", " '{ print $$3 }' | awk -F ":" '{ print $$1 }')
 CA_SVN_VER := $(shell LANG=en_US.UTF-8; svn info | grep -e 'Last Changed Rev' -e '最后修改的版本' | sed 's/.* \([0-9]\)/\1/')
 ifeq ($(CA_SVN_VER),)
-	CA_SVN_VER := $(shell git log --abbrev-commit --pretty=oneline | head -1 | awk '{ print $$1 }')
+	CA_SVN_VER := $(shell git log --abbrev-commit --abbrev=12 --pretty=oneline | head -1 | awk '{ print $$1 }')
 endif
 VERSION_DEFINES := CA_MOD_DATE=$(CA_MOD_DATE) CA_MAIN_VER=$(CA_MAIN_VER) CA_SVN_VER=$(CA_SVN_VER)
 
