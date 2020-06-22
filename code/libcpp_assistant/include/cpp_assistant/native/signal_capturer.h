@@ -46,8 +46,8 @@ CA_LIB_NAMESPACE_BEGIN
 enum
 {
     MIN_SIGNAL_NUM = SIGHUP,
-#ifdef _NSIG // TODO: This macro seems to be a private macro, it may be not safe.
-    MAX_SIGNAL_NUM = _NSIG - 1,
+#ifdef __SIGRTMAX // TODO: This macro seems to be a private macro, it may be not safe.
+    MAX_SIGNAL_NUM = __SIGRTMAX,
 #else
     MAX_SIGNAL_NUM = 64, // TODO: It may be not this value if the OS kernel improves in future.
 #endif
