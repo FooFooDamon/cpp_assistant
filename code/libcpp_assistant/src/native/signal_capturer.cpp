@@ -37,9 +37,8 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
-
-static signal_setting_t s_signal_settings[SIGNAL_COUNT];
-static bool s_settings_initialized = false;
+static __thread signal_setting_t s_signal_settings[SIGNAL_COUNT];
+static __thread bool s_settings_initialized = false;
 
 #define GET_SIGNUM_BY_INDEX(index)          (index + MIN_SIGNAL_NUM)
 #define GET_SETTING_BY_INDEX(index)         (s_signal_settings[index])
@@ -64,7 +63,7 @@ static void init_signal_settings(void)
         signal_setting_t &setting = GET_SETTING_BY_INDEX(i);
 
         setting.status = SIG_NOT_REGISTERED;
-        setting.handler = nullptr;
+        setting.handler = NULL;
         setting.exits_after_handling = false;
         setting.handles_now = false;
     }
@@ -213,26 +212,46 @@ static bool capture_is_forbidden(int sig_num)
     return handled_count;
 }
 
-/*static */CA_REENTRANT int signal_capturer::get_all_signal_name(char result[MAX_SIGNAL_NUM][MAX_SIGNAME_LEN + 1])
+/*static */CA_REENTRANT int signal_capturer::get_all_signal_names(char result[SIGNAL_COUNT][MAX_SIGNAME_LEN + 1])
 {
     FILE *fp = popen("kill -l", "r");
     if (NULL == fp)
         return CA_RET(FILE_OR_STREAM_OPEN_FAILED);
 
-    int idx = 0;
+    bool before_min_signum = true;
 
-    while (!feof(fp))
+    for (int idx = 0; idx < SIGNAL_COUNT; ++idx) // NOTE: Output of "kill -l" starts from 0.
     {
-        memset(result[idx], 0, MAX_SIGNAME_LEN + 1);
+        if (feof(fp))
+            break;
+
         if (NULL != fgets(result[idx], MAX_SIGNAME_LEN + 1, fp))
-        {
             result[idx][strlen(result[idx]) - 1] = '\0'; // replaces the '\n'
+
+        if (before_min_signum && MIN_SIGNAL_NUM == idx)
+        {
+            before_min_signum = false;
+            if (MIN_SIGNAL_NUM > 0)
+                strncpy(result[0], result[idx], MAX_SIGNAME_LEN + 1);
+            idx = 0;
         }
-		++idx;
     }
     pclose(fp);
 
     return CA_RET(OK);
+}
+
+static __thread char s_signames[SIGNAL_COUNT][MAX_SIGNAME_LEN + 1] = {{0}};
+
+/*static */CA_REENTRANT const char* signal_capturer::get_signal_name(const int sig_num, const char *name_if_num_invalid/* = "INVALID"*/)
+{
+    if ('\0' == s_signames[0][0])
+        get_all_signal_names(s_signames);
+
+    if (!is_valid(sig_num))
+        return name_if_num_invalid;
+
+    return s_signames[sig_num - MIN_SIGNAL_NUM];
 }
 
 /*static */bool signal_capturer::is_registered(int sig_num)

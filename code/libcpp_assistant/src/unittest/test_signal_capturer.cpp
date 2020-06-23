@@ -86,7 +86,7 @@ TEST(signal_capturer, all_in_one)
         ASSERT_TRUE(calib::signal_capturer::is_valid(i));
         ASSERT_EQ(CA_RET(SIGNAL_NOT_REGISTERED), calib::signal_capturer::handle_one(i, should_exit));
 
-        printf("Registering signal %d\n", i);
+        printf("Registering signal %d:%s\n", i, calib::signal_capturer::get_signal_name(i));
         register_ret = calib::signal_capturer::register_one(i, show_signal, exits_after_handling);
         if (signal_capture_is_forbidden(i))
         {
@@ -188,10 +188,11 @@ SEND_SIGNALS:
     }
     printf("[PID:%d] %d signals were handled totally\n", pid, critical_handle_count + normal_handle_count);
 
-    char result[calib::MAX_SIGNAL_NUM][calib::MAX_SIGNAME_LEN + 1];
-    ASSERT_EQ(calib::signal_capturer::get_all_signal_name(result), CA_RET_OK);
-    for (int i = 0; i < calib::MAX_SIGNAL_NUM; ++i)
+    char result[calib::SIGNAL_COUNT][calib::MAX_SIGNAME_LEN + 1];
+    ASSERT_EQ(calib::signal_capturer::get_all_signal_names(result), CA_RET_OK);
+    printf("Compare contents below with output of \"kill -l\":\n");
+    for (int i = 0; i < calib::SIGNAL_COUNT; ++i)
     {
-        printf("signal-name[%d]: %s\n", i, result[i]);
+        printf("%d) %s\n", i + calib::MIN_SIGNAL_NUM, result[i]);
     }
 }
