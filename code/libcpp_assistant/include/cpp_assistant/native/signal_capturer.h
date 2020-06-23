@@ -134,6 +134,7 @@ public:
     static int handle_all(bool &should_exit);
 
     static CA_REENTRANT int get_all_signal_names(char result[SIGNAL_COUNT][MAX_SIGNAME_LEN + 1]);
+    static CA_REENTRANT const char** get_all_signal_names(void);
 
     static CA_REENTRANT const char* get_signal_name(const int sig_num, const char *name_if_num_invalid = "INVALID");
 
