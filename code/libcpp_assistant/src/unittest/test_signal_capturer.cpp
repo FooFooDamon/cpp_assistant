@@ -187,4 +187,11 @@ SEND_SIGNALS:
             ++normal_handle_count;
     }
     printf("[PID:%d] %d signals were handled totally\n", pid, critical_handle_count + normal_handle_count);
+
+    char result[calib::MAX_SIGNAL_NUM][calib::MAX_SIGNAME_LEN + 1];
+    ASSERT_EQ(calib::signal_capturer::get_all_signal_name(result), CA_RET_OK);
+    for (int i = 0; i < calib::MAX_SIGNAL_NUM; ++i)
+    {
+        printf("signal-name[%d]: %s\n", i, result[i]);
+    }
 }

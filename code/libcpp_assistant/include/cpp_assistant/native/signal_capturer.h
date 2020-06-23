@@ -58,6 +58,11 @@ enum
     INVALID_SIGNAL_NUM = -1,
 };
 
+enum
+{
+    MAX_SIGNAME_LEN = 15 // '\0' not included
+};
+
 enum enum_sigal_status
 {
     SIG_NOT_REGISTERED = -1,
@@ -127,6 +132,8 @@ public:
     // Handles all pending signals.
     // Returns the number of signals handled on success, or a negative number on failure.
     static int handle_all(bool &should_exit);
+
+    static CA_REENTRANT int get_all_signal_name(char result[MAX_SIGNAL_NUM][MAX_SIGNAME_LEN + 1]);
 
 /* ===================================
  * attributes:

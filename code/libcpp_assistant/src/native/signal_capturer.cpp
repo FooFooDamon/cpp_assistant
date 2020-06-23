@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <string.h>
 
 #include "signal_capturer.h"
 #include "base/ca_return_code.h"
@@ -210,6 +211,28 @@ static bool capture_is_forbidden(int sig_num)
         nsdebug(signal_capturer, "%d signals total, %d triggered and handled\n", registered_count, handled_count);
 
     return handled_count;
+}
+
+/*static */CA_REENTRANT int signal_capturer::get_all_signal_name(char result[MAX_SIGNAL_NUM][MAX_SIGNAME_LEN + 1])
+{
+    FILE *fp = popen("kill -l", "r");
+    if (NULL == fp)
+        return CA_RET(FILE_OR_STREAM_OPEN_FAILED);
+
+    int idx = 0;
+
+    while (!feof(fp))
+    {
+        memset(result[idx], 0, MAX_SIGNAME_LEN + 1);
+        if (NULL != fgets(result[idx], MAX_SIGNAME_LEN + 1, fp))
+        {
+            result[idx][strlen(result[idx]) - 1] = '\0'; // replaces the '\n'
+        }
+		++idx;
+    }
+    pclose(fp);
+
+    return CA_RET(OK);
 }
 
 /*static */bool signal_capturer::is_registered(int sig_num)
