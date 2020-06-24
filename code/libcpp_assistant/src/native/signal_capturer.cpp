@@ -37,6 +37,8 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
+/*static */bool signal_capturer::m_should_exit = false;
+
 static __thread signal_setting_t s_signal_settings[SIGNAL_COUNT];
 static __thread bool s_settings_initialized = false;
 
@@ -69,7 +71,7 @@ static void init_signal_settings(void)
     }
 }
 
-static void set_signal_trigger_status(int sig_num)
+static void set_signal_trigger_status(int sig_num) // TODO: changed to static signal_capturer::init_signal_settings()
 {
     signal_setting_t &setting = GET_SETTING_BY_SIGNUM(sig_num);
 
@@ -143,7 +145,7 @@ static bool capture_is_forbidden(int sig_num)
     return CA_RET_OK;
 }
 
-/*static */int signal_capturer::handle_one(const int sig_num, bool &should_exit)
+/*static */int signal_capturer::handle_one(const int sig_num)
 {
     if (!is_valid(sig_num))
         return CA_RET(INVALID_SIGNAL_NUMBER);
@@ -157,7 +159,7 @@ static bool capture_is_forbidden(int sig_num)
         return CA_RET_OK;
 
     if (setting.exits_after_handling)
-        should_exit = true;
+        m_should_exit = true; // TODO: set within init_signal_settings()
 
     setting.status = SIG_NOT_TRIGGERED;
 
@@ -173,7 +175,7 @@ static bool capture_is_forbidden(int sig_num)
     return CA_RET_OK;
 }
 
-/*static */int signal_capturer::handle_all(bool &should_exit)
+/*static */int signal_capturer::handle_all(void)
 {
     INIT_SIG_SETTINGS_ONCE();
 
@@ -200,7 +202,7 @@ static bool capture_is_forbidden(int sig_num)
             (setting.handler)(GET_SIGNUM_BY_INDEX(i));
 
         if (setting.exits_after_handling)
-            should_exit = true;
+            m_should_exit = true; // TODO: set within init_signal_settings()
 
         ++handled_count;
 

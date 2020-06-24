@@ -127,11 +127,25 @@ public:
     // whether the calling process should exit.
     // NOTE: A signal is marked everytime it occurs, but is not handled until this function or handle_all()
     // is called.
-    static int handle_one(const int sig_num, bool &should_exit);
+    static int handle_one(const int sig_num);
+    //[[deprecated("Use handle_one(const int) and then should_exit() instead")]] // NOTE: since c++14
+    static inline int handle_one(const int sig_num, bool &should_exit) CA_DEPRECATED
+    {
+        int ret = handle_one(sig_num);
+        should_exit = m_should_exit;
+        return ret;
+    }
 
     // Handles all pending signals.
     // Returns the number of signals handled on success, or a negative number on failure.
-    static int handle_all(bool &should_exit);
+    static int handle_all(void);
+    //[[deprecated("Use handle_all(void) and then should_exit() instead")]] // NOTE: since c++14
+    static inline int handle_all(bool &should_exit) CA_DEPRECATED
+    {
+        int ret = handle_all();
+        should_exit = m_should_exit;
+        return ret;
+    }
 
     static CA_REENTRANT int get_all_signal_names(char result[SIGNAL_COUNT][MAX_SIGNAME_LEN + 1]);
     static CA_REENTRANT const char** get_all_signal_names(void);
@@ -154,6 +168,11 @@ public:
         return (sig_num >= MIN_SIGNAL_NUM) && (sig_num <= MAX_SIGNAL_NUM);
     }
 
+    static inline CA_REENTRANT bool should_exit(void)
+    {
+        return m_should_exit;
+    }
+
 /* ===================================
  * operators:
  * =================================== */
@@ -168,6 +187,7 @@ protected:
  * data:
  * =================================== */
 protected:
+    static bool m_should_exit;
 };
 
 typedef signal_capturer sigcap;
