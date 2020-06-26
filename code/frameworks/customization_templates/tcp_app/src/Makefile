@@ -12,7 +12,8 @@ ifdef IS_DISPATCHER
 	DEFINES += -UMULTI_THREADING
 endif
 INCLUDES += $(REQUIRED_INCLUDES) -I./business -I./framework_public \
-	$(addprefix -I$(USER_PROGRAM_ROOT)/, $(addsuffix /framework_core, $(SRC_CODE_DIRS)))
+	$(addprefix -I$(USER_PROGRAM_ROOT)/, $(addsuffix /framework_core, $(SRC_CODE_DIRS))) \
+	-I/usr/include/jsoncpp
 CFLAGS += -O2 $(DEFINES) $(INCLUDES)
 CXXFLAGS += -O2 $(DEFINES) $(INCLUDES)
 LDFLAGS += $(REQUIRED_LDFLAGS)
