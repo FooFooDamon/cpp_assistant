@@ -73,14 +73,6 @@ enum enum_sigal_status
 // This handler is supposed to return CA_RET_OK on success and return a negative number on failure.
 typedef int (*singal_handler)(int sig_num);
 
-typedef struct signal_setting_t
-{
-    int status;
-    singal_handler handler;
-    bool exits_after_handling;
-    bool handles_now;
-}signal_setting_t;
-
 class signal_capturer
 {
 /* ===================================
@@ -106,34 +98,52 @@ private:
  * types:
  * =================================== */
 public:
+    typedef struct settings_t
+    {
+        int status;
+        singal_handler handler;
+        bool handled_automatically;
+        bool exit_hint;
+    } settings_t;
 
 /* ===================================
  * abilities:
  * =================================== */
 public:
-    // Registers a signal whose number is @sig_num, a handler specified by @sig_handler is used to
-    // execute some operations everytime the target signal occurs. Besides, if @exits_after_handling
-    // is true, then a flag somewhere will be set true to remind the calling process
-    // that it should exit.
+    // Registers a signal.
+    //
+    // @param sig_num: Target signal number.
+    //
+    // @param sig_handler: A handler that contains some operations
+    //     to be executed everytime the target signal arises.
+    //
+    // @param exit_hint: A flag to let the calling process know
+    //     whether or not it should exit when the target signal occurs.
+    //
+    // @param handled_automatically: If it's true,
+    //     the @sig_handler is called automatically when target signal arises.
+    //     Otherwise, the user should manually call handle_one() or handle_all()
+    //     to make @sig_handler come into effect.
+    //
+    // @return CA_RET_OK on success, and a negative number on failure.
     static int register_one(int sig_num,
         singal_handler sig_handler,
-        bool exits_after_handling = false,
-        bool handles_now = false);
+        bool exit_hint = false,
+        bool handled_automatically = false);
 
     // Cancels the registration of signal @sig_num so that this signal would not be monitored and captured.
     static int unregister(int sig_num);
 
-    // Handles a single signal with the number @sig_num, and gets a hint
-    // whether the calling process should exit.
-    // NOTE: A signal is marked everytime it occurs, but is not handled until this function or handle_all()
-    // is called.
+    // Handles a single signal with the number @sig_num.
+    // NOTE: If register_one() is called with handled_automatically = false,
+    // then the target signal will be marked only everytime it occurs,
+    // and will not be handled until this function or handle_all() is called.
     static int handle_one(const int sig_num);
     //[[deprecated("Use handle_one(const int) and then should_exit() instead")]] // NOTE: since c++14
     static inline int handle_one(const int sig_num, bool &should_exit) CA_DEPRECATED
     {
-        int ret = handle_one(sig_num);
         should_exit = m_should_exit;
-        return ret;
+        return handle_one(sig_num);
     }
 
     // Handles all pending signals.
@@ -142,9 +152,8 @@ public:
     //[[deprecated("Use handle_all(void) and then should_exit() instead")]] // NOTE: since c++14
     static inline int handle_all(bool &should_exit) CA_DEPRECATED
     {
-        int ret = handle_all();
         should_exit = m_should_exit;
-        return ret;
+        return handle_all();
     }
 
     static CA_REENTRANT int get_all_signal_names(char result[SIGNAL_COUNT][MAX_SIGNAME_LEN + 1]);
@@ -182,11 +191,15 @@ public:
  * private methods:
  * =================================== */
 protected:
+    static void init_once(void);
+    static void update_settings(int sig_num);
 
 /* ===================================
  * data:
  * =================================== */
 protected:
+    static __thread bool m_initialized;
+    static __thread settings_t m_settings[SIGNAL_COUNT];
     static bool m_should_exit;
 };
 

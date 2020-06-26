@@ -37,48 +37,17 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
+/*static */__thread bool signal_capturer::m_initialized = false;
+/*static */__thread signal_capturer::settings_t signal_capturer::m_settings[SIGNAL_COUNT];
 /*static */bool signal_capturer::m_should_exit = false;
 
-static __thread signal_setting_t s_signal_settings[SIGNAL_COUNT];
-static __thread bool s_settings_initialized = false;
-
 #define GET_SIGNUM_BY_INDEX(index)          (index + MIN_SIGNAL_NUM)
-#define GET_SETTING_BY_INDEX(index)         (s_signal_settings[index])
+#define GET_SETTING_BY_INDEX(index)         (m_settings[index])
 
 #define GET_INDEX_BY_SIGNUM(sig_num)        (sig_num - MIN_SIGNAL_NUM)
-#define GET_SETTING_BY_SIGNUM(sig_num)      (s_signal_settings[GET_INDEX_BY_SIGNUM(sig_num)])
+#define GET_SETTING_BY_SIGNUM(sig_num)      (m_settings[GET_INDEX_BY_SIGNUM(sig_num)])
 
-#define GET_SETTING_CAPACITY()              (sizeof(s_signal_settings) / sizeof(signal_setting_t))
-
-#define INIT_SIG_SETTINGS_ONCE()            do { \
-    if (!s_settings_initialized) { \
-        init_signal_settings(); \
-        /*nsdebug(signal_capturer, "Signal initialization successful.\n");*/\
-        s_settings_initialized = true; \
-    } \
-}while(0)
-
-static void init_signal_settings(void)
-{
-    for (unsigned int i = 0; i < GET_SETTING_CAPACITY(); ++i)
-    {
-        signal_setting_t &setting = GET_SETTING_BY_INDEX(i);
-
-        setting.status = SIG_NOT_REGISTERED;
-        setting.handler = NULL;
-        setting.exits_after_handling = false;
-        setting.handles_now = false;
-    }
-}
-
-static void set_signal_trigger_status(int sig_num) // TODO: changed to static signal_capturer::init_signal_settings()
-{
-    signal_setting_t &setting = GET_SETTING_BY_SIGNUM(sig_num);
-
-    setting.status = SIG_TRIGGERED;
-    if (setting.handles_now)
-        setting.handler(sig_num);
-}
+#define GET_SETTING_CAPACITY()              (sizeof(m_settings) / sizeof(settings_t))
 
 static bool capture_is_forbidden(int sig_num)
 {
@@ -90,10 +59,10 @@ static bool capture_is_forbidden(int sig_num)
 
 /*static */int signal_capturer::register_one(int sig_num,
     singal_handler sig_handler,
-    bool exits_after_handling/* = false*/,
-    bool handles_now/* = false*/)
+    bool exit_hint/* = false*/,
+    bool handled_automatically/* = false*/)
 {
-    INIT_SIG_SETTINGS_ONCE();
+    init_once();
 
     if (!is_valid(sig_num))
         return CA_RET(INVALID_SIGNAL_NUMBER);
@@ -103,7 +72,7 @@ static bool capture_is_forbidden(int sig_num)
 
     struct sigaction act, oact;
 
-    act.sa_handler = set_signal_trigger_status; // just an operation of recording which signal was received just now
+    act.sa_handler = update_settings; // the inner handler
     sigemptyset(&act.sa_mask);
     act.sa_flags = 0;
 #if 0 // defined(SA_INTERRUPT) || defined(SA_RESTART) // Seems to be no use to sigaction().
@@ -113,12 +82,12 @@ static bool capture_is_forbidden(int sig_num)
     if (sigaction(sig_num, &act, &oact) < 0)
         return CA_RET(SIGNAL_REGISTRATION_FAILED);
 
-    signal_setting_t &setting = GET_SETTING_BY_SIGNUM(sig_num);
+    settings_t &setting = GET_SETTING_BY_SIGNUM(sig_num);
 
     setting.status = SIG_NOT_TRIGGERED;
     setting.handler = sig_handler; // the actual handler
-    setting.exits_after_handling = exits_after_handling;
-    setting.handles_now = handles_now;
+    setting.exit_hint = exit_hint;
+    setting.handled_automatically = handled_automatically;
 
     return CA_RET_OK;
 }
@@ -137,7 +106,7 @@ static bool capture_is_forbidden(int sig_num)
     if (sigaction(sig_num, &act, &oact) < 0)
         return CA_RET(SIGNAL_REGISTRATION_FAILED);
 
-    signal_setting_t &setting = GET_SETTING_BY_INDEX(sig_num);
+    settings_t &setting = GET_SETTING_BY_INDEX(sig_num);
 
     setting.status = SIG_NOT_REGISTERED;
     setting.handler = nullptr;
@@ -153,38 +122,29 @@ static bool capture_is_forbidden(int sig_num)
     if (!is_registered(sig_num))
         return CA_RET(SIGNAL_NOT_REGISTERED);
 
-    signal_setting_t &setting = GET_SETTING_BY_SIGNUM(sig_num);
+    settings_t &setting = GET_SETTING_BY_SIGNUM(sig_num);
 
     if (SIG_NOT_TRIGGERED == setting.status)
-        return CA_RET_OK;
-
-    if (setting.exits_after_handling)
-        m_should_exit = true; // TODO: set within init_signal_settings()
+        return setting.handled_automatically ? CA_RET_OK : CA_RET(SIGNAL_NOT_ARISING);
 
     setting.status = SIG_NOT_TRIGGERED;
 
-    if (!setting.handles_now /* avoids repetition, see set_signal_trigger_status() */
-        && nullptr != setting.handler)
-    {
-        int handle_ret = (setting.handler)(sig_num);
-
-        if (CA_RET_OK != handle_ret)
-            return handle_ret;
-    }
+    if ((!setting.handled_automatically) && nullptr != setting.handler)
+        return setting.handler(sig_num);
 
     return CA_RET_OK;
 }
 
 /*static */int signal_capturer::handle_all(void)
 {
-    INIT_SIG_SETTINGS_ONCE();
+    init_once();
 
     int handled_count = 0;
     int registered_count = 0;
 
     for (unsigned int i = 0; i < GET_SETTING_CAPACITY(); ++i)
     {
-        signal_setting_t &setting = GET_SETTING_BY_INDEX(i);
+        settings_t &setting = GET_SETTING_BY_INDEX(i);
 
         if (SIG_NOT_REGISTERED == setting.status)
             continue;
@@ -192,17 +152,13 @@ static bool capture_is_forbidden(int sig_num)
         ++registered_count;
         //nsdebug(signal_capturer, "Checking signal %d ...\n", GET_SIGNUM_BY_INDEX(i));
 
-        if (SIG_TRIGGERED != setting.status)
+        if (SIG_NOT_TRIGGERED == setting.status)
             continue;
 
         setting.status = SIG_NOT_TRIGGERED;
 
-        if (!setting.handles_now /* avoids repetition, see set_signal_trigger_status() */
-            && nullptr != setting.handler)
-            (setting.handler)(GET_SIGNUM_BY_INDEX(i));
-
-        if (setting.exits_after_handling)
-            m_should_exit = true; // TODO: set within init_signal_settings()
+        if ((!setting.handled_automatically) && nullptr != setting.handler)
+            setting.handler(GET_SIGNUM_BY_INDEX(i));
 
         ++handled_count;
 
@@ -261,12 +217,12 @@ static __thread char s_signames[SIGNAL_COUNT][MAX_SIGNAME_LEN + 1] = {{0}};
     if (!is_valid(sig_num))
         return name_if_num_invalid;
 
-    return s_signames[sig_num - MIN_SIGNAL_NUM];
+    return s_signames[GET_INDEX_BY_SIGNUM(sig_num)];
 }
 
 /*static */bool signal_capturer::is_registered(int sig_num)
 {
-    INIT_SIG_SETTINGS_ONCE();
+    init_once();
 
     if (!is_valid(sig_num))
         return false;
@@ -275,6 +231,38 @@ static __thread char s_signames[SIGNAL_COUNT][MAX_SIGNAME_LEN + 1] = {{0}};
         return false;
 
     return true;
+}
+
+/*static */void signal_capturer::init_once(void)
+{
+    if (m_initialized)
+        return;
+
+    for (unsigned int i = 0; i < GET_SETTING_CAPACITY(); ++i)
+    {
+        settings_t &setting = GET_SETTING_BY_INDEX(i);
+
+        setting.status = SIG_NOT_REGISTERED;
+        setting.handler = nullptr;
+        setting.exit_hint = false;
+        setting.handled_automatically = false;
+    }
+
+    //nsdebug(signal_capturer, "Signal initialization successful.\n");
+    m_initialized = true;
+}
+
+/*static */void signal_capturer::update_settings(int sig_num)
+{
+    settings_t &setting = GET_SETTING_BY_SIGNUM(sig_num);
+
+    setting.status = SIG_TRIGGERED;
+
+    if (setting.exit_hint)
+        m_should_exit = true;
+
+    if (setting.handled_automatically)
+        setting.handler(sig_num);
 }
 
 CA_LIB_NAMESPACE_END
