@@ -41,14 +41,6 @@ CA_LIB_NAMESPACE_BEGIN
 /*static */__thread signal_capturer::settings_t signal_capturer::m_settings[SIGNAL_COUNT];
 /*static */bool signal_capturer::m_should_exit = false;
 
-#define GET_SIGNUM_BY_INDEX(index)          (index + MIN_SIGNAL_NUM)
-#define GET_SETTING_BY_INDEX(index)         (m_settings[index])
-
-#define GET_INDEX_BY_SIGNUM(sig_num)        (sig_num - MIN_SIGNAL_NUM)
-#define GET_SETTING_BY_SIGNUM(sig_num)      (m_settings[GET_INDEX_BY_SIGNUM(sig_num)])
-
-#define GET_SETTING_CAPACITY()              (sizeof(m_settings) / sizeof(settings_t))
-
 static bool capture_is_forbidden(int sig_num)
 {
     return (SIGKILL == sig_num
@@ -82,7 +74,7 @@ static bool capture_is_forbidden(int sig_num)
     if (sigaction(sig_num, &act, &oact) < 0)
         return CA_RET(SIGNAL_REGISTRATION_FAILED);
 
-    settings_t &setting = GET_SETTING_BY_SIGNUM(sig_num);
+    settings_t &setting = m_settings[index_of(sig_num)];
 
     setting.status = SIG_NOT_TRIGGERED;
     setting.handler = sig_handler; // the actual handler
@@ -106,7 +98,7 @@ static bool capture_is_forbidden(int sig_num)
     if (sigaction(sig_num, &act, &oact) < 0)
         return CA_RET(SIGNAL_REGISTRATION_FAILED);
 
-    settings_t &setting = GET_SETTING_BY_INDEX(sig_num);
+    settings_t &setting = m_settings[index_of(sig_num)];
 
     setting.status = SIG_NOT_REGISTERED;
     setting.handler = nullptr;
@@ -122,7 +114,7 @@ static bool capture_is_forbidden(int sig_num)
     if (!is_registered(sig_num))
         return CA_RET(SIGNAL_NOT_REGISTERED);
 
-    settings_t &setting = GET_SETTING_BY_SIGNUM(sig_num);
+    settings_t &setting = m_settings[index_of(sig_num)];
 
     if (SIG_NOT_TRIGGERED == setting.status)
         return setting.handled_automatically ? CA_RET_OK : CA_RET(SIGNAL_NOT_ARISING);
@@ -142,15 +134,16 @@ static bool capture_is_forbidden(int sig_num)
     int handled_count = 0;
     int registered_count = 0;
 
-    for (unsigned int i = 0; i < GET_SETTING_CAPACITY(); ++i)
+    for (unsigned int i = 0; i < SIGNAL_COUNT; ++i)
     {
-        settings_t &setting = GET_SETTING_BY_INDEX(i);
+        settings_t &setting = m_settings[i];
+        int sig_num = i + MIN_SIGNAL_NUM;
 
         if (SIG_NOT_REGISTERED == setting.status)
             continue;
 
         ++registered_count;
-        //nsdebug(signal_capturer, "Checking signal %d ...\n", GET_SIGNUM_BY_INDEX(i));
+        //nsdebug(signal_capturer, "Checking signal %d ...\n", sig_num);
 
         if (SIG_NOT_TRIGGERED == setting.status)
             continue;
@@ -158,7 +151,7 @@ static bool capture_is_forbidden(int sig_num)
         setting.status = SIG_NOT_TRIGGERED;
 
         if ((!setting.handled_automatically) && nullptr != setting.handler)
-            setting.handler(GET_SIGNUM_BY_INDEX(i));
+            setting.handler(sig_num);
 
         ++handled_count;
 
@@ -217,7 +210,7 @@ static __thread char s_signames[SIGNAL_COUNT][MAX_SIGNAME_LEN + 1] = {{0}};
     if (!is_valid(sig_num))
         return name_if_num_invalid;
 
-    return s_signames[GET_INDEX_BY_SIGNUM(sig_num)];
+    return s_signames[index_of(sig_num)];
 }
 
 /*static */bool signal_capturer::is_registered(int sig_num)
@@ -227,7 +220,7 @@ static __thread char s_signames[SIGNAL_COUNT][MAX_SIGNAME_LEN + 1] = {{0}};
     if (!is_valid(sig_num))
         return false;
 
-    if (SIG_NOT_REGISTERED == GET_SETTING_BY_SIGNUM(sig_num).status)
+    if (SIG_NOT_REGISTERED == m_settings[index_of(sig_num)].status)
         return false;
 
     return true;
@@ -238,9 +231,9 @@ static __thread char s_signames[SIGNAL_COUNT][MAX_SIGNAME_LEN + 1] = {{0}};
     if (m_initialized)
         return;
 
-    for (unsigned int i = 0; i < GET_SETTING_CAPACITY(); ++i)
+    for (unsigned int i = 0; i < SIGNAL_COUNT; ++i)
     {
-        settings_t &setting = GET_SETTING_BY_INDEX(i);
+        settings_t &setting = m_settings[i];
 
         setting.status = SIG_NOT_REGISTERED;
         setting.handler = nullptr;
@@ -254,7 +247,7 @@ static __thread char s_signames[SIGNAL_COUNT][MAX_SIGNAME_LEN + 1] = {{0}};
 
 /*static */void signal_capturer::update_settings(int sig_num)
 {
-    settings_t &setting = GET_SETTING_BY_SIGNUM(sig_num);
+    settings_t &setting = m_settings[index_of(sig_num)];
 
     setting.status = SIG_TRIGGERED;
 

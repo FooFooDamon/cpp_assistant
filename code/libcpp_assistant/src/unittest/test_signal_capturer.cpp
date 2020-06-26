@@ -75,6 +75,7 @@ TEST(signal_capturer, all_in_one)
         if (INVALID_SIGNAL_MIN == i || INVALID_SIGNAL_MAX == i)
         {
             ASSERT_FALSE(calib::signal_capturer::is_valid(i));
+            ASSERT_EQ(calib::signal_capturer::index_of(i), -1);
             register_ret = calib::signal_capturer::register_one(i, show_signal, exits_after_handling);
             ASSERT_EQ(CA_RET(INVALID_SIGNAL_NUMBER), register_ret);
             ASSERT_FALSE(calib::signal_capturer::is_registered(i));
@@ -84,6 +85,7 @@ TEST(signal_capturer, all_in_one)
         }
 
         ASSERT_TRUE(calib::signal_capturer::is_valid(i));
+        ASSERT_NE(calib::signal_capturer::index_of(i), -1);
         ASSERT_EQ(CA_RET(SIGNAL_NOT_REGISTERED), calib::signal_capturer::handle_one(i, should_exit));
 
         printf("Registering signal %d:%s\n", i, calib::signal_capturer::get_signal_name(i));

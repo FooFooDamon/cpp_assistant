@@ -165,6 +165,10 @@ public:
  * attributes:
  * =================================== */
 public:
+    static inline CA_REENTRANT int index_of(int sig_num)
+    {
+        return is_valid(sig_num) ? (sig_num - MIN_SIGNAL_NUM) : -1;
+    }
 
 /* ===================================
  * status:
