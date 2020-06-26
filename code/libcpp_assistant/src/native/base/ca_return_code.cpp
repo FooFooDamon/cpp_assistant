@@ -86,7 +86,8 @@ static const char *S_DESCRIPTIONS[USER_RET_CODE_COUNT] = {
     "Object mismatched",
     "Length too big",
     "Length too small",
-    "Target not ready"
+    "Target not ready",
+    "Signal not arising"
 };
 
 CA_REENTRANT int parse_return_code(const int retcode, const int msg_capacity, char *msg) /* CA_NOTNULL(3) */

@@ -58,7 +58,7 @@ TEST(ca_return_code, ReturnNumberDefinitions)
     ASSERT_TRUE(calib::USER_RET_CODE_COUNT > 0);
     ASSERT_EQ(calib::USER_RET_CODE_COUNT, abs(calib::USER_RET_CODE_END - calib::USER_RET_CODE_BEGIN));
 
-    ASSERT_EQ(abs(calib::USER_RET_CODE_END), abs(CA_RET(TARGET_NOT_READY)) + 1); // TODO: this will change everytime a new code is added.
+    ASSERT_EQ(abs(calib::USER_RET_CODE_END), abs(CA_RET(SIGNAL_NOT_ARISING)) + 1); // TODO: this will change everytime a new code is added.
 }
 
 static void test_invalid_conditions(void)

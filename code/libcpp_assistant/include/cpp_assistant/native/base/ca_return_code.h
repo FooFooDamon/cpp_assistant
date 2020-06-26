@@ -93,6 +93,7 @@ enum
     LENGTH_TOO_BIG,
     LENGTH_TOO_SMALL,
     TARGET_NOT_READY,
+    SIGNAL_NOT_ARISING,
 
     // NOTE: New return codes should be added before __USER_RET_CODE_END!
     __USER_RET_CODE_END
