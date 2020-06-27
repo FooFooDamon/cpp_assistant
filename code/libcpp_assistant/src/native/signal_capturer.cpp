@@ -137,7 +137,7 @@ static bool capture_is_forbidden(int sig_num)
     for (unsigned int i = 0; i < SIGNAL_COUNT; ++i)
     {
         settings_t &setting = m_settings[i];
-        int sig_num = i + MIN_SIGNAL_NUM;
+        int sig_num = signum_at(i);
 
         if (SIG_NOT_REGISTERED == setting.status)
             continue;

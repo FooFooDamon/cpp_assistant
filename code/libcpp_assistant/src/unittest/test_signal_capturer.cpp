@@ -195,6 +195,6 @@ SEND_SIGNALS:
     printf("Compare contents below with output of \"kill -l\":\n");
     for (int i = 0; i < calib::SIGNAL_COUNT; ++i)
     {
-        printf("%d) %s\n", i + calib::MIN_SIGNAL_NUM, result[i]);
+        printf("%d) %s\n", calib::signal_capturer::signum_at(i), result[i]);
     }
 }

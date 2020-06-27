@@ -40,6 +40,7 @@
 #include <signal.h>
 
 #include "base/ca_inner_necessities.h"
+#include "base/ca_return_code.h"
 
 CA_LIB_NAMESPACE_BEGIN
 
@@ -165,9 +166,14 @@ public:
  * attributes:
  * =================================== */
 public:
-    static inline CA_REENTRANT int index_of(int sig_num)
+    static CA_REENTRANT inline int index_of(int sig_num)
     {
         return is_valid(sig_num) ? (sig_num - MIN_SIGNAL_NUM) : -1;
+    }
+
+    static CA_REENTRANT inline int signum_at(int index)
+    {
+        return (index >=0 && index < SIGNAL_COUNT) ? (index + MIN_SIGNAL_NUM) : CA_RET(VALUE_OUT_OF_RANGE);
     }
 
 /* ===================================
