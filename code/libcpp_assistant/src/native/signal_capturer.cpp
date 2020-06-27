@@ -163,7 +163,7 @@ static bool capture_is_forbidden(int sig_num)
     return handled_count;
 }
 
-/*static */CA_REENTRANT int signal_capturer::get_all_signal_names(char result[SIGNAL_COUNT][MAX_SIGNAME_LEN + 1])
+/*static */CA_THREAD_SAFE int signal_capturer::get_all_signal_names(char result[SIGNAL_COUNT][MAX_SIGNAME_LEN + 1])
 {
     FILE *fp = popen("kill -l", "r");
     if (NULL == fp)
@@ -194,7 +194,7 @@ static bool capture_is_forbidden(int sig_num)
 
 static __thread char s_signames[SIGNAL_COUNT][MAX_SIGNAME_LEN + 1] = {{0}};
 
-/*static */CA_REENTRANT const char** signal_capturer::get_all_signal_names(void)
+/*static */CA_THREAD_SAFE const char** signal_capturer::get_all_signal_names(void)
 {
     if ('\0' == s_signames[0][0])
         get_all_signal_names(s_signames);
@@ -202,7 +202,7 @@ static __thread char s_signames[SIGNAL_COUNT][MAX_SIGNAME_LEN + 1] = {{0}};
     return (const char **)s_signames;
 }
 
-/*static */CA_REENTRANT const char* signal_capturer::get_signal_name(const int sig_num, const char *name_if_num_invalid/* = "INVALID"*/)
+/*static */CA_THREAD_SAFE const char* signal_capturer::get_signal_name(const int sig_num, const char *name_if_num_invalid/* = "INVALID"*/)
 {
     if ('\0' == s_signames[0][0])
         get_all_signal_names(s_signames);

@@ -97,7 +97,7 @@ public:
  * abilities:
  * =================================== */
 public:
-    static CA_THREAD_SAFE inline T* get_instance(void)
+    static inline CA_THREAD_SAFE T* get_instance(void)
     {
         if (nullptr == m_instance)
         {

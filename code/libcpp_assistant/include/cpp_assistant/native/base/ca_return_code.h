@@ -117,7 +117,7 @@ CA_REENTRANT int parse_return_code(const int retcode, const int msg_capacity, ch
 
 // Same as parse_return_code() above, except that this one returns a std::string value directly,
 // which is more convenient to use.
-CA_REENTRANT inline std::string what(const int retcode)
+inline CA_REENTRANT std::string what(const int retcode)
 {
     char msg[1024] = {0};
 

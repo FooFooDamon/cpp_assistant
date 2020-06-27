@@ -157,21 +157,21 @@ public:
         return handle_all();
     }
 
-    static CA_REENTRANT int get_all_signal_names(char result[SIGNAL_COUNT][MAX_SIGNAME_LEN + 1]);
-    static CA_REENTRANT const char** get_all_signal_names(void);
+    static CA_THREAD_SAFE int get_all_signal_names(char result[SIGNAL_COUNT][MAX_SIGNAME_LEN + 1]);
+    static CA_THREAD_SAFE const char** get_all_signal_names(void);
 
-    static CA_REENTRANT const char* get_signal_name(const int sig_num, const char *name_if_num_invalid = "INVALID");
+    static CA_THREAD_SAFE const char* get_signal_name(const int sig_num, const char *name_if_num_invalid = "INVALID");
 
 /* ===================================
  * attributes:
  * =================================== */
 public:
-    static CA_REENTRANT inline int index_of(int sig_num)
+    static inline CA_REENTRANT int index_of(int sig_num)
     {
         return is_valid(sig_num) ? (sig_num - MIN_SIGNAL_NUM) : -1;
     }
 
-    static CA_REENTRANT inline int signum_at(int index)
+    static inline CA_REENTRANT int signum_at(int index)
     {
         return (index >=0 && index < SIGNAL_COUNT) ? (index + MIN_SIGNAL_NUM) : CA_RET(VALUE_OUT_OF_RANGE);
     }

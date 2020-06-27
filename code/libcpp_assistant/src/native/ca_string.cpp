@@ -35,7 +35,7 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
-CA_REENTRANT /* static */int str::split(const char *src,
+/*static */CA_REENTRANT int str::split(const char *src,
     const int src_len,
     const char *delim,
     std::vector<std::string> &result)/* CA_NOTNULL(1, 3) */
@@ -94,7 +94,7 @@ CA_REENTRANT /* static */int str::split(const char *src,
     return CA_RET_OK;
 }
 
-CA_REENTRANT /* static */int str::get_directory(const char *path, const int path_len, char *result, const char dir_delim/* = '/'*/)/* CA_NOTNULL(1, 3) */
+/*static */CA_REENTRANT int str::get_directory(const char *path, const int path_len, char *result, const char dir_delim/* = '/'*/)/* CA_NOTNULL(1, 3) */
 {
     if (path_len <= 0
         || nullptr == path
@@ -134,7 +134,7 @@ CA_REENTRANT /* static */int str::get_directory(const char *path, const int path
     return dir_len;
 }
 
-CA_REENTRANT /* static */std::pair<std::string, std::string> str::split_dir_and_basename(const std::string &path,
+/*static */CA_REENTRANT std::pair<std::string, std::string> str::split_dir_and_basename(const std::string &path,
     const char dir_delim/* = '/'*/,
     const char *basename_suffix/* = nullptr*/,
     const bool is_case_sensitive/* = true*/)
@@ -173,7 +173,7 @@ CA_REENTRANT /* static */std::pair<std::string, std::string> str::split_dir_and_
     return std::make_pair(dir, basename);
 }
 
-CA_REENTRANT /* static */std::string str::get_absolute_path(const char *path)/* CA_NOTNULL(1) */
+/*static */CA_REENTRANT std::string str::get_absolute_path(const char *path)/* CA_NOTNULL(1) */
 {
     if (nullptr == path || strlen(path) > CA_MAX_PATH_LEN)
         return "";
@@ -186,7 +186,7 @@ CA_REENTRANT /* static */std::string str::get_absolute_path(const char *path)/* 
     return result;
 }
 
-CA_REENTRANT /* static */std::string str::get_self_absolute_path(void)
+/*static */CA_REENTRANT std::string str::get_self_absolute_path(void)
 {
     char result[CA_MAX_PATH_LEN + 1] = {0};
 

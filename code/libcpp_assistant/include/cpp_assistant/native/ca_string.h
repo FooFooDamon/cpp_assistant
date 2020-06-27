@@ -95,7 +95,7 @@ public:
     typedef char_not_equal_operator char_ne_op;
 
     template<typename T>
-    CA_REENTRANT static int to_string(const T &src, int str_capacity, char *dst)
+    static CA_REENTRANT int to_string(const T &src, int str_capacity, char *dst)
     {
         if (str_capacity <= 0
             || nullptr == dst)
@@ -141,7 +141,7 @@ public:
     }
 
     template<typename T>
-    CA_REENTRANT static int to_string(const T &src, std::string &dst)
+    static CA_REENTRANT int to_string(const T &src, std::string &dst)
     {
         dst.clear();
 
@@ -157,7 +157,7 @@ public:
     }
 
     template<typename T>
-    CA_REENTRANT static std::string to_string(const T &src)
+    static CA_REENTRANT std::string to_string(const T &src)
     {
         std::string dst;
 
@@ -167,7 +167,7 @@ public:
     }
 
     template<typename T>
-    CA_REENTRANT static int from_string(const char *src, T &dst)
+    static CA_REENTRANT int from_string(const char *src, T &dst)
     {
         if (nullptr == src)
             return CA_RET(INVALID_PARAM_VALUE);
@@ -216,13 +216,13 @@ public:
     }
 
     template<typename T>
-    CA_REENTRANT static int from_string(const std::string &src, T &dst)
+    static CA_REENTRANT int from_string(const std::string &src, T &dst)
     {
         return from_string(src.c_str(), dst);
     }
 
     template<typename T>
-    CA_REENTRANT static T from_string(const char *str)
+    static CA_REENTRANT T from_string(const char *str)
     {
         T dst;
 
@@ -232,7 +232,7 @@ public:
     }
 
     template<typename T>
-    CA_REENTRANT static T from_string(const std::string &str)
+    static CA_REENTRANT T from_string(const std::string &str)
     {
         // return from_string(str.c_str()); // TODO: compile error, why?!
         T dst;
@@ -245,13 +245,13 @@ public:
     // Splits a long string @src with a length @src_len and divided by @delim
     // into short strings stored in a @result vector.
     // For example: "abc,def,gh" can be split into "abc", "def" and "gh" when @delim is ",".
-    CA_REENTRANT static int split(const char *src,
+    static CA_REENTRANT int split(const char *src,
         const int src_len,
         const char *delim,
         std::vector<std::string> &result) CA_NOTNULL(1, 3);
 
     // Same as the above, except that this one returns the result directly through the return value.
-    CA_REENTRANT static inline std::vector<std::string> split(const char *src,
+    static inline CA_REENTRANT std::vector<std::string> split(const char *src,
         const int src_len,
         const char *delim) CA_NOTNULL(1, 3)
     {
@@ -262,14 +262,14 @@ public:
         return result;
     }
 
-    CA_REENTRANT static inline int split(const std::string &src,
+    static inline CA_REENTRANT int split(const std::string &src,
         const char *delim,
         std::vector<std::string> &result) CA_NOTNULL(2)
     {
         return split(src.c_str(), src.length(), delim, result);
     }
 
-    CA_REENTRANT static inline std::vector<std::string> split(const std::string &src,
+    static inline CA_REENTRANT std::vector<std::string> split(const std::string &src,
         const char *delim) CA_NOTNULL(2)
     {
         return split(src.c_str(), src.length(), delim);
@@ -281,10 +281,10 @@ public:
     //    1) If @path_len is less than the actual length of @path, then a sub-string of @path will be handled;
     //        if @path_len is greater than the actual length of @path, the result is undefined.
     //    2) Size of @result should be large enough to hold the result contents.
-    CA_REENTRANT static int get_directory(const char *path, const int path_len, char *result, const char dir_delim = '/') CA_NOTNULL(1, 3);
+    static CA_REENTRANT int get_directory(const char *path, const int path_len, char *result, const char dir_delim = '/') CA_NOTNULL(1, 3);
 
     // Same as the above, except that this one returns the result directly through the return value.
-    CA_REENTRANT static inline std::string get_directory(const char *path, const int path_len, const char dir_delim = '/') CA_NOTNULL(1)
+    static inline CA_REENTRANT std::string get_directory(const char *path, const int path_len, const char dir_delim = '/') CA_NOTNULL(1)
     {
         if (path_len <= 0/* || nullptr == path*/)
             return "";
@@ -300,30 +300,30 @@ public:
     }
 
     // Same as the above, except that parameter type if this one is std::string.
-    CA_REENTRANT static inline std::string get_directory(const std::string &path, const char dir_delim = '/')
+    static inline CA_REENTRANT std::string get_directory(const std::string &path, const char dir_delim = '/')
     {
         return get_directory(path.c_str(), path.length(), dir_delim);
     }
 
     // A Bash-like function, same as get_directory() with the same parameters
-    CA_REENTRANT static inline std::string dirname(const char *path, const int path_len, const char dir_delim = '/') CA_NOTNULL(1)
+    static inline CA_REENTRANT std::string dirname(const char *path, const int path_len, const char dir_delim = '/') CA_NOTNULL(1)
     {
         return get_directory(path, path_len, dir_delim);
     }
 
-    CA_REENTRANT static inline std::string dirname(const std::string &path, const char dir_delim = '/')
+    static inline CA_REENTRANT std::string dirname(const std::string &path, const char dir_delim = '/')
     {
         return get_directory(path.c_str(), path.length(), dir_delim);
     }
 
-    CA_REENTRANT static std::pair<std::string, std::string> split_dir_and_basename(const std::string &path,
+    static CA_REENTRANT std::pair<std::string, std::string> split_dir_and_basename(const std::string &path,
         const char dir_delim = '/',
         const char *basename_suffix = nullptr,
         const bool is_case_sensitive = true);
 
     // TODO: split_dir_and_basename(const char *path, ...);
 
-    CA_REENTRANT static inline std::string basename(const std::string &path,
+    static inline CA_REENTRANT std::string basename(const std::string &path,
         const char dir_delim = '/',
         const char *basename_suffix = nullptr,
         const bool is_case_sensitive = true)
@@ -333,9 +333,9 @@ public:
 
     // TODO: basename(const char *path, ...);
 
-    CA_REENTRANT static std::string get_absolute_path(const char *path) CA_NOTNULL(1);
+    static CA_REENTRANT std::string get_absolute_path(const char *path) CA_NOTNULL(1);
 
-    CA_REENTRANT static std::string get_self_absolute_path(void);
+    static CA_REENTRANT std::string get_self_absolute_path(void);
 
 }; // class str
 
