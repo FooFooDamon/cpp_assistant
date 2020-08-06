@@ -37,8 +37,8 @@
 
 CA_LIB_NAMESPACE_BEGIN
 
-/*static */__thread bool signal_capturer::m_initialized = false;
-/*static */__thread signal_capturer::settings_t signal_capturer::m_settings[SIGNAL_COUNT];
+/*static */bool signal_capturer::m_initialized = false;
+/*static */signal_capturer::settings_t signal_capturer::m_settings[SIGNAL_COUNT];
 /*static */bool signal_capturer::m_should_exit = false;
 
 static bool capture_is_forbidden(int sig_num)
@@ -192,7 +192,7 @@ static bool capture_is_forbidden(int sig_num)
     return CA_RET(OK);
 }
 
-static __thread char s_signames[SIGNAL_COUNT][MAX_SIGNAME_LEN + 1] = {{0}};
+static char s_signames[SIGNAL_COUNT][MAX_SIGNAME_LEN + 1] = {{0}};
 
 /*static */CA_THREAD_SAFE const char** signal_capturer::get_all_signal_names(void)
 {

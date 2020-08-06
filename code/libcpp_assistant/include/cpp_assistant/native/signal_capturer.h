@@ -208,8 +208,8 @@ protected:
  * data:
  * =================================== */
 protected:
-    static __thread bool m_initialized;
-    static __thread settings_t m_settings[SIGNAL_COUNT];
+    static bool m_initialized;
+    static settings_t m_settings[SIGNAL_COUNT];
     static bool m_should_exit;
 };
 
