@@ -10,3 +10,4 @@ logs
 *.pb.h
 gccdump.s
 .*.swp
+.vscode
