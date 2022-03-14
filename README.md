@@ -8,7 +8,7 @@
 或者轮子已有，但体量太大太重，依赖关系太多太杂。
 便利性第一，性能次之（但并非不重视）。
 
-A light-weight SDK for C++ application development, which includes a library and some frameworks. 
+> A light-weight SDK for C++ application development, which includes a library and some frameworks. 
 Unless necessary, this toolkit would not repeat others on some functionalities, 
 neither does it aim at rich functionalities and multi-platform support. 
 Instead, it provides some useful APIs that other SDKs do not provide, 
@@ -17,7 +17,7 @@ Convenience first, performance after it (not meaning that it's not important).
 
 ***码少才能生活好！***
 
-***Less code, better world!***
+> ***Less code, better world!***
 
 ## 组成 | Compositions
 
@@ -27,7 +27,7 @@ Convenience first, performance after it (not meaning that it's not important).
 功能包括但不限于：字符串处理、命令行参数解析、浮点数转换、日志操作、
 信号捕捉及处理、日期时间处理、TCP通信、XML配置文件操作等。
 
-A light-weight library, the base and the core of this SDK,
+> A light-weight library, the base and the core of this SDK,
 which can be used independently and is needed by other parts of the SDK.
 Its functionalities include but are not limited to: string handling,
 command line parameters parsing, floating-point number conversion,
@@ -40,7 +40,7 @@ TCP communication， XML configuration file operations, etc..
 
 适用于那些小体积、功能简单的程序，通常不需要配置文件，且用完即弃，一般作为测试程序。
 
-Generally used for building those small-size, simeple programs, 
+> Generally used for building those small-size, simeple programs, 
 which usually don't need a configuration file and act as one-shot testing programs.
 
 #### 用于TCP程序的框架：tcp_app
@@ -50,7 +50,7 @@ which usually don't need a configuration file and act as one-shot testing progra
 该框架可帮助开发人员快速构建起一个实用的TCP应用服务器或客户端，
 但目前性能不是太高，且只能用单线程，后续若有需要会优化性能并增加多线程支持。
 
-This framework can be used for building those TCP-based programs which are more complex 
+> This framework can be used for building those TCP-based programs which are more complex 
 but more practical at the same time. Programs of this kind usually need a configuration
 file and communication protocols (using `Protocol` or `JSON`).
 This framework could help developers build a practical TCP server or client quickly and easily.
@@ -60,7 +60,7 @@ and multi-threading support will be made and added in future.
 
 ## 安装及卸载 | Installation and Uninstallation
 
-### 受支持平台 | Supported Platforms
+### 适用平台 | Supported Platforms
 
 * `Linux`: Better be `Ubuntu` (>= 16.04)
 
@@ -186,7 +186,7 @@ $ sed -i "/CPP_ASSISTANT_ROOT/d" $BASH_RC
 在编译你的应用程序时，加上编译选项`-I${HOME}/include`，
 以及链接选项`-L${HOME}/lib -lcpp_assistant`，即可使用该库的接口。
 
-Add the compile option `-I${HOME}/include` and link options `-L${HOME}/lib -lcpp_assistant`
+> Add the compile option `-I${HOME}/include` and link options `-L${HOME}/lib -lcpp_assistant`
 into your project Makefile when compiling your project, then you could use APIs of this library.
 
 ### frameworks
@@ -256,7 +256,7 @@ the messy code.
 
 ## 联系方式及反馈 | Contact and Feedback
 
-Author: Wen Xiongchang
+Author: Wen Xiongchang (Man Hung-Coeng)
 
 Email: <udc577@126.com>
 
@@ -264,9 +264,11 @@ GitHub: https://github.com/FooFooDamon/
 
 任何缺陷、建议，欢迎给我发邮件，或在GitHub上创建**问题单**。
 
-Any bugs and recommendations, please send me emails, or create **issues** on GitHub.
+> Any bugs and recommendations, please send me emails, or create **issues** on GitHub.
 
-## 版权 | Copyright
+## 许可证 | License
 
-TODO: ...
+详见各代码文件。
+
+> See details in each code files.
 
