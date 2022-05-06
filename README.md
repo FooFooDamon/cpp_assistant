@@ -20,11 +20,11 @@ Convenience first, performance after it (not meaning that it's not important).
 > ***Less code, better world!***
 
 ***注***：该套件**在某些场景（例如嵌入式）仍略显笨重**，已停止更新，
-请关注新项目“[编码提点](https://github.com/FooFooDamon/snippets_and_hints.git)”。
+请关注新项目“[懒编程秘笈](https://github.com/FooFooDamon/lazy_coding_skills.git)”。
 
 > ***NOTE***：This SDK is **still a bit heavy for some scenarios (e.g., embedded environment)**
 and thus no longer updated, please focus on a new one
-"[Snippets and Hints](https://github.com/FooFooDamon/snippets_and_hints.git)".
+"[Lazy Coding Skills](https://github.com/FooFooDamon/lazy_coding_skills.git)".
 
 ## 组成 | Compositions
 
