@@ -157,7 +157,7 @@ public:
     }
 
     template<typename T>
-    static CA_REENTRANT std::string to_string(const T &src)
+    static CA_REENTRANT std::string to_string(const T &src) // NOTE: std::to_string() is available since C++11.
     {
         std::string dst;
 
